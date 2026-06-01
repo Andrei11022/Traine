@@ -1,0 +1,2843 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+<title>Traine</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#0c0c0e;--bg2:#141416;--bg3:#1c1c1f;--bg4:#242428;
+  --gold:#F2AA4C;--gold-dim:rgba(242,170,76,0.10);--gold-bdr:rgba(242,170,76,0.25);
+  --text:#f0ede8;--muted:#6b6870;--muted2:#a09ca8;
+  --red:#e05555;--green:#4caf7d;--blue:#5b9bd5;--orange:#e8832a;
+  --ff:'Bebas Neue',sans-serif;--fb:'DM Sans',sans-serif;
+}
+html,body{background:var(--bg);color:var(--text);font-family:var(--fb);max-width:430px;margin:0 auto;min-height:100vh;overflow-x:hidden;font-size:14px}
+.page{display:none;padding-bottom:72px;min-height:100vh}
+.page.on{display:block}
+.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:var(--bg2);border-top:1px solid rgba(255,255,255,0.06);display:flex;padding:8px 0 env(safe-area-inset-bottom,12px);z-index:100}
+.nb{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:none;cursor:pointer;color:var(--muted);padding:6px 0;transition:color .15s}
+.nb.on{color:var(--gold)}
+.nb i{font-size:22px}
+.nb span{font-size:9px;font-weight:600;letter-spacing:.8px;text-transform:uppercase}
+.hdr{padding:18px 18px 10px;display:flex;align-items:flex-start;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,0.05)}
+.hdr-title{font-family:var(--ff);font-size:28px;color:var(--gold);letter-spacing:2px;line-height:1}
+.hdr-sub{font-size:11px;color:var(--muted);margin-top:2px;letter-spacing:.3px}
+.slbl{font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--muted);padding:14px 18px 6px}
+.card{background:var(--bg2);border-left:2px solid var(--gold-bdr);margin:0 18px 10px;padding:14px 16px}
+.metric-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding:0 18px 10px}
+.mc{background:var(--bg2);padding:12px 14px}
+.mc-lbl{font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:5px}
+.mc-val{font-family:var(--ff);font-size:28px;color:var(--text);line-height:1}
+.mc-unit{font-size:11px;color:var(--muted)}
+.mc-sub{font-size:11px;margin-top:4px}
+.inp-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.inp-lbl{font-size:12px;color:var(--muted2);font-weight:500;min-width:110px;flex-shrink:0}
+.inp{flex:1;background:var(--bg3);border:1px solid rgba(255,255,255,0.07);padding:9px 12px;font-size:14px;font-weight:600;color:var(--text);font-family:var(--fb);border-radius:0;-webkit-appearance:none}
+.inp:focus{outline:none;border-color:var(--gold)}
+.inp-sm{width:72px;background:var(--bg3);border:1px solid rgba(255,255,255,0.07);padding:9px 10px;font-size:14px;font-weight:600;color:var(--text);font-family:var(--fb);text-align:center;border-radius:0;-webkit-appearance:none}
+.inp-sm:focus{outline:none;border-color:var(--gold)}
+.sel{background:var(--bg3);border:1px solid rgba(255,255,255,0.07);padding:9px 12px;font-size:13px;color:var(--text);font-family:var(--fb);width:100%;border-radius:0;-webkit-appearance:none}
+.sel:focus{outline:none;border-color:var(--gold)}
+.btn-gold{background:var(--gold);border:none;padding:11px 20px;font-family:var(--ff);font-size:18px;letter-spacing:1px;color:var(--bg);cursor:pointer;border-radius:0}
+.btn-outline{background:none;border:1px solid rgba(255,255,255,0.1);padding:10px 16px;font-family:var(--fb);font-size:13px;color:var(--muted);cursor:pointer;border-radius:0}
+.insight-box{background:var(--bg2);border-left:3px solid var(--gold);margin:0 18px 10px;padding:14px 16px}
+.insight-title{font-size:10px;font-weight:700;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:8px}
+.insight-item{font-size:12px;color:var(--muted2);line-height:1.6;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.04)}
+.insight-item:last-child{border-bottom:none}
+.insight-item strong{color:var(--text);font-weight:600}
+/* HOME */
+.today-strip{background:var(--bg2);border-left:3px solid var(--gold);margin:12px 18px;padding:18px}
+.today-day{font-size:10px;font-weight:600;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:4px}
+.today-focus{font-family:var(--ff);font-size:42px;color:var(--text);letter-spacing:1px;line-height:1}
+.today-desc{font-size:12px;color:var(--muted2);margin-top:6px}
+.stat-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding:0 18px 10px}
+.scard{background:var(--bg2);border-top:2px solid var(--bg4);padding:12px 14px}
+.scard-lbl{font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.scard-val{font-family:var(--ff);font-size:32px;color:var(--text);line-height:1}
+.scard-unit{font-size:12px;color:var(--muted);margin-left:2px}
+.scard-sub{font-size:11px;margin-top:4px}
+.qa-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding:0 18px 10px}
+.qa-btn{background:var(--bg2);border-left:2px solid var(--gold-bdr);padding:14px;cursor:pointer;display:flex;align-items:center;gap:10px;transition:border-color .15s;border-top:none;border-right:none;border-bottom:none}
+.qa-btn:hover{border-left-color:var(--gold)}
+.qa-btn i{font-size:20px;color:var(--gold)}
+.qa-btn span{font-size:13px;font-weight:600;color:var(--text)}
+/* ONBOARDING */
+.ob-opt{background:var(--bg2);border-left:2px solid rgba(255,255,255,0.06);padding:14px 16px;display:flex;align-items:center;gap:14px;cursor:pointer;transition:border-color .15s}
+.ob-opt:hover,.ob-opt.on{border-left-color:var(--gold);background:var(--gold-dim)}
+.ob-opt i{font-size:22px;color:var(--muted);flex-shrink:0}
+.ob-opt.on i{color:var(--gold)}
+.ob-opt-title{font-family:var(--ff);font-size:18px;color:var(--text);letter-spacing:.5px}
+.ob-opt-sub{font-size:11px;color:var(--muted);margin-top:2px}
+.day-num-btn{width:52px;height:52px;background:var(--bg2);border:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:center;font-family:var(--ff);font-size:26px;color:var(--muted);cursor:pointer;transition:all .15s}
+.day-num-btn.on{background:var(--gold);color:var(--bg);border-color:var(--gold)}
+.eq-btn{background:var(--bg2);border:1px solid rgba(255,255,255,0.08);padding:7px 14px;font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;transition:all .15s}
+.eq-btn.on{border-color:var(--gold);color:var(--gold);background:var(--gold-dim)}
+.pref-item{display:flex;align-items:center;justify-content:space-between;padding:10px 18px;border-bottom:1px solid rgba(255,255,255,0.04)}
+.pref-name{font-size:13px;font-weight:600;color:var(--text)}
+.pref-cat{font-size:10px;color:var(--muted);margin-top:2px}
+.pref-toggle{display:flex;gap:6px}
+.pt-btn{width:32px;height:32px;border:1px solid rgba(255,255,255,0.08);background:var(--bg3);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;transition:all .15s}
+.pt-btn.like{background:rgba(76,175,125,0.2);border-color:var(--green);color:var(--green)}
+.pt-btn.dislike{background:rgba(224,85,85,0.2);border-color:var(--red);color:var(--red)}
+.pt-btn.cant{background:rgba(107,104,112,0.2);border-color:var(--muted);color:var(--muted)}
+.pref-section-hdr{background:var(--bg3);padding:8px 18px;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted)}
+/* WORKOUT */
+.day-row{display:flex;gap:6px;padding:10px 18px;overflow-x:auto;scrollbar-width:none}
+.day-row::-webkit-scrollbar{display:none}
+.dpill{background:var(--bg2);border:1px solid rgba(255,255,255,0.08);padding:6px 14px;font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;flex-shrink:0;letter-spacing:.5px;transition:all .15s;border-radius:0}
+.dpill.on{background:var(--gold);color:var(--bg);border-color:var(--gold)}
+.ex-block{background:var(--bg2);border-left:2px solid rgba(255,255,255,0.06);margin:0 18px 10px;transition:border-color .15s}
+.ex-block.active-ex{border-left-color:var(--gold)}
+.ex-hdr{padding:14px 16px;display:flex;align-items:center;justify-content:space-between;cursor:pointer}
+.ex-name{font-family:var(--ff);font-size:20px;color:var(--text);letter-spacing:.5px}
+.ex-last{font-size:11px;color:var(--muted);margin-top:2px}
+.ex-target{background:var(--gold-dim);border:1px solid var(--gold-bdr);padding:3px 8px;font-size:11px;font-weight:600;color:var(--gold);letter-spacing:.5px}
+.sets-area{padding:0 16px 14px;display:none}
+.sets-area.open{display:block}
+.set-cols{display:grid;grid-template-columns:28px 1fr 1fr 40px;gap:6px;align-items:center;margin-bottom:4px}
+.col-lbl{font-size:9px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--muted);text-align:center}
+.set-num{font-size:12px;color:var(--muted);font-weight:700;text-align:center}
+.si{background:var(--bg3);border:1px solid rgba(255,255,255,0.07);padding:8px;font-size:14px;font-weight:600;color:var(--text);text-align:center;width:100%;font-family:var(--fb);-webkit-appearance:none;border-radius:0}
+.si:focus{outline:none;border-color:var(--gold)}
+.set-done{width:32px;height:32px;background:var(--bg3);border:1px solid rgba(255,255,255,0.07);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:14px;transition:all .15s;margin:auto;border-radius:0}
+.set-done.checked{background:var(--gold);border-color:var(--gold);color:var(--bg)}
+.coach-tip{background:var(--bg3);border-left:2px solid var(--gold);padding:10px 12px;margin-top:10px;font-size:12px;color:var(--muted2);line-height:1.5}
+.coach-tip-name{font-size:9px;font-weight:600;letter-spacing:2px;color:var(--gold);margin-bottom:4px;text-transform:uppercase}
+.add-ex-btn{display:flex;align-items:center;gap:8px;background:none;border:1px dashed rgba(255,255,255,0.1);padding:12px 16px;color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;margin:0 18px 10px;width:calc(100% - 36px);font-family:var(--fb);transition:all .15s;border-radius:0}
+.add-ex-btn:hover{border-color:var(--gold);color:var(--gold)}
+.finish-btn{background:var(--gold);border:none;padding:14px;font-family:var(--ff);font-size:22px;letter-spacing:2px;color:var(--bg);cursor:pointer;margin:10px 18px;width:calc(100% - 36px);border-radius:0}
+/* PICKER */
+.picker-overlay{background:var(--bg);border-top:2px solid var(--gold);padding:16px 18px;display:none}
+.picker-overlay.open{display:block}
+.picker-search{background:var(--bg2);border:1px solid rgba(255,255,255,0.1);padding:10px 14px;font-size:14px;color:var(--text);width:100%;font-family:var(--fb);margin-bottom:12px;border-radius:0}
+.picker-search:focus{outline:none;border-color:var(--gold)}
+.picker-cats{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.pcat{background:var(--bg2);border:1px solid rgba(255,255,255,0.08);padding:5px 12px;font-size:11px;font-weight:600;color:var(--muted);cursor:pointer;letter-spacing:.5px;border-radius:0}
+.pcat.on{background:var(--gold);color:var(--bg);border-color:var(--gold)}
+.ex-list{max-height:220px;overflow-y:auto}
+.ex-opt{padding:10px 14px;border-bottom:1px solid rgba(255,255,255,0.04);cursor:pointer;display:flex;align-items:center;justify-content:space-between;transition:background .15s}
+.ex-opt:hover,.ex-opt:active{background:var(--bg3)}
+.ex-opt-name{font-size:13px;font-weight:600;color:var(--text)}
+.ex-opt-cat{font-size:10px;color:var(--muted)}
+/* COACH */
+.coach-list-wrap{padding:0 18px}
+.coach-row{background:var(--bg2);border-left:2px solid rgba(255,255,255,0.06);margin-bottom:8px;padding:14px 16px;display:flex;align-items:center;gap:14px;cursor:pointer;transition:border-color .15s}
+.coach-row:hover,.coach-row.sel{border-left-color:var(--gold)}
+.coach-row.sel{background:var(--gold-dim)}
+.coach-init{width:46px;height:46px;background:var(--bg3);border:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:center;font-family:var(--ff);font-size:18px;flex-shrink:0}
+.coach-rname{font-family:var(--ff);font-size:18px;color:var(--text);letter-spacing:.5px;line-height:1.1}
+.coach-rtag{font-size:11px;color:var(--muted);margin-top:3px}
+.active-badge{background:var(--gold);padding:2px 8px;font-size:9px;font-weight:700;color:var(--bg);letter-spacing:1px;text-transform:uppercase;flex-shrink:0}
+/* COACH DETAIL */
+.cdetail-back{background:none;border:none;color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;font-family:var(--fb);padding:18px 18px 0}
+.cdetail-top{padding:16px 18px;border-bottom:1px solid rgba(255,255,255,0.06)}
+.cdetail-init{width:72px;height:72px;background:var(--bg3);border:2px solid var(--gold);display:flex;align-items:center;justify-content:center;font-family:var(--ff);font-size:28px;margin-bottom:14px}
+.cdetail-name{font-family:var(--ff);font-size:36px;color:var(--text);letter-spacing:1px;line-height:1}
+.cdetail-tag{font-size:12px;color:var(--gold);margin-top:4px;font-weight:600;letter-spacing:1px;text-transform:uppercase}
+.cdetail-body{padding:18px}
+.cdetail-sec-lbl{font-size:10px;font-weight:600;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:8px}
+.cdetail-text{font-size:13px;color:var(--muted2);line-height:1.7;margin-bottom:18px}
+.pillar{background:var(--bg2);border-left:2px solid var(--gold-bdr);padding:8px 12px;font-size:12px;color:var(--muted2);margin-bottom:6px}
+.pillar strong{color:var(--text);font-weight:600}
+.select-coach-btn{background:var(--gold);border:none;padding:14px;font-family:var(--ff);font-size:22px;letter-spacing:2px;color:var(--bg);cursor:pointer;margin:0 18px 20px;width:calc(100% - 36px);border-radius:0}
+/* CHAT */
+.chat-box{background:var(--bg2);margin:0 18px 10px;padding:14px;min-height:160px;max-height:260px;overflow-y:auto;border:1px solid rgba(255,255,255,0.05)}
+.cbubble{background:var(--bg3);border-left:2px solid var(--gold-bdr);padding:10px 12px;margin-bottom:8px;font-size:13px;color:var(--muted2);line-height:1.5}
+.cbubble.user{background:var(--gold-dim);border-left-color:var(--gold);margin-left:24px;color:var(--text)}
+.cbubble-name{font-size:9px;font-weight:700;letter-spacing:1.5px;color:var(--gold);margin-bottom:4px;text-transform:uppercase}
+.chat-row{display:flex;gap:8px;padding:0 18px 12px}
+.chat-in{flex:1;background:var(--bg2);border:1px solid rgba(255,255,255,0.08);padding:10px 14px;font-size:13px;color:var(--text);font-family:var(--fb);border-radius:0}
+.chat-in:focus{outline:none;border-color:var(--gold)}
+.chat-send{background:var(--gold);border:none;width:44px;cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:0}
+.chat-send i{font-size:18px;color:var(--bg)}
+/* STATS TABS */
+.tab-bar{display:flex;border-bottom:1px solid rgba(255,255,255,0.06);background:var(--bg2);overflow-x:auto;scrollbar-width:none}
+.tab-bar::-webkit-scrollbar{display:none}
+.tbt{white-space:nowrap}
+.tbt{flex:1;padding:11px 4px;background:none;border:none;font-family:var(--fb);font-size:10px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:all .15s}
+.tbt.on{color:var(--gold);border-bottom-color:var(--gold)}
+.panel{display:none;padding-bottom:20px}
+.panel.on{display:block}
+/* BODY FAT */
+.calliper-method{display:flex;gap:8px;padding:0 18px 12px}
+.cm-btn{flex:1;background:var(--bg2);border:1px solid rgba(255,255,255,0.08);padding:10px;text-align:center;cursor:pointer;transition:all .15s;border-radius:0}
+.cm-btn.on{border-color:var(--gold);background:var(--gold-dim)}
+.cm-btn span{display:block;font-family:var(--ff);font-size:18px;color:var(--text);letter-spacing:.5px}
+.cm-btn small{font-size:10px;color:var(--muted);font-weight:600;letter-spacing:.5px;text-transform:uppercase}
+.cm-btn.on span,.cm-btn.on small{color:var(--gold)}
+.site-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;padding:0 18px}
+.site-lbl{font-size:12px;color:var(--muted2);font-weight:500;flex:1}
+/* SYMMETRY */
+.sym-bar-wrap{margin-bottom:12px}
+.sym-bar-lbl{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:4px;font-weight:600}
+.sym-bar{background:var(--bg3);height:4px;width:100%}
+.sym-fill{height:4px;background:var(--green);transition:width .4s}
+.sym-fill.warn{background:var(--orange)}
+.sym-fill.bad{background:var(--red)}
+.score-ring{display:flex;flex-direction:column;align-items:center;padding:20px 18px 10px}
+.score-circle{width:120px;height:120px;position:relative;margin-bottom:12px}
+.score-circle svg{transform:rotate(-90deg)}
+.score-inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.score-num{font-family:var(--ff);font-size:38px;color:var(--text);line-height:1}
+.score-lbl-sm{font-size:9px;font-weight:600;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin-top:2px}
+.score-status{font-size:14px;font-weight:600;margin-bottom:4px}
+.score-desc{font-size:12px;color:var(--muted2);text-align:center;max-width:280px}
+/* PROFILE */
+.profile-hero{background:var(--bg2);border-bottom:1px solid rgba(255,255,255,0.06);padding:18px;display:flex;align-items:center;gap:16px}
+.p-av{width:62px;height:62px;background:var(--bg3);border:2px solid var(--gold);display:flex;align-items:center;justify-content:center;font-family:var(--ff);font-size:24px;color:var(--gold)}
+.p-name{font-family:var(--ff);font-size:28px;color:var(--text);letter-spacing:.5px}
+.p-since{font-size:11px;color:var(--muted);margin-top:2px}
+.p-streak{display:inline-flex;align-items:center;gap:6px;background:var(--gold-dim);border:1px solid var(--gold-bdr);padding:4px 10px;font-size:12px;font-weight:700;color:var(--gold);margin-top:8px}
+.goal-item{background:var(--bg2);border-left:2px solid rgba(255,255,255,0.06);margin:0 18px 8px;padding:12px 14px;display:flex;align-items:center;gap:12px}
+.g-check{width:22px;height:22px;border:2px solid rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:all .15s;border-radius:0}
+.g-check.done{background:var(--gold);border-color:var(--gold)}
+.g-check.done i{color:var(--bg);font-size:12px}
+.g-text{flex:1;font-size:13px;color:var(--text);font-weight:500}
+.g-tag{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:2px 7px;flex-shrink:0}
+.g-tag.d{background:rgba(91,155,213,0.15);color:var(--blue)}
+.g-tag.w{background:rgba(76,175,125,0.15);color:var(--green)}
+.g-tag.m{background:var(--gold-dim);color:var(--gold)}
+.g-tag.y{background:rgba(224,85,85,0.15);color:var(--red)}
+.add-goal-btn{display:flex;align-items:center;gap:8px;background:none;border:1px dashed rgba(255,255,255,0.1);padding:11px 16px;color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;margin:0 18px 12px;width:calc(100% - 36px);font-family:var(--fb);transition:all .15s;border-radius:0}
+.add-goal-btn:hover{border-color:var(--gold);color:var(--gold)}
+/* HEALTH */
+.health-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding:0 18px 12px}
+.hcard{background:var(--bg2);padding:12px 14px}
+.hcard-lbl{font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.hcard-val{font-family:var(--ff);font-size:28px;color:var(--text)}
+.hcard-unit{font-size:12px;color:var(--muted)}
+/* MODAL */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:200;display:none;align-items:flex-end;justify-content:center}
+.modal-bg.open{display:flex}
+.modal{background:var(--bg2);border-top:2px solid var(--gold);padding:24px 20px;width:100%;max-width:430px;max-height:80vh;overflow-y:auto}
+.modal-title{font-family:var(--ff);font-size:24px;color:var(--text);letter-spacing:1px;margin-bottom:16px}
+.modal-row{margin-bottom:12px}
+.modal-lbl{font-size:11px;font-weight:600;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:6px}
+.modal-in{width:100%;background:var(--bg3);border:1px solid rgba(255,255,255,0.08);padding:10px 14px;font-size:14px;color:var(--text);font-family:var(--fb);border-radius:0}
+.modal-in:focus{outline:none;border-color:var(--gold)}
+.modal-sel{width:100%;background:var(--bg3);border:1px solid rgba(255,255,255,0.08);padding:10px 14px;font-size:14px;color:var(--text);font-family:var(--fb);border-radius:0;-webkit-appearance:none}
+.modal-btns{display:flex;gap:8px;margin-top:16px}
+.modal-cancel{flex:1;background:none;border:1px solid rgba(255,255,255,0.1);padding:12px;font-family:var(--fb);font-size:13px;color:var(--muted);cursor:pointer;border-radius:0}
+.modal-ok{flex:2;background:var(--gold);border:none;padding:12px;font-family:var(--ff);font-size:18px;color:var(--bg);cursor:pointer;letter-spacing:1px;border-radius:0}
+/* PROGRESS BAR */
+.prog-bar{background:var(--bg3);height:3px;width:100%}
+.prog-fill{background:var(--gold);height:3px;transition:width .4s}
+/* TOAST */
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--bg2);border:1px solid var(--gold-bdr);color:var(--gold);padding:10px 20px;font-size:13px;font-weight:600;opacity:0;transition:opacity .3s;pointer-events:none;z-index:300;white-space:nowrap}
+.toast.show{opacity:1}
+</style>
+</head>
+<body>
+
+<div id="toast" class="toast"></div>
+
+<!-- ===== HOME ===== -->
+<div class="page on" id="pg-home">
+  <div class="hdr">
+    <div>
+      <div style="font-family:var(--ff);font-size:36px;color:var(--gold);letter-spacing:3px;line-height:1">TRAINE</div>
+      <div class="hdr-sub" id="home-date"></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:14px;margin-top:6px">
+      <i class="ti ti-bell" style="font-size:22px;color:var(--muted);cursor:pointer"></i>
+      <i class="ti ti-settings" style="font-size:22px;color:var(--muted);cursor:pointer" onclick="openSettings()"></i>
+    </div>
+  </div>
+  <div class="today-strip">
+    <div class="today-day">Today's Session</div>
+    <div class="today-focus" id="home-focus">PUSH DAY</div>
+    <div class="today-desc" id="home-desc">Chest · Shoulders · Triceps</div>
+  </div>
+  <div class="stat-grid">
+    <div class="scard"><div class="scard-lbl">Body Weight</div><div class="scard-val" id="home-weight">—<span class="scard-unit">kg</span></div><div class="scard-sub" id="home-weight-sub" style="color:var(--muted)">Not logged</div></div>
+    <div class="scard"><div class="scard-lbl">Recovery</div><div class="scard-val" id="home-rec">—<span class="scard-unit">%</span></div><div class="scard-sub" id="home-rec-status" style="color:var(--muted)">Log health data</div></div>
+    <div class="scard"><div class="scard-lbl">Gym Streak</div><div class="scard-val" id="home-streak">0<span class="scard-unit">d</span></div><div class="scard-sub" style="color:var(--green)" id="home-streak-sub">Keep going!</div></div>
+    <div class="scard"><div class="scard-lbl">Active Coach</div><div class="scard-val" id="home-coach-name" style="font-size:18px;padding-top:4px">ARIA</div><div class="scard-sub" id="home-coach-tag" style="color:var(--muted)">Adaptive AI</div></div>
+  </div>
+  <div class="slbl">Coach Insight</div>
+  <div class="insight-box">
+    <div class="insight-title" id="insight-coach-name">ARIA</div>
+    <div class="insight-item" id="insight-text">Start logging your workouts and I'll give you personalised advice based on your performance data.</div>
+  </div>
+  <div class="slbl">Quick Actions</div>
+  <div class="qa-grid">
+    <div class="qa-btn" onclick="goPage('workout')"><i class="ti ti-barbell"></i><span>Start Workout</span></div>
+    <div class="qa-btn" onclick="goPage('coach')"><i class="ti ti-robot"></i><span>Ask Coach</span></div>
+    <div class="qa-btn" onclick="goPage('stats')"><i class="ti ti-scale"></i><span>Log Weight</span></div>
+    <div class="qa-btn" onclick="goPage('profile')"><i class="ti ti-target"></i><span>My Goals</span></div>
+  </div>
+</div>
+
+<!-- ===== WORKOUT ===== -->
+<div class="page" id="pg-workout">
+
+  <!-- ONBOARDING (shown if no plan) -->
+  <div id="wo-onboarding">
+    <div class="hdr">
+      <div><div class="hdr-title">SET UP PLAN</div><div class="hdr-sub">Tell us your goals and preferences</div></div>
+    </div>
+
+    <!-- STEP 1: GOAL -->
+    <div id="ob-step-1">
+      <div class="slbl">What's your main goal?</div>
+      <div style="padding:0 18px;display:flex;flex-direction:column;gap:8px">
+        <div class="ob-opt" onclick="selectGoal('mass')" id="goal-mass"><i class="ti ti-barbell"></i><div><div class="ob-opt-title">BUILD MASS</div><div class="ob-opt-sub">Maximise muscle size and weight</div></div></div>
+        <div class="ob-opt" onclick="selectGoal('strength')" id="goal-strength"><i class="ti ti-trophy"></i><div><div class="ob-opt-title">BUILD STRENGTH</div><div class="ob-opt-sub">Get as strong as possible</div></div></div>
+        <div class="ob-opt" onclick="selectGoal('fatloss')" id="goal-fatloss"><i class="ti ti-flame"></i><div><div class="ob-opt-title">FAT LOSS</div><div class="ob-opt-sub">Preserve muscle while losing fat</div></div></div>
+        <div class="ob-opt" onclick="selectGoal('recomp')" id="goal-recomp"><i class="ti ti-refresh"></i><div><div class="ob-opt-title">RECOMPOSITION</div><div class="ob-opt-sub">Lose fat and build muscle simultaneously</div></div></div>
+        <div class="ob-opt" onclick="selectGoal('maintenance')" id="goal-maintenance"><i class="ti ti-equal"></i><div><div class="ob-opt-title">MAINTENANCE</div><div class="ob-opt-sub">Hold your current physique and strength</div></div></div>
+        <div class="ob-opt" onclick="selectGoal('endurance')" id="goal-endurance"><i class="ti ti-run"></i><div><div class="ob-opt-title">ENDURANCE</div><div class="ob-opt-sub">Higher reps, conditioning, work capacity</div></div></div>
+      </div>
+      <div style="padding:18px">
+        <div class="slbl" style="padding:0 0 10px">Days per week you can train</div>
+        <div style="display:flex;gap:8px">
+          <div class="day-num-btn" onclick="selectDays(3)" id="days-3">3</div>
+          <div class="day-num-btn" onclick="selectDays(4)" id="days-4">4</div>
+          <div class="day-num-btn" onclick="selectDays(5)" id="days-5">5</div>
+          <div class="day-num-btn" onclick="selectDays(6)" id="days-6">6</div>
+        </div>
+      </div>
+      <div style="padding:0 18px 18px">
+        <div class="slbl" style="padding:0 0 10px">Equipment available</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <div class="eq-btn on" onclick="toggleEquip(this,'full')" data-eq="full">Full Gym</div>
+          <div class="eq-btn" onclick="toggleEquip(this,'dumbbells')" data-eq="dumbbells">Dumbbells Only</div>
+          <div class="eq-btn" onclick="toggleEquip(this,'home')" data-eq="home">Home / Bodyweight</div>
+        </div>
+      </div>
+      <div style="padding:0 18px 20px;display:flex;justify-content:flex-end">
+        <button class="btn-gold" onclick="goToPrefs()" id="next-to-prefs" disabled style="opacity:.4">NEXT: EXERCISES</button>
+      </div>
+    </div>
+
+    <!-- STEP 2: EXERCISE PREFERENCES -->
+    <div id="ob-step-2" style="display:none">
+      <div style="padding:14px 18px;border-bottom:1px solid rgba(255,255,255,0.05);display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <div style="font-family:var(--ff);font-size:22px;color:var(--text);letter-spacing:1px">EXERCISES</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:2px">Select what you like — coach builds your plan</div>
+        </div>
+        <button class="btn-gold" onclick="generatePlan()" style="font-size:16px;padding:9px 16px">BUILD PLAN</button>
+      </div>
+      <div style="display:flex;gap:6px;padding:10px 18px;border-bottom:1px solid rgba(255,255,255,0.05)">
+        <div style="display:flex;align-items:center;gap:4px;font-size:11px;font-weight:600;color:var(--green)"><div style="width:10px;height:10px;background:var(--green)"></div>Like</div>
+        <div style="display:flex;align-items:center;gap:4px;font-size:11px;font-weight:600;color:var(--red);margin-left:10px"><div style="width:10px;height:10px;background:var(--red)"></div>Dislike</div>
+        <div style="display:flex;align-items:center;gap:4px;font-size:11px;font-weight:600;color:var(--muted);margin-left:10px"><div style="width:10px;height:10px;background:var(--muted)"></div>Can't do</div>
+        <div style="font-size:11px;color:var(--muted2);margin-left:auto">Tap to cycle</div>
+      </div>
+      <div id="pref-list" style="padding-bottom:20px"></div>
+    </div>
+  </div>
+
+  <!-- ACTIVE WORKOUT (shown when plan exists) -->
+  <div id="wo-active" style="display:none">
+    <div class="hdr">
+      <div>
+        <div class="hdr-title" id="wo-session-name">PUSH DAY</div>
+        <div class="hdr-sub" id="wo-day-label">Today's session</div>
+      </div>
+      <div style="display:flex;gap:12px;margin-top:4px">
+        <i class="ti ti-plus" style="font-size:22px;color:var(--gold);cursor:pointer" onclick="openPicker()"></i>
+        <i class="ti ti-settings" style="font-size:22px;color:var(--muted);cursor:pointer" onclick="resetPlan()"></i>
+      </div>
+    </div>
+    <div class="day-row" id="day-row"></div>
+    <div id="ex-container"></div>
+    <button class="add-ex-btn" onclick="openPicker()"><i class="ti ti-plus"></i> Add Exercise</button>
+    <button class="finish-btn" onclick="finishWorkout()">FINISH WORKOUT</button>
+    <div class="picker-overlay" id="ex-picker">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <div style="font-family:var(--ff);font-size:20px;color:var(--text);letter-spacing:.5px">ADD EXERCISE</div>
+        <button style="background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;padding:0" onclick="closePicker()"><i class="ti ti-x"></i></button>
+      </div>
+      <input class="picker-search" placeholder="Search exercises..." id="ex-search" oninput="filterExercises()" autocomplete="off"/>
+      <div class="picker-cats">
+        <div class="pcat on" onclick="filterCat(this,'all')">All</div>
+        <div class="pcat" onclick="filterCat(this,'chest')">Chest</div>
+        <div class="pcat" onclick="filterCat(this,'back')">Back</div>
+        <div class="pcat" onclick="filterCat(this,'legs')">Legs</div>
+        <div class="pcat" onclick="filterCat(this,'shoulders')">Shoulders</div>
+        <div class="pcat" onclick="filterCat(this,'arms')">Arms</div>
+        <div class="pcat" onclick="filterCat(this,'core')">Core</div>
+      </div>
+      <div class="ex-list" id="ex-list"></div>
+      <button style="background:none;border:1px solid rgba(255,255,255,0.1);padding:12px;color:var(--muted);font-size:13px;cursor:pointer;width:100%;margin-top:10px;font-family:var(--fb);border-radius:0" onclick="closePicker()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== COACH ===== -->
+<div class="page" id="pg-coach">
+  <div id="coach-list-view">
+    <div class="hdr">
+      <div><div class="hdr-title">COACHES</div><div class="hdr-sub">Your coach reads your data and tells you what to do</div></div>
+    </div>
+    <div class="slbl">Today's Directive from <span id="directive-coach-lbl">ARIA</span></div>
+    <div id="directive-board" style="margin:0 18px 14px"></div>
+    <div class="slbl">Ask Your Coach</div>
+    <div style="padding:0 18px 4px;font-size:11px;color:var(--muted2);margin-bottom:6px">Your coach reads your actual workout data, recovery, and PRs to answer.</div>
+    <div style="display:flex;gap:8px;padding:0 18px 10px">
+      <input class="chat-in" id="coach-query-input" placeholder="e.g. how was my last bench? what should I do today?" onkeydown="if(event.key==='Enter')submitCoachQuery()" autocomplete="off"/>
+      <button class="chat-send" onclick="submitCoachQuery()" aria-label="Ask"><i class="ti ti-send"></i></button>
+    </div>
+    <div id="coach-query-result" style="margin:0 18px 14px;display:none"></div>
+    <div class="slbl">Choose Your Coach</div>
+    <div class="coach-list-wrap" id="coach-list"></div>
+  </div>
+  <div id="coach-detail-view" style="display:none;padding-bottom:20px">
+    <button class="cdetail-back" onclick="closeCoachDetail()"><i class="ti ti-arrow-left" style="font-size:16px"></i> All Coaches</button>
+    <div id="cdetail-content"></div>
+  </div>
+</div>
+
+<!-- ===== STATS ===== -->
+<div class="page" id="pg-stats">
+  <div class="hdr">
+    <div><div class="hdr-title">BODY STATS</div><div class="hdr-sub">Full body composition & symmetry</div></div>
+  </div>
+  <div class="tab-bar">
+    <button class="tbt on" onclick="switchStatsTab('overview')">Overview</button>
+    <button class="tbt" onclick="switchStatsTab('measure')">Measure</button>
+    <button class="tbt" onclick="switchStatsTab('fat')">Body Fat</button>
+    <button class="tbt" onclick="switchStatsTab('symmetry')">Symmetry</button>
+    <button class="tbt" onclick="switchStatsTab('trends')">Trends</button>
+    <button class="tbt" onclick="switchStatsTab('strength')">Strength</button>
+  </div>
+  <!-- OVERVIEW -->
+  <div class="panel on" id="pan-overview">
+    <div class="slbl">Profile</div>
+    <div style="padding:0 18px 12px">
+      <div class="inp-row"><span class="inp-lbl">Gender</span><select class="sel" id="prof-gender" onchange="updateGender()"><option value="m">Male</option><option value="f">Female</option></select></div>
+      <div class="inp-row"><span class="inp-lbl">Age</span><input class="inp" id="prof-age" type="number" inputmode="numeric" placeholder="23"/></div>
+      <div class="inp-row"><span class="inp-lbl">Height (cm)</span><input class="inp" id="prof-height" type="number" inputmode="decimal" placeholder="180"/></div>
+      <div class="inp-row"><span class="inp-lbl">Weight (kg)</span><input class="inp" id="prof-weight" type="number" inputmode="decimal" step="0.1" placeholder="87.4"/></div>
+      <div class="inp-row"><span class="inp-lbl">Body Fat (%)</span><input class="inp" id="prof-bf" type="number" inputmode="decimal" step="0.1" placeholder="Use Body Fat tab"/></div>
+      <div style="display:flex;justify-content:flex-end;margin-top:6px"><button class="btn-gold" onclick="calcOverview()">CALCULATE</button></div>
+    </div>
+    <div class="slbl">Composition</div>
+    <div class="metric-grid">
+      <div class="mc"><div class="mc-lbl">Body Weight</div><div class="mc-val" id="ov-weight">—<span class="mc-unit">kg</span></div></div>
+      <div class="mc"><div class="mc-lbl">Body Fat</div><div class="mc-val" id="ov-bf">—<span class="mc-unit">%</span></div></div>
+      <div class="mc"><div class="mc-lbl">Fat Mass</div><div class="mc-val" id="ov-fatmass">—<span class="mc-unit">kg</span></div></div>
+      <div class="mc"><div class="mc-lbl">Lean Mass</div><div class="mc-val" id="ov-leanmass">—<span class="mc-unit">kg</span></div></div>
+      <div class="mc"><div class="mc-lbl">BMI</div><div class="mc-val" id="ov-bmi">—</div><div class="mc-sub" id="ov-bmi-lbl" style="color:var(--muted)"></div></div>
+      <div class="mc"><div class="mc-lbl">FFMI</div><div class="mc-val" id="ov-ffmi">—</div><div class="mc-sub" id="ov-ffmi-lbl" style="color:var(--muted)"></div></div>
+    </div>
+    <div class="slbl">Log Weight</div>
+    <div style="padding:0 18px 12px">
+      <div class="inp-row"><span class="inp-lbl">Today's Weight</span><input class="inp" id="log-weight" type="number" inputmode="decimal" step="0.1" placeholder="87.4"/><button class="btn-gold" style="padding:9px 16px;font-size:16px" onclick="logWeight()">LOG</button></div>
+      <div style="background:var(--bg2);padding:12px 14px;margin-top:4px">
+        <div style="font-size:10px;font-weight:600;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin-bottom:8px">Bulk Progress</div>
+        <div class="prog-bar"><div class="prog-fill" id="bulk-prog" style="width:0%"></div></div>
+        <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted);font-weight:600;margin-top:4px">
+          <span>Start: <span id="bulk-start-lbl">—</span></span>
+          <span>Now: <span id="bulk-now-lbl">—</span></span>
+          <span>Goal: <span id="bulk-goal-lbl">—</span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- MEASUREMENTS -->
+  <div class="panel" id="pan-measure">
+    <div class="slbl">Upper Body</div>
+    <div style="padding:0 18px 4px">
+      <div class="inp-row"><span class="inp-lbl">Neck (cm)</span><input class="inp" id="m-neck" type="number" inputmode="decimal" step="0.1" placeholder="38"/></div>
+      <div class="inp-row"><span class="inp-lbl">Shoulders (cm)</span><input class="inp" id="m-shoulders" type="number" inputmode="decimal" step="0.1" placeholder="120"/></div>
+      <div class="inp-row"><span class="inp-lbl">Upper Chest (cm)</span><input class="inp" id="m-upperchest" type="number" inputmode="decimal" step="0.1" placeholder="100"/></div>
+      <div class="inp-row"><span class="inp-lbl">Chest (cm)</span><input class="inp" id="m-chest" type="number" inputmode="decimal" step="0.1" placeholder="104"/></div>
+    </div>
+    <div class="slbl">Arms</div>
+    <div style="padding:0 18px 4px">
+      <div class="inp-row"><span class="inp-lbl">L Bicep relaxed</span><input class="inp-sm" id="m-lbicep-r" type="number" inputmode="decimal" step="0.1" placeholder="38"/></div>
+      <div class="inp-row"><span class="inp-lbl">L Bicep flexed</span><input class="inp-sm" id="m-lbicep-f" type="number" inputmode="decimal" step="0.1" placeholder="40"/></div>
+      <div class="inp-row"><span class="inp-lbl">R Bicep relaxed</span><input class="inp-sm" id="m-rbicep-r" type="number" inputmode="decimal" step="0.1" placeholder="38"/></div>
+      <div class="inp-row"><span class="inp-lbl">R Bicep flexed</span><input class="inp-sm" id="m-rbicep-f" type="number" inputmode="decimal" step="0.1" placeholder="40.5"/></div>
+      <div class="inp-row"><span class="inp-lbl">L Forearm (cm)</span><input class="inp-sm" id="m-lforearm" type="number" inputmode="decimal" step="0.1" placeholder="30"/></div>
+      <div class="inp-row"><span class="inp-lbl">R Forearm (cm)</span><input class="inp-sm" id="m-rforearm" type="number" inputmode="decimal" step="0.1" placeholder="30.5"/></div>
+      <div class="inp-row"><span class="inp-lbl">L Wrist (cm)</span><input class="inp-sm" id="m-lwrist" type="number" inputmode="decimal" step="0.1" placeholder="17"/></div>
+      <div class="inp-row"><span class="inp-lbl">R Wrist (cm)</span><input class="inp-sm" id="m-rwrist" type="number" inputmode="decimal" step="0.1" placeholder="17"/></div>
+    </div>
+    <div class="slbl">Core</div>
+    <div style="padding:0 18px 4px">
+      <div class="inp-row"><span class="inp-lbl">Waist (cm)</span><input class="inp" id="m-waist" type="number" inputmode="decimal" step="0.1" placeholder="82"/></div>
+      <div class="inp-row"><span class="inp-lbl">Navel (cm)</span><input class="inp" id="m-navel" type="number" inputmode="decimal" step="0.1" placeholder="85"/></div>
+      <div class="inp-row"><span class="inp-lbl">Hips (cm)</span><input class="inp" id="m-hips" type="number" inputmode="decimal" step="0.1" placeholder="95"/></div>
+    </div>
+    <div class="slbl">Legs</div>
+    <div style="padding:0 18px 4px">
+      <div class="inp-row"><span class="inp-lbl">L Quad (cm)</span><input class="inp-sm" id="m-lquad" type="number" inputmode="decimal" step="0.1" placeholder="62"/></div>
+      <div class="inp-row"><span class="inp-lbl">R Quad (cm)</span><input class="inp-sm" id="m-rquad" type="number" inputmode="decimal" step="0.1" placeholder="62.5"/></div>
+      <div class="inp-row"><span class="inp-lbl">L Hamstring (cm)</span><input class="inp-sm" id="m-lham" type="number" inputmode="decimal" step="0.1" placeholder="48"/></div>
+      <div class="inp-row"><span class="inp-lbl">R Hamstring (cm)</span><input class="inp-sm" id="m-rham" type="number" inputmode="decimal" step="0.1" placeholder="48"/></div>
+      <div class="inp-row"><span class="inp-lbl">L Calf (cm)</span><input class="inp-sm" id="m-lcalf" type="number" inputmode="decimal" step="0.1" placeholder="38"/></div>
+      <div class="inp-row"><span class="inp-lbl">R Calf (cm)</span><input class="inp-sm" id="m-rcalf" type="number" inputmode="decimal" step="0.1" placeholder="38.5"/></div>
+    </div>
+    <div style="padding:0 18px 12px;display:flex;justify-content:flex-end"><button class="btn-gold" onclick="saveMeasurements()">SAVE ALL</button></div>
+    <div class="slbl">Saved Measurements</div>
+    <div class="metric-grid">
+      <div class="mc"><div class="mc-lbl">Chest</div><div class="mc-val" id="disp-chest">—<span class="mc-unit">cm</span></div></div>
+      <div class="mc"><div class="mc-lbl">Waist</div><div class="mc-val" id="disp-waist">—<span class="mc-unit">cm</span></div></div>
+      <div class="mc"><div class="mc-lbl">Hips</div><div class="mc-val" id="disp-hips">—<span class="mc-unit">cm</span></div></div>
+      <div class="mc"><div class="mc-lbl">Shoulders</div><div class="mc-val" id="disp-shoulders">—<span class="mc-unit">cm</span></div></div>
+      <div class="mc"><div class="mc-lbl">L Bicep (f)</div><div class="mc-val" id="disp-lbicep">—<span class="mc-unit">cm</span></div></div>
+      <div class="mc"><div class="mc-lbl">R Bicep (f)</div><div class="mc-val" id="disp-rbicep">—<span class="mc-unit">cm</span></div></div>
+      <div class="mc"><div class="mc-lbl">L Quad</div><div class="mc-val" id="disp-lquad">—<span class="mc-unit">cm</span></div></div>
+      <div class="mc"><div class="mc-lbl">R Quad</div><div class="mc-val" id="disp-rquad">—<span class="mc-unit">cm</span></div></div>
+      <div class="mc"><div class="mc-lbl">L Calf</div><div class="mc-val" id="disp-lcalf">—<span class="mc-unit">cm</span></div></div>
+      <div class="mc"><div class="mc-lbl">R Calf</div><div class="mc-val" id="disp-rcalf">—<span class="mc-unit">cm</span></div></div>
+    </div>
+  </div>
+  <!-- BODY FAT -->
+  <div class="panel" id="pan-fat">
+    <div class="slbl">Measurement Method</div>
+    <div style="display:flex;gap:8px;padding:0 18px 12px">
+      <div class="cm-btn on" id="method-caliper" onclick="setFatMethod('caliper')" style="flex:1"><span>Caliper</span><small>3 or 7 site</small></div>
+      <div class="cm-btn" id="method-navy" onclick="setFatMethod('navy')" style="flex:1"><span>Navy Tape</span><small>tape measure only</small></div>
+    </div>
+    <!-- NAVY METHOD -->
+    <div id="navy-method" style="display:none">
+      <div style="padding:0 18px 10px;font-size:12px;color:var(--muted2);line-height:1.6">Uses only a tape measure. Measure neck, waist, and (for women) hips in cm at their widest/narrowest points.</div>
+      <div id="navy-male-fields">
+        <div class="site-row"><span class="site-lbl">Neck circumference (cm)</span><input class="inp-sm" id="navy-neck" type="number" inputmode="decimal" step="0.5" placeholder="38"/></div>
+        <div class="site-row"><span class="site-lbl">Waist circumference (cm)</span><input class="inp-sm" id="navy-waist" type="number" inputmode="decimal" step="0.5" placeholder="82"/></div>
+        <div class="site-row"><span class="site-lbl">Height (cm)</span><input class="inp-sm" id="navy-height" type="number" inputmode="decimal" step="0.5" placeholder="180"/></div>
+      </div>
+      <div id="navy-female-fields" style="display:none">
+        <div class="site-row"><span class="site-lbl">Neck (cm)</span><input class="inp-sm" id="navy-neck-f" type="number" inputmode="decimal" step="0.5" placeholder="33"/></div>
+        <div class="site-row"><span class="site-lbl">Waist (cm)</span><input class="inp-sm" id="navy-waist-f" type="number" inputmode="decimal" step="0.5" placeholder="70"/></div>
+        <div class="site-row"><span class="site-lbl">Hips (cm)</span><input class="inp-sm" id="navy-hips-f" type="number" inputmode="decimal" step="0.5" placeholder="95"/></div>
+        <div class="site-row"><span class="site-lbl">Height (cm)</span><input class="inp-sm" id="navy-height-f" type="number" inputmode="decimal" step="0.5" placeholder="165"/></div>
+      </div>
+      <div style="padding:12px 18px;display:flex;justify-content:flex-end"><button class="btn-gold" onclick="calcNavyFat()">CALCULATE</button></div>
+    </div>
+    <!-- CALIPER METHOD -->
+    <div id="caliper-method">
+    <div class="slbl">Caliper Method</div>
+    <div class="calliper-method">
+      <div class="cm-btn on" id="cm-3" onclick="setCaliper(3)"><span>3-Point</span><small>Jackson-Pollock</small></div>
+      <div class="cm-btn" id="cm-7" onclick="setCaliper(7)"><span>7-Point</span><small>Jackson-Pollock</small></div>
+    </div>
+    <div style="padding:0 18px 10px;font-size:12px;color:var(--muted2);line-height:1.6">Measure each skinfold in millimetres (mm) with the caliper. Take 2-3 readings per site and use the average. Always measure the same side of the body.</div>
+    <div id="sites-3">
+      <div class="slbl" style="padding-top:8px">Male Sites</div>
+      <div id="sites-3-male">
+        <div class="site-row"><span class="site-lbl">Chest (mm)</span><input class="inp-sm" id="c3m-chest" type="number" inputmode="decimal" step="0.5" placeholder="8"/></div>
+        <div class="site-row"><span class="site-lbl">Abdomen (mm)</span><input class="inp-sm" id="c3m-abdomen" type="number" inputmode="decimal" step="0.5" placeholder="16"/></div>
+        <div class="site-row"><span class="site-lbl">Thigh (mm)</span><input class="inp-sm" id="c3m-thigh" type="number" inputmode="decimal" step="0.5" placeholder="12"/></div>
+      </div>
+      <div id="sites-3-female" style="display:none">
+        <div class="site-row"><span class="site-lbl">Tricep (mm)</span><input class="inp-sm" id="c3f-tricep" type="number" inputmode="decimal" step="0.5" placeholder="15"/></div>
+        <div class="site-row"><span class="site-lbl">Suprailiac (mm)</span><input class="inp-sm" id="c3f-supra" type="number" inputmode="decimal" step="0.5" placeholder="18"/></div>
+        <div class="site-row"><span class="site-lbl">Thigh (mm)</span><input class="inp-sm" id="c3f-thigh" type="number" inputmode="decimal" step="0.5" placeholder="20"/></div>
+      </div>
+    </div>
+    <div id="sites-7" style="display:none">
+      <div class="slbl" style="padding-top:8px">7 Sites</div>
+      <div class="site-row"><span class="site-lbl">Chest (mm)</span><input class="inp-sm" id="c7-chest" type="number" inputmode="decimal" step="0.5" placeholder="8"/></div>
+      <div class="site-row"><span class="site-lbl">Midaxillary (mm)</span><input class="inp-sm" id="c7-mid" type="number" inputmode="decimal" step="0.5" placeholder="10"/></div>
+      <div class="site-row"><span class="site-lbl">Tricep (mm)</span><input class="inp-sm" id="c7-tricep" type="number" inputmode="decimal" step="0.5" placeholder="12"/></div>
+      <div class="site-row"><span class="site-lbl">Subscapular (mm)</span><input class="inp-sm" id="c7-sub" type="number" inputmode="decimal" step="0.5" placeholder="11"/></div>
+      <div class="site-row"><span class="site-lbl">Abdomen (mm)</span><input class="inp-sm" id="c7-abdomen" type="number" inputmode="decimal" step="0.5" placeholder="16"/></div>
+      <div class="site-row"><span class="site-lbl">Suprailiac (mm)</span><input class="inp-sm" id="c7-supra" type="number" inputmode="decimal" step="0.5" placeholder="10"/></div>
+      <div class="site-row"><span class="site-lbl">Thigh (mm)</span><input class="inp-sm" id="c7-thigh" type="number" inputmode="decimal" step="0.5" placeholder="12"/></div>
+    </div>
+    <div style="padding:12px 18px">
+      <div class="inp-row"><span class="inp-lbl">Age</span><input class="inp" id="fat-age" type="number" inputmode="numeric" placeholder="23"/></div>
+      <div style="display:flex;justify-content:flex-end;margin-top:6px"><button class="btn-gold" onclick="calcFat()">CALCULATE</button></div>
+    </div>
+    <div class="slbl">Results</div>
+    <div class="metric-grid">
+      <div class="mc"><div class="mc-lbl">Body Fat</div><div class="mc-val" id="fat-pct">—<span class="mc-unit">%</span></div></div>
+      <div class="mc"><div class="mc-lbl">Category</div><div class="mc-val" id="fat-cat" style="font-size:16px;padding-top:4px">—</div></div>
+      <div class="mc"><div class="mc-lbl">Fat Mass</div><div class="mc-val" id="fat-mass">—<span class="mc-unit">kg</span></div></div>
+      <div class="mc"><div class="mc-lbl">Lean Mass</div><div class="mc-val" id="fat-lean">—<span class="mc-unit">kg</span></div></div>
+      <div class="mc"><div class="mc-lbl">FFMI</div><div class="mc-val" id="fat-ffmi">—</div><div class="mc-sub" id="fat-ffmi-lbl" style="color:var(--muted)"></div></div>
+      <div class="mc"><div class="mc-lbl">Natural Ceiling</div><div class="mc-val" style="font-size:16px;padding-top:4px">~25</div><div class="mc-sub" style="color:var(--muted)">FFMI limit</div></div>
+    </div>
+    <div id="fat-insight" style="display:none" class="insight-box">
+      <div class="insight-title">Body Composition Analysis</div>
+      <div id="fat-insight-text"></div>
+    </div>
+    </div><!-- /caliper-method -->
+  </div>
+  <!-- SYMMETRY -->
+  <div class="panel" id="pan-symmetry">
+    <div class="score-ring">
+      <div class="score-circle">
+        <svg width="120" height="120" viewBox="0 0 120 120">
+          <circle cx="60" cy="60" r="52" fill="none" stroke="#1c1c1f" stroke-width="8"/>
+          <circle cx="60" cy="60" r="52" fill="none" stroke="#F2AA4C" stroke-width="8" stroke-dasharray="326.7" id="sym-ring-fill" stroke-dashoffset="326.7" stroke-linecap="butt"/>
+        </svg>
+        <div class="score-inner"><div class="score-num" id="sym-score">—</div><div class="score-lbl-sm">Symmetry</div></div>
+      </div>
+      <div class="score-status" id="sym-status" style="color:var(--muted)">Enter measurements first</div>
+      <div class="score-desc" id="sym-desc">Go to Measure tab, enter left and right values, then return here.</div>
+    </div>
+    <div class="slbl">Arms</div>
+    <div style="padding:0 18px 4px">
+      <div class="sym-bar-wrap"><div class="sym-bar-lbl"><span>Left Bicep (flexed)</span><span id="sa-lb">—</span></div><div class="sym-bar"><div class="sym-fill" id="sa-lb-fill" style="width:0%"></div></div></div>
+      <div class="sym-bar-wrap"><div class="sym-bar-lbl"><span>Right Bicep (flexed)</span><span id="sa-rb">—</span></div><div class="sym-bar"><div class="sym-fill" id="sa-rb-fill" style="width:0%"></div></div></div>
+      <div class="sym-bar-wrap"><div class="sym-bar-lbl"><span>Left Forearm</span><span id="sa-lf">—</span></div><div class="sym-bar"><div class="sym-fill" id="sa-lf-fill" style="width:0%"></div></div></div>
+      <div class="sym-bar-wrap"><div class="sym-bar-lbl"><span>Right Forearm</span><span id="sa-rf">—</span></div><div class="sym-bar"><div class="sym-fill" id="sa-rf-fill" style="width:0%"></div></div></div>
+    </div>
+    <div class="slbl">Legs</div>
+    <div style="padding:0 18px 4px">
+      <div class="sym-bar-wrap"><div class="sym-bar-lbl"><span>Left Quad</span><span id="sl-lq">—</span></div><div class="sym-bar"><div class="sym-fill" id="sl-lq-fill" style="width:0%"></div></div></div>
+      <div class="sym-bar-wrap"><div class="sym-bar-lbl"><span>Right Quad</span><span id="sl-rq">—</span></div><div class="sym-bar"><div class="sym-fill" id="sl-rq-fill" style="width:0%"></div></div></div>
+      <div class="sym-bar-wrap"><div class="sym-bar-lbl"><span>Left Calf</span><span id="sl-lc">—</span></div><div class="sym-bar"><div class="sym-fill" id="sl-lc-fill" style="width:0%"></div></div></div>
+      <div class="sym-bar-wrap"><div class="sym-bar-lbl"><span>Right Calf</span><span id="sl-rc">—</span></div><div class="sym-bar"><div class="sym-fill" id="sl-rc-fill" style="width:0%"></div></div></div>
+    </div>
+    <div class="slbl">Left / Right Differences</div>
+    <div id="imbalance-list" style="padding:0 18px 10px"><div style="font-size:13px;color:var(--muted);padding:10px 0">Enter measurements to compare left vs right.</div></div>
+    <div style="padding:0 18px 12px;display:flex;justify-content:flex-end"><button class="btn-gold" onclick="calcSymmetry()">ANALYSE SYMMETRY</button></div>
+  </div>
+
+  <!-- TRENDS -->
+  <div class="panel" id="pan-trends">
+    <div class="slbl">Body Weight</div>
+    <div id="chart-weight" style="padding:0 18px 12px"></div>
+    <div class="slbl">Body Fat %</div>
+    <div id="chart-bf" style="padding:0 18px 12px"></div>
+    <div class="slbl">Recovery Score</div>
+    <div id="chart-rec" style="padding:0 18px 12px"></div>
+    <div class="slbl">Measurement Trend</div>
+    <div style="padding:0 18px 8px">
+      <select class="sel" id="measure-trend-sel" onchange="renderMeasureTrend()">
+        <option value="chest">Chest</option><option value="waist">Waist</option>
+        <option value="lbicep-f">L Bicep (flexed)</option><option value="rbicep-f">R Bicep (flexed)</option>
+        <option value="lquad">L Quad</option><option value="rquad">R Quad</option>
+        <option value="shoulders">Shoulders</option><option value="hips">Hips</option>
+      </select>
+    </div>
+    <div id="chart-measure" style="padding:0 18px 16px"></div>
+  </div>
+
+  <!-- STRENGTH -->
+  <div class="panel" id="pan-strength">
+    <div id="deload-alert" style="display:none;margin:12px 18px 0"></div>
+    <div class="slbl">Personal Records (estimated 1RM)</div>
+    <div id="pr-list" style="padding:0 18px 12px"></div>
+    <div class="slbl">Strength Progression</div>
+    <div style="padding:0 18px 8px">
+      <select class="sel" id="strength-ex-sel" onchange="renderStrengthChart()"></select>
+    </div>
+    <div id="chart-strength" style="padding:0 18px 16px"></div>
+    <div class="slbl">Weak Point Detection</div>
+    <div id="weak-point-list" style="padding:0 18px 12px"></div>
+    <div class="slbl">1RM Calculator</div>
+    <div style="padding:0 18px 16px">
+      <div class="inp-row"><span class="inp-lbl">Weight (kg)</span><input class="inp" id="orm-weight" type="number" inputmode="decimal" placeholder="100"/></div>
+      <div class="inp-row"><span class="inp-lbl">Reps</span><input class="inp" id="orm-reps" type="number" inputmode="numeric" placeholder="5"/></div>
+      <div style="display:flex;justify-content:flex-end"><button class="btn-gold" onclick="calcORM()">ESTIMATE 1RM</button></div>
+      <div id="orm-result" style="margin-top:10px"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== PROFILE ===== -->
+<div class="page" id="pg-profile">
+  <div class="profile-hero">
+    <div class="p-av" id="p-av">?</div>
+    <div>
+      <div class="p-name" id="p-name">YOUR NAME</div>
+      <div class="p-since" id="p-since">Set up your profile</div>
+      <div class="p-streak" id="p-streak"><i class="ti ti-flame" style="font-size:14px"></i> 0 Day Streak</div>
+    </div>
+  </div>
+  <div class="slbl">Health Log</div>
+  <div class="health-grid">
+    <div class="hcard"><div class="hcard-lbl">Sleep</div><div class="hcard-val" id="h-sleep">—<span class="hcard-unit">hrs</span></div></div>
+    <div class="hcard"><div class="hcard-lbl">Recovery</div><div class="hcard-val" id="h-rec">—<span class="hcard-unit">%</span></div></div>
+    <div class="hcard"><div class="hcard-lbl">RHR</div><div class="hcard-val" id="h-rhr">—<span class="hcard-unit">bpm</span></div><div style="font-size:10px;color:var(--muted);margin-top:4px">Optional — from watch</div></div>
+    <div class="hcard"><div class="hcard-lbl">HRV</div><div class="hcard-val" id="h-hrv">—<span class="hcard-unit">ms</span></div><div style="font-size:10px;color:var(--muted);margin-top:4px">Optional — needs chest strap</div></div>
+  </div>
+  <div style="padding:0 18px 4px;font-size:11px;color:var(--muted2);line-height:1.6;margin-bottom:6px">RHR and HRV are optional. Recovery will be calculated from sleep + energy if not provided. HRV requires a chest strap (e.g. Polar H10) or WHOOP.</div>
+  <div style="padding:0 18px 12px">
+    <div class="inp-row"><span class="inp-lbl">Sleep (hrs)</span><input class="inp" id="inp-sleep" type="number" inputmode="decimal" step="0.5" placeholder="7.5"/></div>
+    <div class="inp-row"><span class="inp-lbl">Energy (1–10)</span><input class="inp" id="inp-energy" type="number" inputmode="numeric" min="1" max="10" placeholder="7"/></div>
+    <div class="inp-row"><span class="inp-lbl">RHR (bpm)</span><input class="inp" id="inp-rhr" type="number" inputmode="numeric" placeholder="Optional"/></div>
+    <div class="inp-row"><span class="inp-lbl">HRV (ms)</span><input class="inp" id="inp-hrv" type="number" inputmode="numeric" placeholder="Optional"/></div>
+    <div style="display:flex;justify-content:flex-end;margin-top:6px"><button class="btn-gold" onclick="calcRecovery()">CALCULATE RECOVERY</button></div>
+  </div>
+  <div class="slbl">Goals</div>
+  <div id="goals-list">
+    <div class="goal-item"><div class="g-check" onclick="toggleGoal(this)"></div><span class="g-text">Complete today's workout</span><span class="g-tag d">Daily</span></div>
+    <div class="goal-item"><div class="g-check" onclick="toggleGoal(this)"></div><span class="g-text">Hit calorie target</span><span class="g-tag d">Daily</span></div>
+    <div class="goal-item"><div class="g-check" onclick="toggleGoal(this)"></div><span class="g-text">Reach body weight goal</span><span class="g-tag m">Monthly</span></div>
+  </div>
+  <button class="add-goal-btn" onclick="document.getElementById('goal-modal').classList.add('open')"><i class="ti ti-plus"></i> Add Goal</button>
+
+  <!-- NUTRITION -->
+  <div class="slbl">Nutrition Targets</div>
+  <div id="nutrition-targets" style="padding:0 18px 10px">
+    <div style="font-size:12px;color:var(--muted2);margin-bottom:10px;line-height:1.5">Based on your body weight, goal, and training frequency. Set weight and goal in Stats → Overview first.</div>
+    <button class="btn-gold" style="width:100%;padding:12px;font-size:18px" onclick="calcNutrition()">CALCULATE NUTRITION TARGETS</button>
+  </div>
+  <div id="nutrition-results" style="display:none;padding:0 18px 12px">
+    <div class="metric-grid" style="padding:0 0 10px">
+      <div class="mc"><div class="mc-lbl">Calories</div><div class="mc-val" id="n-kcal">—<span class="mc-unit">kcal</span></div></div>
+      <div class="mc"><div class="mc-lbl">Protein</div><div class="mc-val" id="n-prot">—<span class="mc-unit">g</span></div></div>
+      <div class="mc"><div class="mc-lbl">Carbs</div><div class="mc-val" id="n-carb">—<span class="mc-unit">g</span></div></div>
+      <div class="mc"><div class="mc-lbl">Fat</div><div class="mc-val" id="n-fat">—<span class="mc-unit">g</span></div></div>
+    </div>
+    <div id="nutrition-advice" class="insight-box" style="margin:0 0 10px"></div>
+    <div class="slbl" style="padding:8px 0 6px">Log Today's Intake</div>
+    <div class="inp-row"><span class="inp-lbl">Calories</span><input class="inp" id="log-kcal" type="number" inputmode="numeric" placeholder="2800"/><button class="btn-gold" style="padding:9px 12px;font-size:14px" onclick="logNutrition()">LOG</button></div>
+    <div id="nutrition-log-display" style="margin-top:8px"></div>
+  </div>
+
+  <!-- ACHIEVEMENTS -->
+  <div class="slbl">Achievements</div>
+  <div id="achievements-list" style="padding:0 18px 12px"></div>
+
+  <!-- COMPARISON REPORT -->
+  <div class="slbl">Progress Comparison</div>
+  <div style="padding:0 18px 12px">
+    <div style="font-size:12px;color:var(--muted2);margin-bottom:10px">Compare your stats between two dates.</div>
+    <div class="inp-row"><span class="inp-lbl">From</span><input class="inp" id="comp-from" type="date"/></div>
+    <div class="inp-row"><span class="inp-lbl">To</span><input class="inp" id="comp-to" type="date"/></div>
+    <div style="display:flex;justify-content:flex-end;margin-top:6px"><button class="btn-gold" onclick="runComparison()">COMPARE</button></div>
+    <div id="comparison-result" style="margin-top:10px"></div>
+  </div>
+
+  <!-- DATA EXPORT -->
+  <div class="slbl">Export Data</div>
+  <div style="padding:0 18px 20px;display:flex;flex-direction:column;gap:8px">
+    <button class="btn-outline" style="width:100%;padding:12px;text-align:left;display:flex;align-items:center;gap:10px" onclick="exportWorkouts()"><i class="ti ti-download" style="font-size:18px;color:var(--gold)"></i> Download Workout History (CSV)</button>
+    <button class="btn-outline" style="width:100%;padding:12px;text-align:left;display:flex;align-items:center;gap:10px" onclick="exportMeasurements()"><i class="ti ti-download" style="font-size:18px;color:var(--gold)"></i> Download Measurements (CSV)</button>
+    <button class="btn-outline" style="width:100%;padding:12px;text-align:left;display:flex;align-items:center;gap:10px" onclick="exportFullReport()"><i class="ti ti-file-text" style="font-size:18px;color:var(--gold)"></i> Full Progress Report (JSON)</button>
+  </div>
+</div>
+
+<!-- REST TIMER BAR (permanent, shown/hidden) -->
+<div id="rest-timer-bar" style="display:none;position:fixed;bottom:64px;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:var(--bg2);border-top:2px solid var(--gold);padding:12px 18px;z-index:200;display:none;align-items:center;gap:12px">
+  <i class="ti ti-clock" style="font-size:22px;color:var(--gold)"></i>
+  <div style="flex:1">
+    <div style="font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--muted)" id="rest-ex-label">Rest</div>
+    <div style="font-family:var(--ff);font-size:26px;color:var(--text);line-height:1" id="rest-countdown">0:00</div>
+  </div>
+  <button onclick="addRest(30)" style="background:var(--bg3);border:1px solid var(--gold-bdr);color:var(--gold);padding:8px 10px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--fb);border-radius:0">+30s</button>
+  <button onclick="skipRest()" style="background:var(--gold);border:none;color:var(--bg);padding:8px 12px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--fb);border-radius:0">SKIP</button>
+</div>
+
+<!-- WELCOME MODAL (first launch) -->
+<div class="modal-bg" id="welcome-modal">
+  <div class="modal">
+    <div style="text-align:center;padding:10px 0 20px">
+      <div style="font-family:var(--ff);font-size:48px;color:var(--gold);letter-spacing:4px;line-height:1">TRAINE</div>
+      <div style="font-size:13px;color:var(--muted2);margin-top:8px">Your adaptive AI coaching app</div>
+    </div>
+    <div style="background:var(--bg3);padding:16px;margin-bottom:10px">
+      <div style="font-size:13px;color:var(--text);font-weight:600;margin-bottom:6px">Let's get you set up in 2 minutes:</div>
+      <div style="font-size:12px;color:var(--muted2);line-height:1.8">
+        <div>1️⃣ &nbsp;Pick your goal and how many days you train</div>
+        <div>2️⃣ &nbsp;Choose which exercises you like</div>
+        <div>3️⃣ &nbsp;Your coach builds a personalised plan</div>
+        <div>4️⃣ &nbsp;Log your sets — the app tracks everything</div>
+      </div>
+    </div>
+    <div style="font-size:11px;color:var(--muted);text-align:center;margin-bottom:16px">Your coach reads your recovery, performance, and progress to tell you exactly what to do each day.</div>
+    <button class="modal-ok" style="width:100%;font-size:20px;padding:14px" onclick="startOnboarding()">BUILD MY PLAN 💪</button>
+  </div>
+</div>
+
+<!-- FIRST WORKOUT GUIDE -->
+<div class="modal-bg" id="first-workout-modal">
+  <div class="modal" style="max-height:90vh">
+    <div style="font-family:var(--ff);font-size:28px;color:var(--gold);letter-spacing:2px;margin-bottom:4px">YOUR FIRST WORKOUT</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:20px">Quick guide — takes 30 seconds to read</div>
+
+    <div style="background:var(--bg3);border-left:3px solid var(--gold);padding:14px;margin-bottom:10px">
+      <div style="font-family:var(--ff);font-size:16px;color:var(--gold);letter-spacing:1px;margin-bottom:6px">W1, W2 — WARM-UP SETS</div>
+      <div style="font-size:13px;color:var(--muted2);line-height:1.6">Light sets to prepare the muscle and joint. Enter a weight (~50-60% of what you'll work with) and reps. Tap ✓ when done — no rest timer, just move to the next set.</div>
+    </div>
+
+    <div style="background:var(--bg3);border-left:3px solid var(--gold);padding:14px;margin-bottom:10px">
+      <div style="font-family:var(--ff);font-size:16px;color:var(--gold);letter-spacing:1px;margin-bottom:6px">1, 2, 3 — WORKING SETS</div>
+      <div style="font-size:13px;color:var(--muted2);line-height:1.6">These are your main sets. The weight field is pre-filled with your target based on last session. Enter how many reps you actually completed, then tap ✓. The rest timer starts automatically.</div>
+    </div>
+
+    <div style="background:var(--bg3);border-left:3px solid var(--gold);padding:14px;margin-bottom:10px">
+      <div style="font-family:var(--ff);font-size:16px;color:var(--gold);letter-spacing:1px;margin-bottom:6px">PROGRESSIVE OVERLOAD</div>
+      <div style="font-size:13px;color:var(--muted2);line-height:1.6">Hit 8+ reps → next session weight goes up 2.5kg. Hit fewer than 6 → weight drops 2.5kg. The app tracks this automatically. Just log honestly.</div>
+    </div>
+
+    <div style="background:var(--bg3);border-left:3px solid var(--gold);padding:14px;margin-bottom:16px">
+      <div style="font-family:var(--ff);font-size:16px;color:var(--gold);letter-spacing:1px;margin-bottom:6px">FINISH WORKOUT</div>
+      <div style="font-size:13px;color:var(--muted2);line-height:1.6">Hit the gold FINISH WORKOUT button at the bottom when all sets are done. Your streak and history are saved.</div>
+    </div>
+
+    <button class="modal-ok" style="width:100%;font-size:20px;padding:14px" onclick="dismissFirstWorkout()">LET'S GO 💪</button>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav class="nav">
+  <button class="nb on" onclick="goPage('home')"><i class="ti ti-home"></i><span>Home</span></button>
+  <button class="nb" onclick="goPage('workout')"><i class="ti ti-barbell"></i><span>Workout</span></button>
+  <button class="nb" onclick="goPage('coach')"><i class="ti ti-robot"></i><span>Coach</span></button>
+  <button class="nb" onclick="goPage('stats')"><i class="ti ti-chart-line"></i><span>Stats</span></button>
+  <button class="nb" onclick="goPage('profile')"><i class="ti ti-user"></i><span>Profile</span></button>
+</nav>
+
+<!-- GOAL MODAL -->
+<div class="modal-bg" id="goal-modal" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="modal">
+    <div class="modal-title">ADD GOAL</div>
+    <div class="modal-row"><div class="modal-lbl">Goal</div><input class="modal-in" id="goal-text-in" placeholder="What do you want to achieve?"/></div>
+    <div class="modal-row"><div class="modal-lbl">Type</div><select class="modal-sel" id="goal-type-in"><option value="d">Daily</option><option value="w">Weekly</option><option value="m">Monthly</option><option value="y">Yearly</option></select></div>
+    <div class="modal-btns"><button class="modal-cancel" onclick="document.getElementById('goal-modal').classList.remove('open')">Cancel</button><button class="modal-ok" onclick="addGoal()">ADD GOAL</button></div>
+  </div>
+</div>
+
+<!-- SETTINGS MODAL -->
+<div class="modal-bg" id="settings-modal" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="modal">
+    <div class="modal-title">SETTINGS</div>
+    <div class="modal-row"><div class="modal-lbl">Your Name</div><input class="modal-in" id="set-name" placeholder="Your name"/></div>
+    <div class="modal-row"><div class="modal-lbl">Bulk Start Weight (kg)</div><input class="modal-in" id="set-bulk-start" type="number" inputmode="decimal" step="0.1" placeholder="82"/></div>
+    <div class="modal-row"><div class="modal-lbl">Bulk Goal Weight (kg)</div><input class="modal-in" id="set-bulk-goal" type="number" inputmode="decimal" step="0.1" placeholder="92"/></div>
+    <div class="modal-btns"><button class="modal-cancel" onclick="document.getElementById('settings-modal').classList.remove('open')">Cancel</button><button class="modal-ok" onclick="saveSettings()">SAVE</button></div>
+  </div>
+</div>
+
+<script>
+// ── STATE ──────────────────────────────────────────────────────
+let state={
+  activeCoach:'aria',
+  gender:'m',
+  caliperMethod:3,
+  measurements:{},
+  settings:{name:'',bulkStart:82,bulkGoal:92},
+  streak:0,
+  weight:null,
+  recovery:null,
+  weightLog:[],
+  bfLog:[],
+  recLog:[],
+  measureLog:[],
+  prs:{},
+  nutritionLog:[],
+  nutritionTargets:null
+};
+
+function today(){return new Date().toISOString().split('T')[0];}
+// Push a dated entry, replacing same-day entry
+function logEntry(arr,value){
+  const t=today();
+  const existing=arr.find(e=>e.date===t);
+  if(existing)existing.value=value;
+  else arr.push({date:t,value});
+}
+// Epley estimated 1RM
+function e1rm(weight,reps){return reps<=1?weight:Math.round(weight*(1+reps/30)*10)/10;}
+
+// ── NAV ───────────────────────────────────────────────────────
+const PAGES=['home','workout','coach','stats','profile'];
+function goPage(id){
+  PAGES.forEach((p,i)=>{
+    document.getElementById('pg-'+p).classList.toggle('on',p===id);
+    document.querySelectorAll('.nb')[i].classList.toggle('on',p===id);
+  });
+  window.scrollTo(0,0);
+  if(id==='coach')renderCoachList();
+  if(id==='workout')initWorkoutPage();
+  if(id==='stats'&&document.querySelector('.tbt.on')?.textContent==='Symmetry')calcSymmetry();
+  if(id==='profile'){renderAchievements();initComparisonDates();}
+}
+
+// ── TOAST ─────────────────────────────────────────────────────
+function toast(msg){
+  const el=document.getElementById('toast');
+  el.textContent=msg;el.classList.add('show');
+  clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('show'),2500);
+}
+
+// ── SETTINGS ──────────────────────────────────────────────────
+function openSettings(){document.getElementById('settings-modal').classList.add('open');}
+function saveSettings(){
+  const name=document.getElementById('set-name').value.trim();
+  const bs=parseFloat(document.getElementById('set-bulk-start').value);
+  const bg=parseFloat(document.getElementById('set-bulk-goal').value);
+  if(name){
+    state.settings.name=name;
+    document.getElementById('p-name').textContent=name.toUpperCase();
+    document.getElementById('p-av').textContent=name[0].toUpperCase();
+  }
+  if(bs)state.settings.bulkStart=bs;
+  if(bg)state.settings.bulkGoal=bg;
+  document.getElementById('bulk-start-lbl').textContent=state.settings.bulkStart+'kg';
+  document.getElementById('bulk-goal-lbl').textContent=state.settings.bulkGoal+'kg';
+  document.getElementById('settings-modal').classList.remove('open');
+  toast('Settings saved');saveData();
+}
+
+// ── HOME ──────────────────────────────────────────────────────
+function initHome(){
+  const d=new Date();
+  const days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  document.getElementById('home-date').textContent=`${days[d.getDay()]} · ${months[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
+  // data-driven insight (after load)
+  setTimeout(()=>{try{document.getElementById('insight-text').textContent=generateInsight();}catch(e){}},50);
+}
+
+// ── COACHES ───────────────────────────────────────────────────
+const COACHES={
+  aria:{id:'aria',init:'AI',name:'ARIA',tag:'Adaptive AI · Default',color:'#F2AA4C',
+    bio:'Aria is Traine\'s default intelligence — a neutral, data-driven coach that adapts to every athlete. No ego, no extreme philosophy. Just clean analysis of your performance history and science-backed recommendations.',
+    philosophy:'Progressive overload, individual recovery, sustainable volume. Aria reads your data first, then speaks.',
+    pillars:[{k:'Volume',v:'Evidence-based 10-20 sets per muscle per week'},{k:'Progression',v:'2.5-5% load increase when rep targets are hit'},{k:'Recovery',v:'Rest days guided by performance trends'},{k:'Frequency',v:'2x per muscle minimum per week'}],
+    catchphrase:'Data first. Ego never.',
+    responses:{
+      default:['Your data shows consistent progress. Keep executing the plan.','Based on your recent sessions, your recovery is trending well. Push today.','Progressive overload is working. Stay the course and trust the process.'],
+      bench:['Target your working weight for 6 clean reps. Rest 3 minutes between working sets.','Warm up progressively: 60%, then 80% of working weight, then all-out.','You\'re in an upward trend on the bench. Stay consistent.'],
+      progress:['You\'re ahead of the weekly curve. Excellent consistency.','Volume and intensity are both trending up. Textbook progression.'],
+      recovery:['Recovery score is strong. Today is a good day to push hard.','Moderate recovery. Train as planned but listen to your body.','Low recovery detected. Reduce intensity today and prioritise sleep tonight.']
+    }
+  },
+  ivan:{id:'ivan',init:'IV',name:'IVAN VOLKOV',tag:'High Intensity · Maximum Effort',color:'#e05555',
+    bio:'Ivan Volkov is forged in cold discipline. A former Soviet-era strength athlete, Ivan believes the body grows only under absolute, total muscular failure. He does not believe in wasting energy. Every session is surgical.',
+    philosophy:'One warm-up. One working set taken to positive failure, then 2-3 forced reps. Then complete rest until the nervous system fully recovers. Not one day earlier.',
+    pillars:[{k:'Warm-up',v:'2 progressive sets at 60% and 80% to potentiate the CNS'},{k:'Working Sets',v:'1 set only — taken to positive failure, then 2-3 forced reps'},{k:'Frequency',v:'Each muscle group once every 5-7 days'},{k:'Rest-Pause',v:'Advanced: fail, rest 15 seconds, grind 3-5 more reps'},{k:'Recovery',v:'Full systemic recovery required before returning'}],
+    catchphrase:'One set. Total failure. Complete recovery. This is the only truth.',
+    responses:{
+      default:['One set to failure. If you did more, you wasted energy that belongs to recovery.','The body does not grow in the gym. It grows during complete rest. Rest is not optional.','More volume is weakness. One set done correctly destroys more than ten done casually.'],
+      bench:['Two warm-up sets at 60% and 80%. Then one working set to absolute positive failure. No more.','After failure, have your partner assist 2-3 forced negatives. Then you are done with this muscle.','Working weight for maximum reps until failure. If you can lift it again, you have not reached failure.'],
+      progress:['Progress is one number: your working weight. Is it going up? That is all that matters.','If you hit 8 reps, increase weight next session. Failure should occur at 6-8 reps.']
+    }
+  },
+  caesar:{id:'caesar',init:'CR',name:'CAESAR ROMAN',tag:'Volume · Golden Era · Passion',color:'#F2AA4C',
+    bio:'Caesar Roman is theatre. Born into a family of athletes in Southern Italy, Caesar coaches with the fire of the golden era — when men trained twice a day and the gym was a cathedral. He believes bodybuilding is art, and the body is the canvas.',
+    philosophy:'High volume, high frequency, feel every repetition. The pump is sacred. The mind-muscle connection is not optional — it is everything. Train with passion or do not train at all.',
+    pillars:[{k:'Volume',v:'20-25 working sets per muscle per week'},{k:'Frequency',v:'Each muscle 2-3 times per week'},{k:'Techniques',v:'Supersets, drop sets, giant sets — the burn is the signal'},{k:'Mind-Muscle',v:'Feel the muscle or the rep does not count'},{k:'Rest',v:'60-90 seconds — keep blood in the muscle'}],
+    catchphrase:'The PUMP is proof the muscle is working. Chase it like your life depends on it!',
+    responses:{
+      default:['More sets! More reps! The muscle must be flooded with blood before it will grow!','Feel every contraction. If you cannot feel the muscle working, you are just moving weight.','The pump is not vanity — it is biology. The swelling delivers nutrients. Feed the muscle!'],
+      bench:['Three working sets of twelve, then a drop set! Exhaust every fibre!','Slow the eccentric — three seconds down, explosive up! Make the chest do the work!','After your working sets — cable flyes! Stretch the chest fully. Non-negotiable!'],
+      progress:['More volume is also progress. More total reps at the same weight means more muscle.','You grew last week. Now add sets. The muscle must never adapt.']
+    }
+  },
+  thor:{id:'thor',init:'TB',name:'THOR BRENDEN',tag:'Mass · Strength · Heavy Compounds',color:'#5b9bd5',
+    bio:'Thor Brenden is mass personified. From the Norwegian fjords, 20 years of moving maximum weight. Simple, heavy, brutal. Thor does not believe in small weights or small thinking.',
+    philosophy:'Squat, deadlift, press. Everything else is accessory work. Get stronger in the big movements and the size follows without question. Eat big, sleep big, lift big.',
+    pillars:[{k:'Core Movements',v:'Squat, Deadlift, Bench, Row, Press — these are the only lifts that matter'},{k:'Progressive Overload',v:'Add weight every single session — no exceptions'},{k:'Volume',v:'4-6 sets of 4-8 reps on compound work'},{k:'Diet',v:'Caloric surplus always — you cannot build what you cannot fuel'},{k:'Rest',v:'2-3 minutes minimum between sets'}],
+    catchphrase:'Add weight. Go home. Eat. Sleep. Repeat. This is all.',
+    responses:{
+      default:['Is the weight going up? That is the only question. If not, eat more and sleep more.','Simple does not mean easy. Squat, deadlift, press — heavier than last time.','You do not need more exercises. You need more weight on the bar.'],
+      bench:['Add 2.5kg each side every week until you cannot. Then 1.25kg. Never stop adding.','Low bar, big breath, drive your feet into the floor. Leg drive is half the bench press.','85kg next session if you hit your reps today. No discussion.'],
+      progress:['Weight went up. Good. Same time next week with more weight.','Consistent progression over months builds more muscle than any program switch.']
+    }
+  },
+  ford:{id:'ford',init:'EF',name:'DR. ELIAS FORD',tag:'Science-Based · Precision · Evidence',color:'#4caf7d',
+    bio:'Dr. Elias Ford holds a PhD in exercise physiology and spent a decade publishing peer-reviewed research. He applies science with precision — no bro-science, no guesswork, only evidence.',
+    philosophy:'Every training variable has an optimal range supported by research. Train within those ranges, track everything, and adjust based on measurable outcomes.',
+    pillars:[{k:'Volume',v:'10-20 MEV-MAV sets per muscle per week'},{k:'Intensity',v:'65-85% 1RM for hypertrophy'},{k:'Frequency',v:'2x per week per muscle minimum'},{k:'Rest Periods',v:'2-3 min compound, 90s isolation'},{k:'Deload',v:'Structured deload every 4-6 weeks'}],
+    catchphrase:'If you cannot measure it, you cannot improve it. Track everything.',
+    responses:{
+      default:['Your volume is within the hypertrophy-optimised range. Maintain stimulus-fatigue balance.','Per your session data, you are operating near optimal intensity for hypertrophy.','Research indicates 72-hour recovery between sessions for the same muscle group is sufficient.'],
+      bench:['Two warm-up sets, then 3 working sets at 75-80% 1RM for 6-10 reps. Rest 2.5 minutes.','Control the eccentric at 2-3 seconds. Mechanotransduction requires sustained time under tension.','Your estimated 1RM is increasing — you are in a productive progressive overload phase.'],
+      progress:['Progressive overload confirmed across multiple sessions. Volume load is trending up.','Recommend increasing working weight by 2.5kg next session based on rep performance.']
+    }
+  },
+  marcus:{id:'marcus',init:'MS',name:'MARCUS STEEL',tag:'Military Discipline · No Excuses',color:'#888780',
+    bio:'Marcus Steel spent 12 years in special operations before becoming a strength coach. For Marcus, discipline is not motivation — it is a decision made once, every morning, regardless of how you feel.',
+    philosophy:'Show up. Execute the plan. Leave. Repeat tomorrow. Motivation is a luxury. Discipline is a weapon.',
+    pillars:[{k:'Consistency',v:'5-6 training days per week — non-negotiable'},{k:'Structure',v:'Same exercises, same time, same effort'},{k:'Intensity',v:'Hard work every session — no easy days'},{k:'Recovery',v:'8 hours sleep minimum — recovery is part of the mission'},{k:'Mindset',v:'Discomfort is data. Pain is weakness leaving the body.'}],
+    catchphrase:'You either do it or you do not. There is no middle ground.',
+    responses:{
+      default:['Did you show up? Good. Now execute. No further discussion needed.','How you feel is irrelevant. The plan exists. Follow the plan.','Warriors do not wait for perfect conditions. They create results from whatever conditions exist.'],
+      bench:['The program says 3 sets. You do 3 sets. Not 2, not 2.5. Three.','Rest exactly 3 minutes. Start the next set when the clock says. Not before. Not after.','The target weight is the target weight. Hit it.'],
+      progress:['You showed up every day. That is the mission. The weight is secondary.','Consistency compounds. Three months of this and you will not recognise yourself.']
+    }
+  },
+  zen:{id:'zen',init:'ZN',name:'ZEN',tag:'Mind-Muscle · Flow · Mastery',color:'#5DCAA5',
+    bio:'Zen has no surname. A former meditation teacher who found the gym, Zen treats every session as a conversation between mind and muscle — slow, intentional, deeply focused.',
+    philosophy:'The body knows. Most lifters never hear it because they train too fast, too heavy, too mindlessly. Slow down. Feel each fibre engage.',
+    pillars:[{k:'Tempo',v:'4-2-4: 4s eccentric, 2s pause, 4s concentric'},{k:'Mind-Muscle',v:'Visualise the target muscle before every rep'},{k:'Breath',v:'Exhale on exertion — control breath, control set'},{k:'Weight',v:'Lighter than ego demands — heavy enough to feel muscle work'},{k:'Recovery',v:'Cold exposure, breathwork, and sleep are sacred'}],
+    catchphrase:'The weight is not your enemy. It is your teacher.',
+    responses:{
+      default:['Slow down. Feel the muscle before you lift. Visualise the contraction.','The fastest way to grow is to slow down. Master movement before adding weight.','Your mind was elsewhere during that set. Come back. Be present.'],
+      bench:['4 seconds down. Pause at the chest. Exhale and press. Feel the pec throughout.','Reduce the weight if you cannot feel the chest contracting. Feeling the muscle is the goal.','Visualise your pectorals lengthening as the bar descends. Squeeze before you press.'],
+      progress:['You moved the same weight with more control. That is real progress.','Master the movement. The weight will rise as a consequence of mastery, not pursuit.']
+    }
+  },
+  rex:{id:'rex',init:'RH',name:'REX HUNTER',tag:'Powerbuilding · Strength First',color:'#EF9F27',
+    bio:'Rex Hunter has pulled 300kg from the floor and built the physique to match. A competitive powerlifter turned hybrid athlete — strength is the foundation of all physical development.',
+    philosophy:'Strength first, aesthetics follow. If your squat goes up, your legs grow. Chase strength numbers and the body transforms as a consequence.',
+    pillars:[{k:'Big Three',v:'Squat, Bench, Deadlift form the core of every block'},{k:'Rep Ranges',v:'1-5 for strength, 6-12 for hypertrophy after compounds'},{k:'Periodisation',v:'4-week strength blocks followed by 2-week hypertrophy phases'},{k:'Accessories',v:'Support the main lifts — rows for bench, RDLs for deadlift'},{k:'Weak Points',v:'Identify and attack your limiting factor every cycle'}],
+    catchphrase:'Get stronger. Everything else takes care of itself.',
+    responses:{
+      default:['What is your squat number? Your deadlift? If those are not going up, nothing else matters.','Strength is the foundation. Add weight and eat enough to recover.','Identify your weakest lift and attack it. Weak points dictate your ceiling.'],
+      bench:['Start with 85% 1RM for working sets. 3-5 reps. Strength, not pump.','Pause bench once per month — 2 seconds on the chest — to build raw strength.','Arch, leg drive, and grip width determine your bench. Technique is 30% of the lift.'],
+      progress:['Your total is going up. That is the only metric that matters in this phase.','1% strength gain per week is elite progress at your stage. Keep pushing.']
+    }
+  },
+  blaze:{id:'blaze',init:'BZ',name:'BLAZE',tag:'High Volume · Maximum Energy',color:'#e05555',
+    bio:'Blaze is 26, trains 6 days a week, and has never heard of overtraining. A product of the modern high-volume, high-energy philosophy — keep the intensity sky-high and the rest periods short.',
+    philosophy:'Volume is king. Attack every muscle from every angle with maximum effort. Drop sets, supersets, giant sets — the moment the muscle stops burning, you\'re resting.',
+    pillars:[{k:'Volume',v:'25+ sets per muscle per week'},{k:'Rest',v:'30-60 seconds between sets'},{k:'Techniques',v:'Drop sets, supersets, rest-pause on every exercise'},{k:'Frequency',v:'6 days per week'},{k:'Cardio',v:'20 minutes LISS post-session — non-negotiable'}],
+    catchphrase:'If you\'re not exhausted, you\'re not done.',
+    responses:{
+      default:['Rest 45 seconds and go again. The pump is fading — do not let it.','Drop sets after every working set. The muscle has more in it. Exhaust it.','Six days a week. Every week. Consistency is the only secret.'],
+      bench:['3 working sets, then a drop set at 70%, then another at 50%. Failure on every one.','Superset with cable flyes immediately after. No rest between. Chase the pump.','After bench — incline, then dips, then cable crossover. The chest must be completely done.'],
+      progress:['More volume added. Next week we add another drop set. Keep adapting.','You handled high volume today. Next week we push more. Volume is the variable.']
+    }
+  }
+};
+
+let activeCoach=COACHES.aria;
+
+function renderCoachList(){
+  const list=document.getElementById('coach-list');
+  list.innerHTML=Object.values(COACHES).map(c=>`
+    <div class="coach-row${c.id===activeCoach.id?' sel':''}" onclick="openCoachDetail('${c.id}')" id="crow-${c.id}">
+      <div class="coach-init" style="color:${c.color}">${c.init}</div>
+      <div style="flex:1;min-width:0"><div class="coach-rname">${c.name}</div><div class="coach-rtag">${c.tag}</div></div>
+      ${c.id===activeCoach.id?'<div class="active-badge">ACTIVE</div>':'<i class="ti ti-chevron-right" style="font-size:16px;color:var(--muted)"></i>'}
+    </div>`).join('');
+  renderDirectiveBoard();
+}
+
+function openCoachDetail(id){
+  const c=COACHES[id];
+  document.getElementById('coach-list-view').style.display='none';
+  document.getElementById('coach-detail-view').style.display='block';
+  document.getElementById('cdetail-content').innerHTML=`
+    <div class="cdetail-top">
+      <div class="cdetail-init" style="color:${c.color}">${c.init}</div>
+      <div class="cdetail-name">${c.name}</div>
+      <div class="cdetail-tag">${c.tag}</div>
+    </div>
+    <div class="cdetail-body">
+      <div class="cdetail-sec-lbl">About</div>
+      <div class="cdetail-text">${c.bio}</div>
+      <div class="cdetail-sec-lbl">Philosophy</div>
+      <div class="cdetail-text">${c.philosophy}</div>
+      <div class="cdetail-sec-lbl">Training Pillars</div>
+      ${c.pillars.map(p=>`<div class="pillar"><strong>${p.k}:</strong> ${p.v}</div>`).join('')}
+      <div class="cdetail-sec-lbl" style="margin-top:18px">Signature</div>
+      <div style="font-size:13px;color:var(--gold);font-style:italic;line-height:1.6">"${c.catchphrase}"</div>
+    </div>
+    <button class="select-coach-btn" onclick="selectCoach('${id}')">SELECT ${c.name}</button>`;
+  window.scrollTo(0,0);
+}
+
+function closeCoachDetail(){
+  document.getElementById('coach-list-view').style.display='block';
+  document.getElementById('coach-detail-view').style.display='none';
+}
+
+function selectCoach(id){
+  const prevCoach=activeCoach?activeCoach.id:null;
+  activeCoach=COACHES[id];
+  state.activeCoach=id;
+  document.getElementById('home-coach-name').textContent=activeCoach.name;
+  document.getElementById('home-coach-tag').textContent=activeCoach.tag;
+  document.getElementById('insight-coach-name').textContent=activeCoach.name;
+  document.getElementById('insight-text').textContent=generateInsight();
+  renderCoachList();
+  renderDirectiveBoard();
+  closeCoachDetail();
+  // Rebuild plan with new coach's set/rep scheme but KEEP history
+  if(planState.plan&&prevCoach&&prevCoach!==id){
+    rebuildPlanKeepHistory();
+    toast('Coach switched to '+activeCoach.name+' — plan rebuilt, history kept');
+  } else {
+    toast('Coach switched to '+activeCoach.name);
+  }
+  saveData();
+}
+
+// Generate a directive based on the user's ACTUAL data
+function generateInsight(){
+  const c=activeCoach;
+  const rec=state.recovery;
+  const day=planState.currentDay||getTodayDay();
+  const session=planState.plan?.[day];
+  // Recovery-driven priority
+  if(rec!==null&&rec<60){
+    return c.id==='ivan'?'Recovery is low. The body grows in rest, not the gym. Do not train today — full recovery is non-negotiable.':
+           c.id==='marcus'?'Recovery reads low. Discipline includes knowing when to back off. Light session or active recovery only.':
+           'Your recovery score is '+rec+'%. Reduce volume by 30-40% today or take an active recovery day. Pushing hard now risks injury and poor adaptation.';
+  }
+  if(rec!==null&&rec>=85){
+    return c.id==='blaze'?'Recovery is high — '+rec+'%! Attack today. Add a drop set to every working set. The body is primed.':
+           c.id==='caesar'?'Your recovery is excellent at '+rec+'%! Today the muscle is ready to be punished. Chase the pump with everything!':
+           'Recovery is strong at '+rec+'%. This is a green-light day — push your working sets hard and aim to beat last session\'s numbers.';
+  }
+  // Plan-driven
+  if(session&&!session.isRest){
+    return c.id==='ivan'?'Today is '+session.name+'. Two warm-ups, then one all-out working set per exercise to absolute failure. Nothing more.':
+           c.id==='ford'?'Today: '+session.name+'. Target 6-10 reps at 75-80% 1RM. Rest 2-3 minutes on compounds. Track every set.':
+           'Today is '+session.name+'. Focus on progressive overload — beat last session by a rep or 2.5kg on your main lifts.';
+  }
+  if(session&&session.isRest){
+    return pick(c.responses.recovery||c.responses.default);
+  }
+  return c.responses.default[0];
+}
+
+// Build the directive board: prioritized action cards from real data
+function renderDirectiveBoard(){
+  const board=document.getElementById('directive-board');
+  document.getElementById('directive-coach-lbl').textContent=activeCoach.name;
+  const cards=[];
+  const day=planState.currentDay||getTodayDay();
+  const session=planState.plan?.[day];
+  const rec=state.recovery;
+
+  // 1. Recovery directive
+  if(rec!==null){
+    const col=rec>=85?'var(--green)':rec>=60?'var(--gold)':'var(--red)';
+    const icon=rec>=85?'ti-bolt':rec>=60?'ti-activity':'ti-bed';
+    const txt=rec>=85?'High recovery ('+rec+'%). Push hard — add intensity today.':rec>=60?'Moderate recovery ('+rec+'%). Train as planned.':'Low recovery ('+rec+'%). Cut volume 30-40% or rest.';
+    cards.push({icon,col,title:'Recovery Status',txt});
+  } else {
+    cards.push({icon:'ti-bed',col:'var(--muted)',title:'Recovery Status',txt:'Log sleep in Profile to get recovery-based training adjustments.'});
+  }
+
+  // 2. Today's session
+  if(session){
+    if(session.isRest){
+      cards.push({icon:'ti-zzz',col:'var(--muted)',title:'Today: Rest Day',txt:pick(activeCoach.responses.recovery||activeCoach.responses.default)});
+    } else {
+      const exCount=session.exercises.length;
+      cards.push({icon:'ti-barbell',col:'var(--gold)',title:'Today: '+session.name,txt:exCount+' exercises · '+session.muscles.join(', ')+'. '+(activeCoach.responses.bench?activeCoach.responses.bench[0]:'')});
+    }
+  } else {
+    cards.push({icon:'ti-clipboard',col:'var(--gold)',title:'No Plan Yet',txt:'Head to the Workout tab and set up your training plan to get daily directives.'});
+  }
+
+  // 3. Volume alert (weekly sets per muscle)
+  const vol=calcWeeklyVolume();
+  const alerts=[];
+  for(const m in vol){
+    if(vol[m]<6&&vol[m]>0)alerts.push(m+' is undertrained ('+vol[m]+' sets/wk)');
+    if(vol[m]>22)alerts.push(m+' may be overtrained ('+vol[m]+' sets/wk)');
+  }
+  if(alerts.length){
+    cards.push({icon:'ti-alert-triangle',col:'var(--orange)',title:'Volume Alert',txt:alerts.slice(0,2).join(' · ')+'.'});
+  }
+
+  // 4. Progression directive from last logged exercise
+  const prog=getLatestProgressionTip();
+  if(prog)cards.push({icon:'ti-trending-up',col:'var(--green)',title:'Progression',txt:prog});
+
+  board.innerHTML=cards.map(c=>`
+    <div style="background:var(--bg2);border-left:3px solid ${c.col};padding:12px 14px;margin-bottom:8px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+        <i class="ti ${c.icon}" style="font-size:18px;color:${c.col}"></i>
+        <span style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:${c.col}">${c.title}</span>
+      </div>
+      <div style="font-size:13px;color:var(--muted2);line-height:1.5">${c.txt}</div>
+    </div>`).join('');
+}
+
+function getLatestProgressionTip(){
+  let latest=null,latestName=null;
+  for(const name in planState.history){
+    const h=planState.history[name];
+    if(h.length){
+      const last=h[h.length-1];
+      if(!latest||last.date>=latest.date){latest=last;latestName=name;}
+    }
+  }
+  if(!latest)return null;
+  if(latest.reps>=10)return `${latestName}: last set ${latest.weight}kg × ${latest.reps}. Increase to ${(latest.weight+2.5).toFixed(1)}kg next session.`;
+  if(latest.reps>=6)return `${latestName}: ${latest.weight}kg × ${latest.reps} is solid. Aim for ${latest.reps+1}+ reps before adding weight.`;
+  return `${latestName}: ${latest.reps} reps is below target. Hold ${latest.weight}kg and build reps, or drop 2.5kg.`;
+}
+
+function startOnboarding(){
+  document.getElementById('welcome-modal').classList.remove('open');
+  goPage('workout');
+}
+
+// Data-driven coach query — reads actual user data to answer questions
+function coachAnswer(msg){
+  const lower=msg.toLowerCase();
+  const c=activeCoach;
+
+  // Find mentioned exercise from history
+  const histKeys=Object.keys(planState.history||{});
+  const mentionedEx=histKeys.find(name=>lower.includes(name.toLowerCase().split(' ')[0]));
+
+  if(mentionedEx){
+    const hist=planState.history[mentionedEx];
+    const last=hist[hist.length-1];
+    const target=calcTargetWeight(mentionedEx);
+    const orm=epley(last.weight,last.reps);
+    const prevOrm=hist.length>1?epley(hist[hist.length-2].weight,hist[hist.length-2].reps):null;
+    const trend=prevOrm?(orm>prevOrm?'↑ up':'↓ down'):null;
+    return `${mentionedEx}: last session ${last.weight}kg × ${last.reps} reps (${last.date}). Est. 1RM: ${orm}kg${trend?' — '+trend+' from previous session':''}.${target?' Next target: '+target+'kg.':' First time — start light and feel it out.'}`;
+  }
+
+  // Recovery question
+  if(lower.includes('recover')||lower.includes('sleep')||lower.includes('tired')||lower.includes('rest')){
+    const rec=state.recovery;
+    if(rec!==null){
+      const status=rec>=85?'strong — green light to push hard today':rec>=60?'moderate — train as planned but listen to your body':'low — reduce volume by 30% or take an active recovery day';
+      return `Your recovery is ${rec}% — ${status}. ${c.responses.recovery?pick(c.responses.recovery):''}`;
+    }
+    return 'Log your sleep in the Profile tab to get recovery-based advice. I need that data to give you an accurate picture.';
+  }
+
+  // Volume/plan question
+  if(lower.includes('volume')||lower.includes('sets')||lower.includes('plan')){
+    const vol=calcWeeklyVolume();
+    if(Object.keys(vol).length){
+      const entries=Object.entries(vol).map(([m,s])=>`${m}: ${s} sets`).join(', ');
+      return `Current weekly volume — ${entries}. Optimal hypertrophy range is 10-20 sets per muscle per week.`;
+    }
+    return 'No workout data yet. Build your plan in the Workout tab and start logging sessions.';
+  }
+
+  // PR question
+  if(lower.includes('pr')||lower.includes('record')||lower.includes('best')||lower.includes('1rm')||lower.includes('max')){
+    const prs=getAllPRs();
+    const top=Object.entries(prs).sort((a,b)=>b[1]-a[1]).slice(0,3);
+    if(top.length)return `Your top estimated 1RMs: ${top.map(([n,v])=>n+' '+v+'kg').join(', ')}. Check the Strength tab for full history.`;
+    return 'No PRs logged yet. Start logging your sets in the Workout tab.';
+  }
+
+  // Progress question
+  if(lower.includes('progress')||lower.includes('improve')||lower.includes('trend')){
+    const tip=getLatestProgressionTip();
+    return tip||'Keep logging consistently to see your progression trends.';
+  }
+
+  // Today / what should I do
+  if(lower.includes('today')||lower.includes('do')||lower.includes('train')||lower.includes('session')){
+    return generateInsight();
+  }
+
+  // Fallback — direct to directive board
+  return `I don't have enough context for that yet. Check the Directive Board above — it reads your actual data (recovery, volume, last session) and gives you a daily action. ${c.responses.default?pick(c.responses.default):''}`;
+}
+
+function submitCoachQuery(){
+  const inp=document.getElementById('coach-query-input');
+  if(!inp)return;
+  const msg=inp.value.trim();
+  if(!msg)return;
+  const answer=coachAnswer(msg);
+  const result=document.getElementById('coach-query-result');
+  if(result){
+    result.style.display='block';
+    result.innerHTML=`<div style="background:var(--bg2);border-left:3px solid var(--gold);padding:14px 16px">
+      <div style="font-size:9px;font-weight:700;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:6px">${activeCoach.name}</div>
+      <div style="font-size:13px;color:var(--muted2);line-height:1.6">${answer}</div>
+      <div style="font-size:10px;color:var(--muted);margin-top:8px">Based on your logged data · ${today()}</div>
+    </div>`;
+  }
+  inp.value='';
+}
+
+function pick(arr){return arr[Math.floor(Math.random()*arr.length)];}
+
+function initComparisonDates(){
+  const toEl=document.getElementById('comp-to');
+  const fromEl=document.getElementById('comp-from');
+  if(toEl&&!toEl.value)toEl.value=today();
+  if(fromEl&&!fromEl.value){
+    const d=new Date();d.setDate(d.getDate()-30);
+    fromEl.value=d.toISOString().split('T')[0];
+  }
+}
+
+// ── WORKOUT SYSTEM ────────────────────────────────────────────
+// Exercise DB: group, region (specific head/area), type, equipment, rep range, form cue
+const EX_DB=[
+  // ===== CHEST =====
+  {name:'Bench Press',group:'chest',region:'mid',type:'compound',eq:'full',lo:5,hi:8,cue:'Retract shoulder blades, slight arch, bar to mid-chest, drive through your feet.'},
+  {name:'Incline Bench Press',group:'chest',region:'upper',type:'compound',eq:'full',lo:6,hi:10,cue:'30-45° incline. Bar to upper chest, elbows ~45° to torso.'},
+  {name:'Decline Bench Press',group:'chest',region:'lower',type:'compound',eq:'full',lo:6,hi:10,cue:'Targets lower pecs. Control the bar to the lower chest line.'},
+  {name:'Incline Dumbbell Press',group:'chest',region:'upper',type:'compound',eq:'dumbbells',lo:8,hi:12,cue:'Deep stretch at bottom, press dumbbells together at top.'},
+  {name:'Dumbbell Press',group:'chest',region:'mid',type:'compound',eq:'dumbbells',lo:8,hi:12,cue:'Lower until you feel a stretch, press without clanking.'},
+  {name:'Chest Dips',group:'chest',region:'lower',type:'compound',eq:'full',lo:6,hi:12,cue:'Lean forward to bias chest, deep stretch at the bottom.'},
+  {name:'Cable Crossover',group:'chest',region:'mid',type:'isolation',eq:'full',lo:12,hi:20,cue:'Slight forward lean, squeeze hands together, control the stretch.'},
+  {name:'Incline Cable Fly',group:'chest',region:'upper',type:'isolation',eq:'full',lo:12,hi:20,cue:'Low-to-high path, constant tension, squeeze at the top.'},
+  {name:'Dumbbell Fly',group:'chest',region:'mid',type:'isolation',eq:'dumbbells',lo:10,hi:15,cue:'Soft elbows, big stretch, hug a tree on the way up.'},
+  {name:'Pec Dec',group:'chest',region:'mid',type:'isolation',eq:'full',lo:12,hi:20,cue:'Constant tension, pause and squeeze at peak contraction.'},
+  {name:'Push-Up',group:'chest',region:'mid',type:'compound',eq:'home',lo:10,hi:25,cue:'Body in a straight line, full range, elbows ~45°.'},
+  // ===== BACK =====
+  {name:'Deadlift',group:'back',region:'lower-back',type:'compound',eq:'full',lo:3,hi:6,cue:'Neutral spine, bar over mid-foot, push the floor away, lock out with glutes.'},
+  {name:'Rack Pull',group:'back',region:'traps',type:'compound',eq:'full',lo:5,hi:8,cue:'Pins at/below knee, heavy load, shrug-and-lock at top for traps.'},
+  {name:'Pull-Ups',group:'back',region:'lats',type:'compound',eq:'home',lo:5,hi:12,cue:'Full hang, drive elbows down and back, chest to bar.'},
+  {name:'Lat Pulldown',group:'back',region:'lats',type:'compound',eq:'full',lo:8,hi:12,cue:'Pull to upper chest, lead with elbows, no swinging.'},
+  {name:'Barbell Row',group:'back',region:'mid-back',type:'compound',eq:'full',lo:6,hi:10,cue:'Hinge ~45°, pull to lower ribs, squeeze shoulder blades.'},
+  {name:'T-Bar Row',group:'back',region:'mid-back',type:'compound',eq:'full',lo:8,hi:12,cue:'Chest supported feel, drive elbows back, full squeeze.'},
+  {name:'Seated Cable Row',group:'back',region:'mid-back',type:'compound',eq:'full',lo:8,hi:12,cue:'Tall chest, pull to navel, control the stretch forward.'},
+  {name:'Single Arm Row',group:'back',region:'lats',type:'compound',eq:'dumbbells',lo:8,hi:12,cue:'Brace on bench, pull elbow to hip, full stretch each rep.'},
+  {name:'Inverted Row',group:'back',region:'mid-back',type:'compound',eq:'home',lo:8,hi:15,cue:'Body rigid, pull chest to bar, squeeze blades.'},
+  {name:'Straight Arm Pulldown',group:'back',region:'lats',type:'isolation',eq:'full',lo:12,hi:20,cue:'Arms straight, drive the bar down with your lats, feel the stretch up top.'},
+  {name:'Face Pulls',group:'back',region:'traps',type:'isolation',eq:'full',lo:12,hi:20,cue:'Pull to forehead, external rotation, great for rear delts and mid-traps.'},
+  {name:'Shrugs',group:'back',region:'traps',type:'isolation',eq:'dumbbells',lo:10,hi:15,cue:'Straight up to ears, pause at top, no rolling.'},
+  {name:'Hyperextension',group:'back',region:'lower-back',type:'isolation',eq:'full',lo:10,hi:15,cue:'Hinge at hips, squeeze glutes at top, no hyperextending the spine.'},
+  // ===== LEGS =====
+  {name:'Squat',group:'legs',region:'quads',type:'compound',eq:'full',lo:5,hi:8,cue:'Brace core, break at hips and knees, depth below parallel, drive up.'},
+  {name:'Front Squat',group:'legs',region:'quads',type:'compound',eq:'full',lo:5,hi:8,cue:'Elbows high, upright torso, biases the quads hard.'},
+  {name:'Hack Squat',group:'legs',region:'quads',type:'compound',eq:'full',lo:8,hi:12,cue:'Feet low for quads, full depth, controlled descent.'},
+  {name:'Leg Press',group:'legs',region:'quads',type:'compound',eq:'full',lo:10,hi:15,cue:'Feet low/narrow for quads, don\'t lock out hard, deep ROM.'},
+  {name:'Bulgarian Split Squat',group:'legs',region:'quads',type:'compound',eq:'dumbbells',lo:8,hi:12,cue:'Rear foot elevated, drop straight down, drive through front heel.'},
+  {name:'Goblet Squat',group:'legs',region:'quads',type:'compound',eq:'dumbbells',lo:10,hi:15,cue:'Hold weight at chest, upright, elbows inside knees at bottom.'},
+  {name:'Lunges',group:'legs',region:'quads',type:'compound',eq:'dumbbells',lo:10,hi:15,cue:'Long step, drop the back knee, push through the front heel.'},
+  {name:'Leg Extension',group:'legs',region:'quads',type:'isolation',eq:'full',lo:12,hi:20,cue:'Squeeze at the top, control down, point toes slightly out for sweep.'},
+  {name:'Romanian Deadlift',group:'legs',region:'hamstrings',type:'compound',eq:'full',lo:8,hi:12,cue:'Soft knees, push hips back, feel the hamstring stretch, bar close.'},
+  {name:'Leg Curl',group:'legs',region:'hamstrings',type:'isolation',eq:'full',lo:10,hi:15,cue:'Full squeeze, slow negative, don\'t let hips rise.'},
+  {name:'Glute Bridge',group:'legs',region:'glutes',type:'compound',eq:'home',lo:10,hi:20,cue:'Drive through heels, squeeze glutes hard at the top.'},
+  {name:'Hip Thrust',group:'legs',region:'glutes',type:'compound',eq:'full',lo:8,hi:12,cue:'Back on bench, chin tucked, full glute lockout at top.'},
+  {name:'Standing Calf Raise',group:'legs',region:'calves-gastro',type:'isolation',eq:'full',lo:10,hi:15,cue:'Full stretch at bottom, explosive up, pause at the top.'},
+  {name:'Seated Calf Raise',group:'legs',region:'calves-soleus',type:'isolation',eq:'full',lo:12,hi:20,cue:'Bent knee targets the soleus. Slow, full ROM.'},
+  // ===== SHOULDERS =====
+  {name:'Overhead Press',group:'shoulders',region:'front-delt',type:'compound',eq:'full',lo:5,hi:8,cue:'Brace, press in a straight line, head through at lockout.'},
+  {name:'Arnold Press',group:'shoulders',region:'front-delt',type:'compound',eq:'dumbbells',lo:8,hi:12,cue:'Rotate palms through the press, full ROM.'},
+  {name:'Lateral Raise',group:'shoulders',region:'side-delt',type:'isolation',eq:'dumbbells',lo:12,hi:20,cue:'Lead with elbows, slight forward lean, no swinging.'},
+  {name:'Cable Lateral Raise',group:'shoulders',region:'side-delt',type:'isolation',eq:'full',lo:12,hi:20,cue:'Constant tension, control the negative, behind the body.'},
+  {name:'Front Raise',group:'shoulders',region:'front-delt',type:'isolation',eq:'dumbbells',lo:10,hi:15,cue:'Raise to eye level, no momentum.'},
+  {name:'Rear Delt Fly',group:'shoulders',region:'rear-delt',type:'isolation',eq:'dumbbells',lo:12,hi:20,cue:'Hinge over, pinkies up, squeeze rear delts, not traps.'},
+  {name:'Reverse Pec Dec',group:'shoulders',region:'rear-delt',type:'isolation',eq:'full',lo:12,hi:20,cue:'Constant tension on the rear delts, squeeze and control.'},
+  {name:'Upright Row',group:'shoulders',region:'side-delt',type:'compound',eq:'full',lo:8,hi:12,cue:'Pull to chest height, elbows lead, not too narrow on the grip.'},
+  // ===== ARMS — BICEPS =====
+  {name:'Barbell Curl',group:'arms',region:'bicep-short',type:'isolation',eq:'full',lo:8,hi:12,cue:'Elbows pinned, no swing, full squeeze at top.'},
+  {name:'Incline Dumbbell Curl',group:'arms',region:'bicep-long',type:'isolation',eq:'dumbbells',lo:10,hi:15,cue:'Arms behind the body stretches the long (outer) head. Full stretch.'},
+  {name:'Preacher Curl',group:'arms',region:'bicep-short',type:'isolation',eq:'full',lo:10,hi:15,cue:'Arms in front targets the short (inner) head. No bouncing off the bottom.'},
+  {name:'Concentration Curl',group:'arms',region:'bicep-short',type:'isolation',eq:'dumbbells',lo:10,hi:15,cue:'Elbow on inner thigh, peak squeeze every rep.'},
+  {name:'Hammer Curl',group:'arms',region:'brachialis',type:'isolation',eq:'dumbbells',lo:10,hi:15,cue:'Neutral grip hits brachialis and forearm. Controlled tempo.'},
+  {name:'Cable Curl',group:'arms',region:'bicep-short',type:'isolation',eq:'full',lo:12,hi:20,cue:'Constant tension throughout, squeeze hard at the top.'},
+  // ===== ARMS — TRICEPS =====
+  {name:'Close Grip Bench',group:'arms',region:'tricep-lateral',type:'compound',eq:'full',lo:6,hi:10,cue:'Shoulder-width grip, elbows tucked, drive with the triceps.'},
+  {name:'Dips',group:'arms',region:'tricep-lateral',type:'compound',eq:'home',lo:8,hi:15,cue:'Stay upright to bias triceps, full lockout at top.'},
+  {name:'Overhead Extension',group:'arms',region:'tricep-long',type:'isolation',eq:'dumbbells',lo:10,hi:15,cue:'Overhead position stretches the long head. Keep elbows in.'},
+  {name:'Skull Crushers',group:'arms',region:'tricep-long',type:'isolation',eq:'full',lo:8,hi:12,cue:'Lower to forehead/behind head, elbows still, stretch the long head.'},
+  {name:'Tricep Pushdown',group:'arms',region:'tricep-lateral',type:'isolation',eq:'full',lo:12,hi:20,cue:'Elbows pinned, full lockout, squeeze at the bottom.'},
+  {name:'Overhead Cable Extension',group:'arms',region:'tricep-long',type:'isolation',eq:'full',lo:12,hi:20,cue:'Face away, overhead path for the long head, constant tension.'},
+  // ===== ARMS — FOREARMS =====
+  {name:'Wrist Curl',group:'arms',region:'forearm-flexor',type:'isolation',eq:'dumbbells',lo:15,hi:25,cue:'Forearms on thighs, curl the wrists up, full flex.'},
+  {name:'Reverse Wrist Curl',group:'arms',region:'forearm-extensor',type:'isolation',eq:'dumbbells',lo:15,hi:25,cue:'Palms down, extend the wrists up — trains the extensors.'},
+  {name:'Reverse Curl',group:'arms',region:'forearm-extensor',type:'isolation',eq:'full',lo:12,hi:20,cue:'Overhand grip, hits brachioradialis and extensors.'},
+  // ===== CORE =====
+  {name:'Hanging Leg Raise',group:'core',region:'abs',type:'isolation',eq:'full',lo:10,hi:20,cue:'Posterior pelvic tilt, raise legs with control, no swinging.'},
+  {name:'Cable Crunch',group:'core',region:'abs',type:'isolation',eq:'full',lo:12,hi:20,cue:'Crunch with the abs, round the spine, hips stay put.'},
+  {name:'Ab Wheel',group:'core',region:'abs',type:'isolation',eq:'home',lo:8,hi:15,cue:'Brace hard, roll out only as far as you can keep a flat back.'},
+  {name:'Decline Crunch',group:'core',region:'abs',type:'isolation',eq:'full',lo:12,hi:20,cue:'Controlled, squeeze the abs, don\'t yank the neck.'},
+  {name:'Russian Twist',group:'core',region:'obliques',type:'isolation',eq:'home',lo:15,hi:30,cue:'Rotate from the torso, control side to side.'},
+  {name:'Plank',group:'core',region:'abs',type:'isolation',eq:'home',lo:30,hi:90,cue:'Straight line, brace abs and glutes. (seconds, not reps)'},
+];
+
+// Coach exercise preferences — weights by type/equipment + region priorities
+const COACH_EX_PREF={
+  aria:{compound:1,isolation:1,barbell:1,cable:1,machine:1,note:'balanced'},
+  ivan:{compound:2.5,isolation:0.5,barbell:2,cable:0.7,machine:0.8,note:'compounds, intensity, hates fluff'},
+  caesar:{compound:1,isolation:1.8,barbell:1,cable:2,machine:1.6,note:'cables, constant tension, the pump'},
+  thor:{compound:2.5,isolation:0.6,barbell:2.5,cable:0.6,machine:0.8,note:'barbell big lifts'},
+  ford:{compound:1.3,isolation:1.2,barbell:1.2,cable:1.2,machine:1.3,note:'evidence-based, balanced'},
+  marcus:{compound:1.8,isolation:0.9,barbell:1.6,cable:0.9,machine:0.9,note:'no-frills barbell + bodyweight'},
+  zen:{compound:0.9,isolation:1.6,barbell:0.8,cable:1.8,machine:1.6,note:'controlled cable/machine, mind-muscle'},
+  rex:{compound:2.3,isolation:0.8,barbell:2.3,cable:0.8,machine:0.9,note:'powerbuilding, big 3 first'},
+  blaze:{compound:1.2,isolation:2,barbell:1,cable:1.8,machine:1.7,note:'high volume, lots of isolation'}
+};
+
+// equipment classifier for an exercise (for coach weighting)
+function exTool(ex){
+  if(['Cable Crossover','Incline Cable Fly','Pec Dec','Lat Pulldown','Seated Cable Row','Face Pulls','Straight Arm Pulldown','Cable Lateral Raise','Reverse Pec Dec','Cable Curl','Tricep Pushdown','Overhead Cable Extension','Cable Crunch','Leg Press','Leg Extension','Leg Curl','Hack Squat','Seated Calf Raise','Standing Calf Raise','Pec Dec'].includes(ex.name))return ex.name.includes('Cable')||ex.name.includes('Pulldown')||ex.name.includes('Pushdown')||ex.name.includes('Crossover')||ex.name.includes('Face')||ex.name.includes('Pec Dec')?'cable':'machine';
+  if(['Barbell Row','Bench Press','Incline Bench Press','Decline Bench Press','Squat','Front Squat','Deadlift','Romanian Deadlift','Overhead Press','Barbell Curl','Close Grip Bench','Skull Crushers','Rack Pull','T-Bar Row','Hip Thrust','Upright Row','Reverse Curl','Preacher Curl','Hyperextension'].includes(ex.name))return 'barbell';
+  return 'machine';
+}
+
+// Build grouped structure for the preference list (filtered by equipment)
+function exercisesForGroup(group){
+  return EX_DB.filter(e=>e.group===group);
+}
+
+// LEGACY shape kept for picker compatibility
+const ALL_EXERCISES={
+  chest:exercisesForGroup('chest'),back:exercisesForGroup('back'),legs:exercisesForGroup('legs'),
+  shoulders:exercisesForGroup('shoulders'),arms:exercisesForGroup('arms'),core:exercisesForGroup('core')
+};
+
+let planState={
+  goal:null,days:null,equipment:'full',
+  prefs:{},// exName -> 'like'|'dislike'|'cant'
+  plan:null,// {Mon:{name,muscles,exercises:[{name,sets,reps,lastWeight,lastReps}]}}
+  currentDay:null,
+  history:{},// exName -> [{weight,reps,date}]
+  sessionDone:{}// date -> true
+};
+
+function selectGoal(g){
+  planState.goal=g;
+  document.querySelectorAll('.ob-opt').forEach(o=>o.classList.remove('on'));
+  document.getElementById('goal-'+g).classList.add('on');
+  checkNextReady();
+}
+function selectDays(n){
+  planState.days=n;
+  document.querySelectorAll('.day-num-btn').forEach(b=>b.classList.remove('on'));
+  document.getElementById('days-'+n).classList.add('on');
+  checkNextReady();
+}
+function toggleEquip(el,eq){
+  document.querySelectorAll('.eq-btn').forEach(b=>{b.classList.remove('on');});
+  el.classList.add('on');
+  planState.equipment=eq;
+}
+function checkNextReady(){
+  const btn=document.getElementById('next-to-prefs');
+  const ready=planState.goal&&planState.days;
+  btn.disabled=!ready;btn.style.opacity=ready?'1':'0.4';
+}
+
+function goToPrefs(){
+  document.getElementById('ob-step-1').style.display='none';
+  document.getElementById('ob-step-2').style.display='block';
+  renderPrefList();
+}
+
+function renderPrefList(){
+  const cats=Object.keys(ALL_EXERCISES);
+  const eq=planState.equipment;
+  let html='';
+  cats.forEach(cat=>{
+    const exs=ALL_EXERCISES[cat].filter(e=>eq==='full'||(eq==='dumbbells'&&(e.eq==='dumbbells'||e.eq==='home'))||eq==='home'&&e.eq==='home');
+    if(!exs.length)return;
+    html+=`<div class="pref-section-hdr">${cat.toUpperCase()}</div>`;
+    exs.forEach(ex=>{
+      const pref=planState.prefs[ex.name]||'like';
+      html+=`<div class="pref-item" id="pref-${ex.name.replace(/\s/g,'_')}">
+        <div><div class="pref-name">${ex.name}</div><div class="pref-cat">${(ex.region||cat).replace(/-/g,' ')} · ${ex.type}</div></div>
+        <div class="pref-toggle">
+          <div class="pt-btn ${pref==='like'?'like':''}" title="Like" onclick="setPref('${ex.name}','like',this)"><i class="ti ti-check"></i></div>
+          <div class="pt-btn ${pref==='dislike'?'dislike':''}" title="Dislike" onclick="setPref('${ex.name}','dislike',this)"><i class="ti ti-x"></i></div>
+          <div class="pt-btn ${pref==='cant'?'cant':''}" title="Can't do" onclick="setPref('${ex.name}','cant',this)"><i class="ti ti-ban"></i></div>
+        </div>
+      </div>`;
+    });
+  });
+  document.getElementById('pref-list').innerHTML=html;
+}
+
+function setPref(name,pref,el){
+  planState.prefs[name]=pref;
+  const row=el.closest('.pref-toggle');
+  row.querySelectorAll('.pt-btn').forEach(b=>{b.classList.remove('like','dislike','cant');});
+  el.classList.add(pref);
+}
+
+// Module-level set/rep scheme by coach + goal
+// Sets per exercise + warmups based on coach + goal (reps come from the exercise itself)
+function getSetScheme(goal){
+  const id=activeCoach.id;
+  if(id==='ivan')return{sets:1,warmups:2};
+  if(id==='blaze')return{sets:5,warmups:1};
+  if(id==='caesar')return{sets:4,warmups:1};
+  if(id==='thor')return{sets:4,warmups:2};
+  if(id==='rex')return{sets:3,warmups:2};
+  if(id==='marcus')return{sets:3,warmups:1};
+  if(id==='ford')return{sets:3,warmups:2};
+  if(id==='zen')return{sets:3,warmups:1};
+  return{sets:3,warmups:1};
+}
+
+// Reps for an exercise: its natural range, shifted by goal
+function repsForExercise(ex,goal){
+  let lo=ex.lo,hi=ex.hi;
+  if(goal==='strength'){lo=Math.max(3,Math.round(lo*0.6));hi=Math.max(5,Math.round(hi*0.6));}
+  else if(goal==='fatloss'||goal==='endurance'){lo=Math.round(lo*1.3);hi=Math.round(hi*1.4);}
+  return Math.round((lo+hi)/2);
+}
+
+// Coach-weighted, like-aware exercise picker for a muscle GROUP, ensuring REGION coverage.
+// Returns array of exercise objects. compounds first.
+function pickForGroup(group,count){
+  const{equipment,prefs,goal}=planState;
+  const liked=name=>!prefs[name]||prefs[name]==='like';
+  const eqOk=e=>equipment==='full'||(equipment==='dumbbells'&&(e.eq==='dumbbells'||e.eq==='home'))||(equipment==='home'&&e.eq==='home');
+  const pref=COACH_EX_PREF[activeCoach.id]||COACH_EX_PREF.aria;
+  let pool=EX_DB.filter(e=>e.group===group&&eqOk(e)&&liked(e.name));
+  if(!pool.length)return [];
+  // score each by coach preference
+  const score=e=>{
+    let s=pref[e.type]||1;
+    s*=pref[exTool(e)]||1;
+    s*=(0.8+Math.random()*0.5); // variation
+    return s;
+  };
+  // Group by region to ensure coverage
+  const byRegion={};
+  pool.forEach(e=>{(byRegion[e.region]=byRegion[e.region]||[]).push(e);});
+  const regions=Object.keys(byRegion);
+  let chosen=[];
+  // For major groups, always anchor with the best COMPOUND first (even coaches who favor isolation still need a squat/press/row)
+  const majorGroups=['legs','chest','back'];
+  if(majorGroups.includes(group)){
+    const compounds=pool.filter(e=>e.type==='compound');
+    if(compounds.length){
+      const anchor=compounds.sort((a,b)=>score(b)-score(a))[0];
+      chosen.push(anchor);
+    }
+  }
+  // Take the best exercise from each region (coverage) up to count
+  regions.sort(()=>Math.random()-.5).forEach(r=>{
+    if(chosen.length>=count)return;
+    const best=byRegion[r].filter(e=>!chosen.includes(e)).sort((a,b)=>score(b)-score(a))[0];
+    if(best)chosen.push(best);
+  });
+  // If we still need more, fill with highest-scoring remaining
+  if(chosen.length<count){
+    const remaining=pool.filter(e=>!chosen.includes(e)).sort((a,b)=>score(b)-score(a));
+    chosen=chosen.concat(remaining.slice(0,count-chosen.length));
+  }
+  // compounds first
+  chosen.sort((a,b)=>(a.type==='compound'?-1:1)-(b.type==='compound'?-1:1));
+  return chosen.slice(0,count);
+}
+
+function buildPlanStructure(){
+  const{goal,days}=planState;
+  const makeDay=(name,groups,counts)=>{
+    let exercises=[];
+    groups.forEach((g,i)=>{
+      const picks=pickForGroup(g,counts[i]||2);
+      picks.forEach(ex=>{
+        const sch=getSetScheme(goal);
+        exercises.push({name:ex.name,muscle:g,region:ex.region,type:ex.type,cue:ex.cue,sets:sch.sets,warmups:sch.warmups,reps:repsForExercise(ex,goal)});
+      });
+    });
+    // compounds first across the whole day
+    exercises.sort((a,b)=>(a.type==='compound'?0:1)-(b.type==='compound'?0:1));
+    return{name,muscles:groups,exercises};
+  };
+  let plan={},restDays=[];
+  if(days===3){
+    ['Mon','Wed','Fri'].forEach(d=>{plan[d]=makeDay('Full Body',['legs','chest','back','shoulders','arms'],[2,1,1,1,1]);});
+    restDays=['Tue','Thu','Sat','Sun'];
+  } else if(days===4){
+    plan['Mon']=makeDay('Upper Body',['chest','back','shoulders','arms'],[2,2,1,2]);
+    plan['Tue']=makeDay('Lower Body',['legs','core'],[5,1]);
+    plan['Thu']=makeDay('Upper Body',['back','chest','shoulders','arms'],[2,2,1,2]);
+    plan['Fri']=makeDay('Lower Body',['legs','core'],[5,1]);
+    restDays=['Wed','Sat','Sun'];
+  } else if(days===5){
+    plan['Mon']=makeDay('Push',['chest','shoulders','arms'],[3,2,1]);
+    plan['Tue']=makeDay('Pull',['back','arms'],[3,2]);
+    plan['Wed']=makeDay('Legs',['legs','core'],[5,1]);
+    plan['Thu']=makeDay('Upper',['chest','back','shoulders'],[2,2,2]);
+    plan['Sat']=makeDay('Legs',['legs','core'],[5,1]);
+    restDays=['Fri','Sun'];
+  } else {
+    plan['Mon']=makeDay('Push',['chest','shoulders','arms'],[3,2,1]);
+    plan['Tue']=makeDay('Pull',['back','arms'],[3,2]);
+    plan['Wed']=makeDay('Legs',['legs','core'],[5,1]);
+    plan['Thu']=makeDay('Push',['chest','shoulders','arms'],[3,2,1]);
+    plan['Fri']=makeDay('Pull',['back','arms'],[3,2]);
+    plan['Sat']=makeDay('Legs',['legs','core'],[5,1]);
+    restDays=['Sun'];
+  }
+  restDays.forEach(d=>{plan[d]={name:'Rest',muscles:[],exercises:[],isRest:true};});
+  return plan;
+}
+
+function generatePlan(){
+  planState.plan=buildPlanStructure();
+  planState.currentDay=getTodayDay();
+  saveData();
+  showActivePlan();
+  // Show first-workout guide if this is their first ever plan
+  if(!planState.hasSeenWorkoutGuide){
+    setTimeout(()=>{
+      document.getElementById('first-workout-modal').classList.add('open');
+    },400);
+  }
+}
+
+function dismissFirstWorkout(){
+  document.getElementById('first-workout-modal').classList.remove('open');
+  planState.hasSeenWorkoutGuide=true;
+  saveData();
+}
+
+// Rebuild plan with new coach's scheme but keep all history
+function rebuildPlanKeepHistory(){
+  // history lives in planState.history keyed by exercise name — untouched.
+  planState.plan=buildPlanStructure();
+  if(document.getElementById('wo-active').style.display!=='none')showActivePlan();
+}
+
+// Weekly volume: working sets per muscle across the whole plan
+function calcWeeklyVolume(){
+  const vol={};
+  if(!planState.plan)return vol;
+  for(const day in planState.plan){
+    const s=planState.plan[day];
+    if(s.isRest)continue;
+    s.exercises.forEach(ex=>{
+      vol[ex.muscle]=(vol[ex.muscle]||0)+(ex.sets||0);
+    });
+  }
+  return vol;
+}
+
+function getTodayDay(){
+  const days=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  return days[new Date().getDay()];
+}
+
+function showActivePlan(){
+  document.getElementById('wo-onboarding').style.display='none';
+  document.getElementById('wo-active').style.display='block';
+  renderDayRow();
+  renderDayWorkout(planState.currentDay||getTodayDay());
+}
+
+function renderDayRow(){
+  const days=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  const today=getTodayDay();
+  document.getElementById('day-row').innerHTML=days.map(d=>{
+    const session=planState.plan?.[d];
+    const isToday=d===today;
+    const isRest=session?.isRest;
+    return `<div class="dpill${isToday?' on':''}" onclick="renderDayWorkout('${d}',this)">${d}${isRest?'<br><span style="font-size:8px">REST</span>':''}</div>`;
+  }).join('');
+}
+
+function renderDayWorkout(day,el){
+  planState.currentDay=day;
+  if(el){document.querySelectorAll('.dpill').forEach(p=>p.classList.remove('on'));el.classList.add('on');}
+  const session=planState.plan?.[day];
+  if(!session){return;}
+  document.getElementById('wo-session-name').textContent=session.name.toUpperCase();
+  document.getElementById('wo-day-label').textContent=`${day} · ${session.muscles.join(', ')||'Rest'}`;
+  const container=document.getElementById('ex-container');
+  if(session.isRest){
+    container.innerHTML=`<div style="padding:40px 18px;text-align:center">
+      <div style="font-family:var(--ff);font-size:36px;color:var(--muted);letter-spacing:2px;margin-bottom:10px">REST DAY</div>
+      <div style="font-size:13px;color:var(--muted2)">${pick(activeCoach.responses.recovery||activeCoach.responses.default)}</div>
+    </div>`;
+    return;
+  }
+  container.innerHTML=session.exercises.map((ex,i)=>{
+    const hist=planState.history[ex.name];
+    const lastStr=hist?.length?`Last: ${hist[hist.length-1].weight}kg × ${hist[hist.length-1].reps} reps`:`${ex.sets} × ${ex.reps} reps · ${(ex.region||'').replace(/-/g,' ')}`;
+    const target=hist?.length?calcTarget(ex.name):`${ex.reps} REPS`;
+    const id=`ex-${day}-${i}`;
+    const sId=`sets-${day}-${i}`;
+    const typeBadge=ex.type==='compound'?'<span style="font-size:9px;font-weight:700;letter-spacing:1px;color:var(--gold);background:var(--gold-dim);padding:1px 6px;margin-left:6px">COMPOUND</span>':'';
+    const warmupRows=Array.from({length:ex.warmups||1},(_,wi)=>`
+      <div class="set-cols">
+        <div class="set-num">W${wi+1}</div>
+        <input class="si" type="number" inputmode="decimal" placeholder="kg"/>
+        <input class="si" type="number" inputmode="numeric" placeholder="reps"/>
+        <div class="set-done" onclick="markDone(this)"><i class="ti ti-check"></i></div>
+      </div>`).join('');
+    const workingRows=Array.from({length:ex.sets},(_,si)=>`
+      <div class="set-cols">
+        <div class="set-num">${si+1}</div>
+        <input class="si" type="number" inputmode="decimal" ${hist?.length?`value="${calcTargetWeight(ex.name)}"`:'placeholder="kg"'}/>
+        <input class="si" type="number" inputmode="numeric" placeholder="${ex.reps}" onchange="onRepEntered(this,'${ex.name}','${day}',${i})"/>
+        <div class="set-done" onclick="markDoneEx(this,'${ex.name}','${day}',${i})"><i class="ti ti-check"></i></div>
+      </div>`).join('');
+    return `<div class="ex-block${i===0?' active-ex':''}" id="${id}">
+      <div class="ex-hdr" onclick="toggleEx('${sId}','${id}')">
+        <div><div class="ex-name">${ex.name.toUpperCase()}${typeBadge}</div><div class="ex-last">${lastStr}</div></div>
+        <div class="ex-target">${target}</div>
+      </div>
+      <div class="sets-area${i===0?' open':''}" id="${sId}">
+        <div class="set-cols"><div></div><div class="col-lbl">Weight (kg)</div><div class="col-lbl">Reps</div><div class="col-lbl">Done</div></div>
+        ${warmupRows}${workingRows}
+        ${ex.cue?`<div style="font-size:11px;color:var(--muted);padding:8px 2px 0;line-height:1.5"><i class="ti ti-info-circle" style="font-size:12px;color:var(--gold)"></i> ${ex.cue}</div>`:''}
+        <div class="coach-tip">
+          <div class="coach-tip-name">${activeCoach.name}</div>
+          <div id="tip-${day}-${i}">Target ${ex.reps} reps. ${ex.type==='compound'?'Heavy compound — rest fully and brace hard.':'Isolation — focus on the squeeze and controlled tempo.'}</div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function calcTargetWeight(name){
+  const hist=planState.history[name];
+  if(!hist?.length)return '';
+  const last=hist[hist.length-1];
+  if(last.reps>=8)return(last.weight+2.5).toFixed(1);
+  if(last.reps>=6)return last.weight.toFixed(1);
+  return Math.max(0,last.weight-2.5).toFixed(1);
+}
+function calcTarget(name){
+  const hist=planState.history[name];
+  if(!hist?.length)return 'NEW';
+  const last=hist[hist.length-1];
+  if(last.reps>=8)return`TARGET ${(last.weight+2.5).toFixed(1)}kg`;
+  if(last.reps>=6)return`TARGET ${last.weight.toFixed(1)}kg`;
+  return`DROP TO ${Math.max(0,last.weight-2.5).toFixed(1)}kg`;
+}
+
+function onRepEntered(el,exName,day,idx){
+  const reps=parseInt(el.value);if(!reps)return;
+  const row=el.closest('.set-cols');
+  const w=parseFloat(row.querySelector('.si').value);
+  const tipEl=document.getElementById(`tip-${day}-${idx}`);
+  if(!tipEl||!w)return;
+  let msg='';
+  if(reps>=10)msg=`Strong! ${w}kg × ${reps} — add 2.5kg next session.`;
+  else if(reps>=6)msg=`Solid. ${reps} reps at ${w}kg is hypertrophy range. Hold weight next set.`;
+  else msg=`Only ${reps} reps. Next set drop to ${(w-2.5).toFixed(1)}kg and control the movement.`;
+  tipEl.textContent=msg;
+}
+
+function markDoneEx(el,exName,day,idx){
+  el.classList.toggle('checked');
+  if(el.classList.contains('checked')){
+    const row=el.closest('.set-cols');
+    const inputs=row.querySelectorAll('.si');
+    const w=parseFloat(inputs[0]?.value);
+    const r=parseInt(inputs[1]?.value);
+    // Save to history only if we have real numbers
+    if(w&&r){
+      if(!planState.history[exName])planState.history[exName]=[];
+      planState.history[exName].push({weight:w,reps:r,date:new Date().toISOString().split('T')[0]});
+      const ex=planState.plan?.[day]?.exercises[idx];
+      if(ex){ex.lastWeight=w;ex.lastReps=r;}
+      // Track PR by estimated 1RM
+      const est=e1rm(w,r);
+      const cur=state.prs[exName];
+      if(!cur||est>cur.e1rm){
+        state.prs[exName]={weight:w,reps:r,e1rm:est,date:today()};
+        toast('🏆 New PR: '+exName+' — '+w+'kg × '+r+' (e1RM '+est+'kg)');
+      }
+      saveData();
+    }
+    // Always start the rest timer when a working set is completed
+    startRestTimer(exName,r||10);
+  }
+}
+
+// Warmup sets — just mark done, no timer
+function markDone(el){
+  el.classList.toggle('checked');
+}
+
+// ── REST TIMER ────────────────────────────────────────────────
+let restInterval=null;
+let _restRemaining=0;
+
+function recommendedRest(exName,reps){
+  const compounds=['Bench Press','Squat','Deadlift','Overhead Press','Barbell Row','Romanian Deadlift','Incline Bench Press','Hack Squat','Leg Press','Pull-Ups','T-Bar Row','Rack Pull','Close Grip Bench','Decline Bench Press','Bulgarian Split Squat','Lunges','Front Squat','Hip Thrust'];
+  const isCompound=compounds.includes(exName);
+  const id=activeCoach.id;
+  if(id==='ivan')return isCompound?240:180;
+  if(id==='rex'||id==='thor')return isCompound?210:120;
+  if(id==='blaze')return isCompound?60:45;
+  if(id==='caesar')return isCompound?90:60;
+  if(reps<=5)return isCompound?210:150;
+  if(reps<=8)return isCompound?180:120;
+  if(reps<=12)return isCompound?120:75;
+  return 60;
+}
+
+function startRestTimer(exName,reps){
+  const secs=recommendedRest(exName,reps||10);
+  _restRemaining=secs;
+  clearInterval(restInterval);
+  const bar=document.getElementById('rest-timer-bar');
+  const label=document.getElementById('rest-ex-label');
+  const countdown=document.getElementById('rest-countdown');
+  if(!bar)return;
+  if(label)label.textContent='Rest · '+exName;
+  bar.style.display='flex';
+  const tick=()=>{
+    if(!countdown)return;
+    const m=Math.floor(_restRemaining/60);
+    const s=_restRemaining%60;
+    countdown.textContent=m+':'+(s<10?'0':'')+s;
+    countdown.style.color=_restRemaining<=10?'var(--red)':'var(--text)';
+    if(_restRemaining<=0){
+      clearInterval(restInterval);
+      countdown.textContent='GO!';
+      countdown.style.color='var(--green)';
+      if(label)label.textContent='Rest complete';
+      if(navigator.vibrate)navigator.vibrate([200,100,200]);
+      setTimeout(skipRest,3000);
+    }
+  };
+  tick();
+  restInterval=setInterval(()=>{_restRemaining--;tick();},1000);
+}
+
+function addRest(n){
+  _restRemaining+=n;
+}
+
+function skipRest(){
+  clearInterval(restInterval);
+  _restRemaining=0;
+  const bar=document.getElementById('rest-timer-bar');
+  if(bar)bar.style.display='none';
+}
+
+
+function resetPlan(){
+  if(!confirm('Reset your training plan and preferences? Your workout history will be kept.'))return;
+  planState.plan=null;planState.goal=null;planState.days=null;planState.prefs={};
+  document.getElementById('wo-active').style.display='none';
+  document.getElementById('wo-onboarding').style.display='block';
+  document.getElementById('ob-step-1').style.display='block';
+  document.getElementById('ob-step-2').style.display='none';
+  document.querySelectorAll('.ob-opt').forEach(o=>o.classList.remove('on'));
+  document.querySelectorAll('.day-num-btn').forEach(b=>b.classList.remove('on'));
+  saveData();
+}
+
+function initWorkoutPage(){
+  if(planState.plan){showActivePlan();}
+  else{
+    document.getElementById('wo-onboarding').style.display='block';
+    document.getElementById('wo-active').style.display='none';
+  }
+}
+
+// ── EXERCISE PICKER (add to current day) ──────────────────────
+let allEx=Object.entries(ALL_EXERCISES).flatMap(([cat,arr])=>arr.map(e=>({...e,cat})));
+let currentCat='all';
+function openPicker(){document.getElementById('ex-picker').classList.add('open');renderExList();}
+function closePicker(){document.getElementById('ex-picker').classList.remove('open');}
+function filterExercises(){renderExList();}
+function filterCat(el,cat){
+  document.querySelectorAll('.pcat').forEach(c=>c.classList.remove('on'));
+  el.classList.add('on');currentCat=cat;renderExList();
+}
+function renderExList(){
+  const search=document.getElementById('ex-search').value.toLowerCase();
+  const filtered=allEx.filter(e=>(currentCat==='all'||e.cat===currentCat)&&e.name.toLowerCase().includes(search));
+  document.getElementById('ex-list').innerHTML=filtered.map(e=>`
+    <div class="ex-opt" onclick="addExerciseToDay('${e.name}','${e.cat}')">
+      <div><div class="ex-opt-name">${e.name}</div><div class="ex-opt-cat">${e.cat.charAt(0).toUpperCase()+e.cat.slice(1)}</div></div>
+      <i class="ti ti-plus" style="font-size:16px;color:var(--muted)"></i>
+    </div>`).join('');
+}
+function addExerciseToDay(name,cat){
+  const day=planState.currentDay||getTodayDay();
+  if(!planState.plan)return;
+  if(!planState.plan[day]||planState.plan[day].isRest)planState.plan[day]={name:'Custom',muscles:[cat],exercises:[]};
+  const ex=EX_DB.find(e=>e.name===name);
+  const sch=getSetScheme(planState.goal);
+  if(ex){
+    planState.plan[day].exercises.push({name:ex.name,muscle:ex.group,region:ex.region,type:ex.type,cue:ex.cue,sets:sch.sets,warmups:sch.warmups,reps:repsForExercise(ex,planState.goal)});
+  } else {
+    planState.plan[day].exercises.push({name,muscle:cat,sets:3,reps:10,warmups:1});
+  }
+  if(!planState.plan[day].muscles.includes(cat))planState.plan[day].muscles.push(cat);
+  closePicker();
+  renderDayWorkout(day);
+  saveData();
+}
+function toggleEx(sId,bId){
+  const s=document.getElementById(sId),b=document.getElementById(bId);
+  const wasOpen=s.classList.contains('open');
+  document.querySelectorAll('.sets-area').forEach(a=>a.classList.remove('open'));
+  document.querySelectorAll('.ex-block').forEach(b=>b.classList.remove('active-ex'));
+  if(!wasOpen){s.classList.add('open');b.classList.add('active-ex');}
+}
+
+function finishWorkout(){
+  state.streak++;
+  document.getElementById('home-streak').innerHTML=state.streak+'<span class="scard-unit">d</span>';
+  document.getElementById('p-streak').innerHTML=`<i class="ti ti-flame" style="font-size:14px"></i> ${state.streak} Day Streak`;
+  toast('Workout complete! Streak: '+state.streak+' days');saveData();
+}
+
+// ── STATS ─────────────────────────────────────────────────────
+function switchStatsTab(id){
+  const ids=['overview','measure','fat','symmetry','trends','strength'];
+  document.querySelectorAll('.tbt').forEach((b,i)=>b.classList.toggle('on',ids[i]===id));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
+  document.getElementById('pan-'+id).classList.add('on');
+  if(id==='symmetry')calcSymmetry();
+  if(id==='trends')renderAllTrends();
+  if(id==='strength'){renderPRList();renderStrengthChart();checkDeload();}
+}
+
+function updateGender(){
+  state.gender=document.getElementById('prof-gender').value;
+  const isM=state.gender==='m';
+  document.getElementById('sites-3-male').style.display=isM?'block':'none';
+  document.getElementById('sites-3-female').style.display=isM?'none':'block';
+}
+
+function setCaliper(n){
+  state.caliperMethod=n;
+  document.getElementById('cm-3').classList.toggle('on',n===3);
+  document.getElementById('cm-7').classList.toggle('on',n===7);
+  document.getElementById('sites-3').style.display=n===3?'block':'none';
+  document.getElementById('sites-7').style.display=n===7?'block':'none';
+}
+
+function calcOverview(){
+  const w=parseFloat(document.getElementById('prof-weight').value);
+  const h=parseFloat(document.getElementById('prof-height').value);
+  const bf=parseFloat(document.getElementById('prof-bf').value);
+  if(!w||!h){toast('Enter weight and height first');return;}
+  const bmi=w/((h/100)**2);
+  const bmiLbl=bmi<18.5?'Underweight':bmi<25?'Normal':bmi<30?'Overweight':'Obese';
+  document.getElementById('ov-weight').innerHTML=w.toFixed(1)+'<span class="mc-unit">kg</span>';
+  document.getElementById('ov-bmi').innerHTML=bmi.toFixed(1);
+  document.getElementById('ov-bmi-lbl').textContent=bmiLbl;
+  if(!isNaN(bf)&&bf>0){
+    const fm=w*(bf/100),lm=w-fm,hm=h/100,ffmi=lm/(hm*hm);
+    const ffmiLbl=ffmi<18?'Below Average':ffmi<20?'Average':ffmi<22?'Above Average':ffmi<23?'Excellent':ffmi<25?'Superior':'Elite';
+    document.getElementById('ov-bf').innerHTML=bf.toFixed(1)+'<span class="mc-unit">%</span>';
+    document.getElementById('ov-fatmass').innerHTML=fm.toFixed(1)+'<span class="mc-unit">kg</span>';
+    document.getElementById('ov-leanmass').innerHTML=lm.toFixed(1)+'<span class="mc-unit">kg</span>';
+    document.getElementById('ov-ffmi').innerHTML=ffmi.toFixed(1);
+    document.getElementById('ov-ffmi-lbl').textContent=ffmiLbl;
+  }
+  toast('Overview calculated');saveData();
+}
+
+function logWeight(){
+  const v=parseFloat(document.getElementById('log-weight').value);
+  if(!v){toast('Enter a weight first');return;}
+  state.weight=v;
+  logEntry(state.weightLog,v);
+  document.getElementById('prof-weight').value=v;
+  document.getElementById('home-weight').innerHTML=v.toFixed(1)+'<span class="scard-unit">kg</span>';
+  document.getElementById('home-weight-sub').textContent='Logged today';
+  document.getElementById('home-weight-sub').style.color='var(--green)';
+  document.getElementById('bulk-now-lbl').textContent=v.toFixed(1)+'kg';
+  const bs=state.settings.bulkStart,bg=state.settings.bulkGoal;
+  const pct=Math.min(100,Math.max(0,((v-bs)/(bg-bs))*100));
+  document.getElementById('bulk-prog').style.width=pct.toFixed(0)+'%';
+  document.getElementById('bulk-start-lbl').textContent=bs+'kg';
+  document.getElementById('bulk-goal-lbl').textContent=bg+'kg';
+  calcOverview();
+  toast('Weight logged: '+v.toFixed(1)+'kg');saveData();
+}
+
+function saveMeasurements(){
+  const fields=['neck','shoulders','upperchest','chest','lbicep-r','lbicep-f','rbicep-r','rbicep-f','lforearm','rforearm','lwrist','rwrist','waist','navel','hips','lquad','rquad','lham','rham','lcalf','rcalf'];
+  fields.forEach(f=>{
+    const el=document.getElementById('m-'+f);
+    if(el&&el.value)state.measurements[f]=parseFloat(el.value);
+  });
+  const d=state.measurements;
+  const upd=(id,val)=>{if(val)document.getElementById(id).innerHTML=val.toFixed(1)+'<span class="mc-unit">cm</span>';};
+  upd('disp-chest',d.chest);upd('disp-waist',d.waist);upd('disp-hips',d.hips);
+  upd('disp-shoulders',d.shoulders);upd('disp-lbicep',d['lbicep-f']);upd('disp-rbicep',d['rbicep-f']);
+  upd('disp-lquad',d.lquad);upd('disp-rquad',d.rquad);upd('disp-lcalf',d.lcalf);upd('disp-rcalf',d.rcalf);
+  // snapshot measurements with date
+  const t=today();const snap={date:t,...JSON.parse(JSON.stringify(state.measurements))};
+  const ex=state.measureLog.find(e=>e.date===t);
+  if(ex)Object.assign(ex,snap);else state.measureLog.push(snap);
+  toast('Measurements saved');saveData();
+}
+
+function calcFat(){
+  const age=parseFloat(document.getElementById('fat-age').value);
+  const w=parseFloat(document.getElementById('prof-weight').value)||80;
+  const h=parseFloat(document.getElementById('prof-height').value)||175;
+  if(!age){toast('Enter your age first');return;}
+  let sum=0,bf=0;
+  if(state.caliperMethod===3){
+    if(state.gender==='m'){
+      const c=parseFloat(document.getElementById('c3m-chest').value)||0;
+      const a=parseFloat(document.getElementById('c3m-abdomen').value)||0;
+      const t=parseFloat(document.getElementById('c3m-thigh').value)||0;
+      sum=c+a+t;
+      const d=1.10938-(0.0008267*sum)+(0.0000016*sum*sum)-(0.0002574*age);
+      bf=(495/d)-450;
+    } else {
+      const tr=parseFloat(document.getElementById('c3f-tricep').value)||0;
+      const s=parseFloat(document.getElementById('c3f-supra').value)||0;
+      const t=parseFloat(document.getElementById('c3f-thigh').value)||0;
+      sum=tr+s+t;
+      const d=1.0994921-(0.0009929*sum)+(0.0000023*sum*sum)-(0.0001392*age);
+      bf=(495/d)-450;
+    }
+  } else {
+    const c=parseFloat(document.getElementById('c7-chest').value)||0;
+    const m=parseFloat(document.getElementById('c7-mid').value)||0;
+    const tr=parseFloat(document.getElementById('c7-tricep').value)||0;
+    const sb=parseFloat(document.getElementById('c7-sub').value)||0;
+    const a=parseFloat(document.getElementById('c7-abdomen').value)||0;
+    const s=parseFloat(document.getElementById('c7-supra').value)||0;
+    const t=parseFloat(document.getElementById('c7-thigh').value)||0;
+    sum=c+m+tr+sb+a+s+t;
+    if(state.gender==='m'){
+      const d=1.112-(0.00043499*sum)+(0.00000055*sum*sum)-(0.00028826*age);
+      bf=(495/d)-450;
+    } else {
+      const d=1.097-(0.00046971*sum)+(0.00000056*sum*sum)-(0.00012828*age);
+      bf=(495/d)-450;
+    }
+  }
+  bf=Math.max(3,Math.min(50,bf));
+  const fm=w*(bf/100),lm=w-fm,hm=h/100,ffmi=lm/(hm*hm);
+  const ffmiLbl=ffmi<18?'Below Average':ffmi<20?'Average':ffmi<22?'Above Average':ffmi<23?'Excellent':ffmi<25?'Superior':'Elite';
+  let bfCat,bfColor;
+  if(state.gender==='m'){bfCat=bf<6?'Essential':bf<14?'Athletic':bf<18?'Fitness':bf<25?'Average':'Obese';bfColor=bf<14?'var(--green)':bf<18?'var(--gold)':bf<25?'var(--orange)':'var(--red)';}
+  else{bfCat=bf<14?'Essential':bf<21?'Athletic':bf<25?'Fitness':bf<32?'Average':'Obese';bfColor=bf<21?'var(--green)':bf<25?'var(--gold)':bf<32?'var(--orange)':'var(--red)';}
+  document.getElementById('fat-pct').innerHTML=bf.toFixed(1)+'<span class="mc-unit">%</span>';
+  document.getElementById('fat-cat').textContent=bfCat;document.getElementById('fat-cat').style.color=bfColor;
+  document.getElementById('fat-mass').innerHTML=fm.toFixed(1)+'<span class="mc-unit">kg</span>';
+  document.getElementById('fat-lean').innerHTML=lm.toFixed(1)+'<span class="mc-unit">kg</span>';
+  document.getElementById('fat-ffmi').innerHTML=ffmi.toFixed(1);
+  document.getElementById('fat-ffmi-lbl').textContent=ffmiLbl;
+  document.getElementById('prof-bf').value=bf.toFixed(1);
+  logEntry(state.bfLog,parseFloat(bf.toFixed(1)));
+  const ins=document.getElementById('fat-insight');
+  ins.style.display='block';
+  let txt=`<div class="insight-item">Body fat: <strong>${bf.toFixed(1)}% — ${bfCat}</strong></div>`;
+  txt+=`<div class="insight-item">FFMI: <strong>${ffmi.toFixed(1)}</strong> (${ffmiLbl}). Natural ceiling ~25.</div>`;
+  if(ffmi>=25)txt+=`<div class="insight-item" style="color:var(--red)">FFMI above 25 is extremely rare naturally. Verify measurements.</div>`;
+  const targetBF=state.gender==='m'?10:18;
+  const fatToLose=Math.max(0,fm-(w*(targetBF/100)));
+  if(fatToLose>0.5)txt+=`<div class="insight-item">To reach ${targetBF}% body fat, lose approx <strong>${fatToLose.toFixed(1)}kg fat</strong>.</div>`;
+  document.getElementById('fat-insight-text').innerHTML=txt;
+  toast('Body fat calculated: '+bf.toFixed(1)+'%');saveData();
+}
+
+function calcSymmetry(){
+  const d=state.measurements;
+  const pairs=[
+    {name:'Bicep (flexed)',l:'lbicep-f',r:'rbicep-f',lE:'sa-lb',rE:'sa-rb',lF:'sa-lb-fill',rF:'sa-rb-fill'},
+    {name:'Forearm',l:'lforearm',r:'rforearm',lE:'sa-lf',rE:'sa-rf',lF:'sa-lf-fill',rF:'sa-rf-fill'},
+    {name:'Quad',l:'lquad',r:'rquad',lE:'sl-lq',rE:'sl-rq',lF:'sl-lq-fill',rF:'sl-rq-fill'},
+    {name:'Calf',l:'lcalf',r:'rcalf',lE:'sl-lc',rE:'sl-rc',lF:'sl-lc-fill',rF:'sl-rc-fill'},
+  ];
+  let scores=[],imbs=[],hasData=false;
+  pairs.forEach(p=>{
+    const lv=d[p.l],rv=d[p.r];
+    if(lv&&rv){
+      hasData=true;
+      const big=Math.max(lv,rv),sm=Math.min(lv,rv),diff=big-sm,pct=(diff/big)*100;
+      scores.push(Math.max(0,100-(pct*5)));
+      const max=70;
+      const lPct=Math.min(100,(lv/max)*100),rPct=Math.min(100,(rv/max)*100);
+      const el=document.getElementById(p.lE);if(el)el.textContent=lv.toFixed(1)+'cm';
+      const er=document.getElementById(p.rE);if(er)er.textContent=rv.toFixed(1)+'cm';
+      // Only flag if difference exceeds 1.5cm (measurement-error threshold)
+      const cls=diff>1.5?'warn':'';
+      const lf=document.getElementById(p.lF);if(lf){lf.style.width=lPct.toFixed(0)+'%';lf.className='sym-fill'+(cls?' '+cls:'');}
+      const rf=document.getElementById(p.rF);if(rf){rf.style.width=rPct.toFixed(0)+'%';rf.className='sym-fill'+(cls?' '+cls:'');}
+      if(diff>1.5)imbs.push({name:p.name,diff:diff.toFixed(1),pct:pct.toFixed(1),smallSide:lv<rv?'Left':'Right',small:sm,big});
+    }
+  });
+  if(!hasData)return;
+  const avg=Math.round(scores.reduce((a,b)=>a+b,0)/scores.length);
+  document.getElementById('sym-score').textContent=avg;
+  const circ=326.7,off=circ-(circ*(avg/100));
+  document.getElementById('sym-ring-fill').style.strokeDashoffset=off.toFixed(1);
+  const col=avg>=90?'var(--green)':avg>=75?'var(--gold)':'var(--orange)';
+  document.getElementById('sym-ring-fill').style.stroke=col;
+  const st=avg>=90?'Well Balanced':avg>=75?'Minor Differences':'Notable Differences';
+  document.getElementById('sym-status').textContent=st;
+  document.getElementById('sym-status').style.color=col;
+  document.getElementById('sym-desc').textContent=avg>=90?'Left and right measurements are very close.':'Some left/right measurement differences detected. Small differences are normal — see notes below.';
+  const iEl=document.getElementById('imbalance-list');
+  if(!imbs.length){iEl.innerHTML='<div style="font-size:13px;color:var(--green);padding:10px 0">No notable left/right differences (all under 1.5cm). Small differences are completely normal.</div>';return;}
+  let tips='<div style="background:var(--bg3);border-left:2px solid var(--muted);padding:10px 12px;margin-bottom:10px;font-size:11px;color:var(--muted2);line-height:1.5">Note: tape-measure differences of 1-2cm are often just measurement error, not a real imbalance. These are general training suggestions, not medical advice. Only add corrective work if you are pain-free. If you have pain or a known injury, consult a physiotherapist before changing your training.</div>';
+  imbs.forEach(im=>{
+    let tip=im.name.includes('Bicep')?`Optional: you could begin curls with your ${im.smallSide} arm and use dumbbells so each side works independently.`:im.name.includes('Forearm')?`Optional: hammer/wrist curls done one arm at a time can help even out forearm development.`:im.name.includes('Quad')?`Optional: unilateral leg work (split squats, lunges) starting with the ${im.smallSide} leg can help balance development.`:`Optional: single-leg calf raises let each side work independently.`;
+    tips+=`<div style="background:var(--bg2);border-left:2px solid var(--orange);padding:12px 14px;margin-bottom:8px">
+      <div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:4px">${im.name}: ${im.smallSide} side measures smaller</div>
+      <div style="font-size:12px;color:var(--muted2)">Difference: <strong style="color:var(--text)">${im.diff}cm</strong></div>
+      <div style="font-size:11px;color:var(--muted);margin-top:6px">${tip}</div>
+    </div>`;
+  });
+  iEl.innerHTML=tips;
+}
+
+// ── PHASE 3: CHARTS, STRENGTH, DELOAD, WEAK-POINT, NAVY ───────
+
+// ── SVG MINI-CHART ENGINE ──────────────────────────────────────
+function sparkline(data,opts={}){
+  if(!data||data.length<2)return '<div style="font-size:12px;color:var(--muted);padding:10px 0">Not enough data yet — keep logging!</div>';
+  const W=opts.w||340,H=opts.h||90;
+  const vals=data.map(d=>d.value);
+  const labels=data.map(d=>d.date?d.date.slice(5):'');// MM-DD
+  const min=Math.min(...vals),max=Math.max(...vals);
+  const range=max-min||1;
+  const px=(v,w)=>Math.round(((v-min)/range)*(w-40))+20;
+  const py=(v)=>Math.round(H-14-((v-min)/range)*(H-28));
+  const pts=data.map((d,i)=>`${px(d.value,W)},${py(d.value)}`).join(' ');
+  const fillPts=`20,${H-14} ${pts} ${px(data[data.length-1].value,W)},${H-14}`;
+  const color=opts.color||'var(--gold)';
+  const lastVal=vals[vals.length-1];
+  const trend=vals.length>1?(lastVal-vals[0]).toFixed(1):0;
+  const trendCol=parseFloat(trend)>=0?'var(--green)':'var(--red)';
+  const trendStr=parseFloat(trend)>=0?'+'+trend:trend;
+  // axis labels
+  const nLabels=Math.min(data.length,5);
+  const step=Math.max(1,Math.floor(data.length/nLabels));
+  let axisLabels='';
+  for(let i=0;i<data.length;i+=step){
+    const x=px(data[i].value,W);
+    axisLabels+=`<text x="${x}" y="${H-2}" text-anchor="middle" fill="#6b6870" font-size="9">${labels[i]}</text>`;
+  }
+  return `<div style="display:flex;align-items:baseline;gap:8px;margin-bottom:4px">
+    <span style="font-family:var(--ff);font-size:26px;color:var(--text)">${lastVal.toFixed(1)}</span>
+    <span style="font-size:11px;font-weight:700;color:${trendCol}">${trendStr}</span>
+  </div>
+  <svg width="100%" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" style="overflow:visible">
+    <defs>
+      <linearGradient id="sg${opts.id||0}" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="${color}" stop-opacity="0.18"/>
+        <stop offset="100%" stop-color="${color}" stop-opacity="0"/>
+      </linearGradient>
+    </defs>
+    <polygon points="${fillPts}" fill="url(#sg${opts.id||0})"/>
+    <polyline points="${pts}" fill="none" stroke="${color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+    ${data.map((d,i)=>`<circle cx="${px(d.value,W)}" cy="${py(d.value)}" r="3" fill="${color}"/>`).join('')}
+    ${axisLabels}
+  </svg>`;
+}
+
+// ── TRENDS ────────────────────────────────────────────────────
+function renderAllTrends(){
+  const c=(id,data,color,cid)=>{
+    const el=document.getElementById(id);
+    if(el)el.innerHTML=sparkline(data,{color,id:cid});
+  };
+  c('chart-weight',state.weightLog,'var(--gold)',1);
+  c('chart-bf',state.bfLog,'var(--orange)',2);
+  c('chart-rec',state.recLog,'var(--green)',3);
+  renderMeasureTrend();
+}
+
+function renderMeasureTrend(){
+  const sel=document.getElementById('measure-trend-sel');
+  if(!sel)return;
+  const key=sel.value;
+  const data=state.measureLog.filter(e=>e[key]!=null).map(e=>({date:e.date,value:e[key]}));
+  const el=document.getElementById('chart-measure');
+  if(el)el.innerHTML=sparkline(data,{color:'var(--blue)',id:4});
+}
+
+// ── STRENGTH & 1RM ────────────────────────────────────────────
+// Epley formula: 1RM = weight × (1 + reps/30)
+function epley(w,r){return r===1?w:Math.round(w*(1+r/30)*10)/10;}
+
+function getAllPRs(){
+  const prs={};
+  for(const name in planState.history){
+    const hist=planState.history[name];
+    if(!hist.length)continue;
+    let best=0;
+    hist.forEach(s=>{
+      const est=epley(s.weight,s.reps);
+      if(est>best)best=est;
+    });
+    prs[name]=Math.round(best*10)/10;
+  }
+  return prs;
+}
+
+function renderPRList(){
+  const prs=getAllPRs();
+  const el=document.getElementById('pr-list');
+  if(!el)return;
+  const entries=Object.entries(prs).sort((a,b)=>b[1]-a[1]);
+  if(!entries.length){
+    el.innerHTML='<div style="font-size:13px;color:var(--muted);padding:10px 0">No workout data yet. Log sets to see your estimated 1RMs here.</div>';
+    return;
+  }
+  // Populate exercise selector
+  const sel=document.getElementById('strength-ex-sel');
+  if(sel){
+    sel.innerHTML=entries.map(([name])=>`<option value="${name}">${name}</option>`).join('');
+  }
+  el.innerHTML=entries.slice(0,10).map(([name,orm],i)=>{
+    const hist=planState.history[name];
+    const last=hist[hist.length-1];
+    const prev=hist.length>1?hist[hist.length-2]:null;
+    const prevOrm=prev?epley(prev.weight,prev.reps):null;
+    const diff=prevOrm?Math.round((orm-prevOrm)*10)/10:null;
+    const diffStr=diff!==null?(diff>=0?`<span style="color:var(--green);font-size:11px;font-weight:700">+${diff}</span>`:`<span style="color:var(--red);font-size:11px;font-weight:700">${diff}</span>`):'';
+    const badge=i===0?'🥇':i===1?'🥈':i===2?'🥉':'';
+    return `<div style="background:var(--bg2);border-left:2px solid var(--gold-bdr);padding:10px 14px;margin-bottom:6px;display:flex;align-items:center;gap:10px">
+      <div style="font-size:18px">${badge}</div>
+      <div style="flex:1">
+        <div style="font-family:var(--ff);font-size:16px;color:var(--text);letter-spacing:.5px">${name.toUpperCase()}</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px">Last: ${last.weight}kg × ${last.reps} reps</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-family:var(--ff);font-size:22px;color:var(--gold)">${orm}<span style="font-size:12px;color:var(--muted)">kg</span></div>
+        ${diffStr}
+        <div style="font-size:9px;color:var(--muted)">est. 1RM</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderStrengthChart(){
+  const sel=document.getElementById('strength-ex-sel');
+  if(!sel||!sel.value)return;
+  const name=sel.value;
+  const hist=planState.history[name];
+  if(!hist||hist.length<2)return;
+  const data=hist.map(s=>({date:s.date,value:epley(s.weight,s.reps)}));
+  const el=document.getElementById('chart-strength');
+  if(el)el.innerHTML=`<div style="font-size:11px;color:var(--muted);margin-bottom:6px">Estimated 1RM trend — ${name}</div>`+sparkline(data,{color:'var(--gold)',id:5});
+}
+
+function calcORM(){
+  const w=parseFloat(document.getElementById('orm-weight').value);
+  const r=parseInt(document.getElementById('orm-reps').value);
+  if(!w||!r){toast('Enter weight and reps');return;}
+  const orm=epley(w,r);
+  const pct=(p)=>Math.round(orm*p*10)/10;
+  document.getElementById('orm-result').innerHTML=`
+    <div style="background:var(--bg2);border-left:3px solid var(--gold);padding:14px 16px">
+      <div style="font-family:var(--ff);font-size:30px;color:var(--gold);margin-bottom:10px">${orm}<span style="font-size:14px;color:var(--muted)"> kg est. 1RM</span></div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;font-size:12px">
+        ${[['100%',1],['95%',.95],['90%',.9],['85%',.85],['80%',.8],['75%',.75]].map(([pct,v])=>`
+          <div style="background:var(--bg3);padding:8px;text-align:center">
+            <div style="font-size:10px;color:var(--muted);font-weight:600">${pct}</div>
+            <div style="font-family:var(--ff);font-size:16px;color:var(--text)">${Math.round(orm*v*10)/10}kg</div>
+          </div>`).join('')}
+      </div>
+    </div>`;
+}
+
+// ── DELOAD DETECTION ──────────────────────────────────────────
+function checkDeload(){
+  const el=document.getElementById('deload-alert');
+  if(!el)return;
+  const flags=[];
+  // 1. Recovery score low 3+ consecutive days
+  if(state.recLog.length>=3){
+    const last3=state.recLog.slice(-3).map(e=>e.value);
+    if(last3.every(v=>v<65))flags.push('Your recovery has been below 65% for 3 days in a row. Accumulated fatigue is building.');
+  }
+  // 2. Performance regression: 1RM dropping on 2+ exercises
+  let dropping=0;
+  for(const name in planState.history){
+    const h=planState.history[name];
+    if(h.length<3)continue;
+    const orms=h.slice(-3).map(s=>epley(s.weight,s.reps));
+    if(orms[2]<orms[0]-2.5)dropping++;
+  }
+  if(dropping>=2)flags.push(`Estimated 1RM is declining on ${dropping} exercises. This is a sign of accumulated fatigue.`);
+  // 3. Training streak > 12 days without a rest day logged
+  if(state.streak>12)flags.push('You\'ve trained '+state.streak+' days in a row. A planned rest or deload reduces injury risk and improves long-term adaptation.');
+  if(!flags.length){
+    el.style.display='none';
+    return;
+  }
+  el.style.display='block';
+  el.innerHTML=`<div style="background:var(--bg2);border-left:3px solid var(--red);padding:14px 16px;margin-bottom:10px">
+    <div style="font-size:10px;font-weight:700;letter-spacing:2px;color:var(--red);text-transform:uppercase;margin-bottom:8px"><i class="ti ti-alert-triangle"></i> Deload Recommended</div>
+    ${flags.map(f=>`<div style="font-size:12px;color:var(--muted2);padding:4px 0;border-bottom:1px solid rgba(255,255,255,.04)">${f}</div>`).join('')}
+    <div style="font-size:11px;color:var(--muted);margin-top:8px">Deload: reduce weight by 40-50% and volume by 60% for one week. Keep the same exercises and rep ranges. You will come back stronger.</div>
+  </div>`;
+}
+
+// ── WEAK POINT DETECTION ──────────────────────────────────────
+function detectWeakPoints(){
+  const el=document.getElementById('weak-point-list');
+  if(!el)return;
+  const issues=[];
+  const vol=calcWeeklyVolume();
+  // Under-trained muscles (< 8 sets/week)
+  const muscleLabels={chest:'Chest',back:'Back',legs:'Legs',shoulders:'Shoulders',arms:'Arms',core:'Core'};
+  for(const m in vol){
+    if(vol[m]>0&&vol[m]<8)issues.push({severity:'warn',msg:`${muscleLabels[m]||m} only gets ${vol[m]} sets/week — below the minimum effective volume of 8. Add ${8-vol[m]} more sets.`});
+  }
+  // Strength lag: if one muscle's exercises have low estimated 1RM relative to session frequency
+  const prs=getAllPRs();
+  const bigLifts={chest:'Bench Press',back:'Barbell Row',legs:'Squat',shoulders:'Overhead Press'};
+  for(const m in bigLifts){
+    const lift=bigLifts[m];
+    if(prs[lift]&&prs[lift]<40)issues.push({severity:'info',msg:`${lift} estimated 1RM is ${prs[lift]}kg. Focus on progressive overload here — it's your weak point for ${m}.`});
+  }
+  // Measurement imbalances
+  const d=state.measurements;
+  const mPairs=[{name:'Biceps',l:'lbicep-f',r:'rbicep-f'},{name:'Quads',l:'lquad',r:'rquad'},{name:'Calves',l:'lcalf',r:'rcalf'}];
+  mPairs.forEach(p=>{
+    const lv=d[p.l],rv=d[p.r];
+    if(lv&&rv&&Math.abs(lv-rv)>2)issues.push({severity:'warn',msg:`${p.name}: ${Math.abs(lv-rv).toFixed(1)}cm left/right difference detected. Prioritise unilateral work.`});
+  });
+  if(!issues.length){
+    el.innerHTML='<div style="font-size:13px;color:var(--green);padding:10px 0">No significant weak points detected. Keep logging to improve analysis accuracy.</div>';
+    return;
+  }
+  el.innerHTML=issues.map(i=>`
+    <div style="background:var(--bg2);border-left:2px solid ${i.severity==='warn'?'var(--orange)':'var(--blue)'};padding:10px 14px;margin-bottom:6px">
+      <div style="font-size:12px;color:var(--muted2);line-height:1.5">${i.msg}</div>
+    </div>`).join('');
+}
+
+// ── NAVY TAPE METHOD ──────────────────────────────────────────
+let fatMethod='caliper';
+function setFatMethod(m){
+  fatMethod=m;
+  document.getElementById('method-caliper').classList.toggle('on',m==='caliper');
+  document.getElementById('method-navy').classList.toggle('on',m==='navy');
+  document.getElementById('caliper-method').style.display=m==='caliper'?'block':'none';
+  document.getElementById('navy-method').style.display=m==='navy'?'block':'none';
+  const isMale=state.gender==='m'||(document.getElementById('prof-gender')?.value||'m')==='m';
+  document.getElementById('navy-male-fields').style.display=isMale?'block':'none';
+  document.getElementById('navy-female-fields').style.display=isMale?'none':'block';
+}
+
+function calcNavyFat(){
+  const g=state.gender;
+  let bf=0;
+  if(g==='m'){
+    const neck=parseFloat(document.getElementById('navy-neck').value);
+    const waist=parseFloat(document.getElementById('navy-waist').value);
+    const h=parseFloat(document.getElementById('navy-height').value);
+    if(!neck||!waist||!h){toast('Enter neck, waist, and height');return;}
+    // US Navy formula (cm): BF = 86.010×log10(waist-neck) − 70.041×log10(height) + 36.76
+    bf=86.010*Math.log10(waist-neck)-70.041*Math.log10(h)+36.76;
+  } else {
+    const neck=parseFloat(document.getElementById('navy-neck-f').value);
+    const waist=parseFloat(document.getElementById('navy-waist-f').value);
+    const hips=parseFloat(document.getElementById('navy-hips-f').value);
+    const h=parseFloat(document.getElementById('navy-height-f').value);
+    if(!neck||!waist||!hips||!h){toast('Enter all fields');return;}
+    // Female Navy: 163.205×log10(waist+hips−neck) − 97.684×log10(height) − 78.387
+    bf=163.205*Math.log10(waist+hips-neck)-97.684*Math.log10(h)-78.387;
+  }
+  bf=Math.max(3,Math.min(50,Math.round(bf*10)/10));
+  document.getElementById('prof-bf').value=bf.toFixed(1);
+  toast('Navy tape BF%: '+bf.toFixed(1)+'% — saved to profile. Run Calculate on Overview tab.');
+  logEntry(state.bfLog,bf);
+  saveData();
+}
+
+// Hook weak-point into strength tab render
+const _origCheckDeload=checkDeload;
+function checkDeload(){_origCheckDeload();detectWeakPoints();}
+
+// ── HEALTH ────────────────────────────────────────────────────
+function calcRecovery(){
+  const sleep=parseFloat(document.getElementById('inp-sleep').value)||0;
+  const energy=parseFloat(document.getElementById('inp-energy').value)||0;
+  const rhr=parseFloat(document.getElementById('inp-rhr').value)||0;
+  const hrv=parseFloat(document.getElementById('inp-hrv').value)||0;
+  if(!sleep){toast('Enter sleep hours first');return;}
+  const sleepScore=sleep>=8?100:sleep>=7?85:sleep>=6?65:sleep>=5?40:20;
+  const energyScore=energy>0?energy*10:70;
+  const hrvScore=hrv>0?(hrv>=80?100:hrv>=60?80:hrv>=40?60:40):0;
+  const rhrScore=rhr>0?(rhr<=45?100:rhr<=55?80:rhr<=65?60:40):0;
+  let rec;
+  if(hrv>0&&rhr>0)rec=Math.round(sleepScore*0.35+hrvScore*0.35+rhrScore*0.2+energyScore*0.1);
+  else if(hrv>0)rec=Math.round(sleepScore*0.45+hrvScore*0.40+energyScore*0.15);
+  else if(rhr>0)rec=Math.round(sleepScore*0.45+rhrScore*0.40+energyScore*0.15);
+  else rec=Math.round(sleepScore*0.60+energyScore*0.40);
+  rec=Math.min(100,Math.max(0,rec));
+  state.recovery=rec;
+  logEntry(state.recLog,rec);
+  document.getElementById('h-sleep').innerHTML=sleep+'<span class="hcard-unit">hrs</span>';
+  document.getElementById('h-rec').innerHTML=rec+'<span class="hcard-unit">%</span>';
+  if(rhr)document.getElementById('h-rhr').innerHTML=rhr+'<span class="hcard-unit">bpm</span>';
+  if(hrv)document.getElementById('h-hrv').innerHTML=hrv+'<span class="hcard-unit">ms</span>';
+  document.getElementById('home-rec').innerHTML=rec+'<span class="scard-unit">%</span>';
+  const col=rec>=85?'var(--green)':rec>=60?'var(--gold)':'var(--red)';
+  const st=rec>=85?'Go hard today':rec>=60?'Train as planned':'Recovery day';
+  document.getElementById('home-rec-status').textContent=st;
+  document.getElementById('home-rec-status').style.color=col;
+  toast('Recovery score: '+rec+'%');saveData();
+}
+
+// ── GOALS ─────────────────────────────────────────────────────
+function toggleGoal(el){
+  el.classList.toggle('done');
+  const done=el.classList.contains('done');
+  el.innerHTML=done?'<i class="ti ti-check"></i>':'';
+  const item=el.closest('.goal-item');
+  if(done){
+    item.dataset.completed=new Date().toISOString();
+    toast('Goal complete! 🔥 It will reset next period.');
+  } else {
+    delete item.dataset.completed;
+  }
+  saveData();
+}
+
+// Reset completed goals when their period has elapsed
+function checkGoalResets(){
+  const now=new Date();
+  document.querySelectorAll('.goal-item').forEach(item=>{
+    const completed=item.dataset.completed;
+    if(!completed)return;
+    const tag=item.querySelector('.g-tag');
+    if(!tag)return;
+    const type=tag.classList.contains('d')?'d':tag.classList.contains('w')?'w':tag.classList.contains('m')?'m':'y';
+    const done=new Date(completed);
+    let elapsed=false;
+    if(type==='d'&&now.toDateString()!==done.toDateString())elapsed=true;
+    if(type==='w'&&(now-done)>7*864e5)elapsed=true;
+    if(type==='m'&&(now.getMonth()!==done.getMonth()||now.getFullYear()!==done.getFullYear()))elapsed=true;
+    if(type==='y'&&now.getFullYear()!==done.getFullYear())elapsed=true;
+    if(elapsed){
+      const check=item.querySelector('.g-check');
+      check.classList.remove('done');check.innerHTML='';
+      delete item.dataset.completed;
+    }
+  });
+  saveData();
+}
+function addGoal(){
+  const text=document.getElementById('goal-text-in').value.trim();
+  const type=document.getElementById('goal-type-in').value;
+  if(!text){toast('Enter a goal first');return;}
+  const labels={d:'Daily',w:'Weekly',m:'Monthly',y:'Yearly'};
+  document.getElementById('goals-list').insertAdjacentHTML('beforeend',`
+    <div class="goal-item">
+      <div class="g-check" onclick="toggleGoal(this)"></div>
+      <span class="g-text">${text}</span>
+      <span class="g-tag ${type}">${labels[type]}</span>
+    </div>`);
+  document.getElementById('goal-text-in').value='';
+  document.getElementById('goal-modal').classList.remove('open');
+  toast('Goal added');
+  saveData();
+}
+
+// ── PHASE 4: NUTRITION, ACHIEVEMENTS, COMPARISON, EXPORT ──────
+
+// ── NUTRITION ─────────────────────────────────────────────────
+// Macro split state (percentages of calories from each macro)
+let macroSplit={prot:30,carb:45,fat:25};// default balanced
+
+function calcNutrition(){
+  const w=state.weight||parseFloat(document.getElementById('prof-weight')?.value)||80;
+  const goal=planState.goal||'mass';
+  const days=planState.days||4;
+  const bf=parseFloat(document.getElementById('prof-bf')?.value)||null;
+  const lean=bf?w*(1-bf/100):w*0.82;
+  const bmr=Math.round(370+(21.6*lean));
+  const act=days>=6?1.725:days>=5?1.65:days>=4?1.55:days>=3?1.45:1.375;
+  const tdee=Math.round(bmr*act);
+  let kcal,surplus;
+  if(goal==='mass'||goal==='strength'){kcal=tdee+300;surplus='Lean bulk (+300 kcal surplus)';}
+  else if(goal==='fatloss'){kcal=tdee-400;surplus='Moderate deficit (−400 kcal)';}
+  else if(goal==='endurance'){kcal=tdee+100;surplus='Light surplus for performance';}
+  else{kcal=tdee;surplus='Maintenance (TDEE match)';}
+
+  // Show results + macro split UI
+  document.getElementById('nutrition-results').style.display='block';
+
+  // Render macro split sliders
+  const splitEl=document.getElementById('macro-split-ui');
+  if(splitEl){
+    renderMacroSplit(kcal,lean,goal,surplus,tdee,days);
+  } else {
+    // First time — inject slider UI
+    const resultsEl=document.getElementById('nutrition-results');
+    const sliderHTML=`
+    <div style="background:var(--bg2);border-left:2px solid var(--gold-bdr);padding:14px 16px;margin-bottom:10px" id="macro-split-ui">
+      <div style="font-size:10px;font-weight:700;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:12px">Macro Split — adjust to your preference</div>
+      <div style="margin-bottom:12px">
+        <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted2);margin-bottom:4px">
+          <span>🥩 Protein</span><span id="prot-pct-lbl">${macroSplit.prot}%</span>
+        </div>
+        <input type="range" id="slider-prot" min="15" max="50" value="${macroSplit.prot}" oninput="onMacroSlide('prot',this.value,${kcal},${lean},'${goal}','${surplus}',${tdee},${days})" style="width:100%;accent-color:var(--gold)"/>
+      </div>
+      <div style="margin-bottom:12px">
+        <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted2);margin-bottom:4px">
+          <span>🍚 Carbs</span><span id="carb-pct-lbl">${macroSplit.carb}%</span>
+        </div>
+        <input type="range" id="slider-carb" min="10" max="65" value="${macroSplit.carb}" oninput="onMacroSlide('carb',this.value,${kcal},${lean},'${goal}','${surplus}',${tdee},${days})" style="width:100%;accent-color:var(--blue)"/>
+      </div>
+      <div style="margin-bottom:8px">
+        <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted2);margin-bottom:4px">
+          <span>🥑 Fat</span><span id="fat-pct-lbl">${macroSplit.fat}%</span>
+        </div>
+        <input type="range" id="slider-fat" min="15" max="45" value="${macroSplit.fat}" oninput="onMacroSlide('fat',this.value,${kcal},${lean},'${goal}','${surplus}',${tdee},${days})" style="width:100%;accent-color:var(--orange)"/>
+      </div>
+      <div id="split-total-bar" style="height:8px;border-radius:4px;background:var(--bg3);overflow:hidden;display:flex;margin-bottom:6px"></div>
+      <div id="split-warning" style="font-size:11px;color:var(--red);min-height:14px"></div>
+      <div style="font-size:10px;color:var(--muted);margin-top:4px">Percentages don't need to total exactly 100% — fat is adjusted automatically. Protein is prioritised.</div>
+    </div>`;
+    resultsEl.insertAdjacentHTML('afterbegin',sliderHTML);
+    renderMacroSplit(kcal,lean,goal,surplus,tdee,days);
+  }
+  state.nutritionTargets={kcal,...computeMacros(kcal,lean)};
+  saveData();
+}
+
+function computeMacros(kcal,lean){
+  // Protein is computed from lean mass (2.2g/kg) OR from split % — take higher
+  const protFromLean=Math.round(lean*2.2);
+  const protFromSplit=Math.round(kcal*(macroSplit.prot/100)/4);
+  const prot=Math.max(protFromLean,protFromSplit);
+  const fat=Math.round(kcal*(macroSplit.fat/100)/9);
+  const carb=Math.round((kcal-prot*4-fat*9)/4);
+  return{prot,carb,fat};
+}
+
+function renderMacroSplit(kcal,lean,goal,surplus,tdee,days){
+  const{prot,carb,fat}=computeMacros(kcal,lean);
+  document.getElementById('n-kcal').innerHTML=kcal+'<span class="mc-unit">kcal</span>';
+  document.getElementById('n-prot').innerHTML=prot+'<span class="mc-unit">g</span>';
+  document.getElementById('n-carb').innerHTML=carb+'<span class="mc-unit">g</span>';
+  document.getElementById('n-fat').innerHTML=fat+'<span class="mc-unit">g</span>';
+  // Update % labels
+  const pl=document.getElementById('prot-pct-lbl');if(pl)pl.textContent=macroSplit.prot+'%';
+  const cl=document.getElementById('carb-pct-lbl');if(cl)cl.textContent=macroSplit.carb+'%';
+  const fl=document.getElementById('fat-pct-lbl');if(fl)fl.textContent=macroSplit.fat+'%';
+  // Split bar
+  const bar=document.getElementById('split-total-bar');
+  if(bar){
+    const total=macroSplit.prot+macroSplit.carb+macroSplit.fat;
+    const warn=document.getElementById('split-warning');
+    if(total>100){if(warn)warn.textContent='Total exceeds 100% — fat will be adjusted down.';}
+    else if(total<80){if(warn)warn.textContent='Total is only '+total+'% — consider increasing carbs or fat.';}
+    else{if(warn)warn.textContent='';}
+    bar.innerHTML=`
+      <div style="width:${macroSplit.prot}%;background:var(--gold);height:8px"></div>
+      <div style="width:${macroSplit.carb}%;background:var(--blue);height:8px"></div>
+      <div style="width:${macroSplit.fat}%;background:var(--orange);height:8px"></div>`;
+  }
+  // Advice
+  const adv=document.getElementById('nutrition-advice');
+  if(adv)adv.innerHTML=`<div class="insight-title">Coach Recommendation</div>
+    <div class="insight-item"><strong>Strategy:</strong> ${surplus}</div>
+    <div class="insight-item"><strong>Protein:</strong> ${prot}g — spread across ${Math.ceil(prot/40)} meals (~${Math.round(prot/Math.ceil(prot/40))}g each). Prioritise within 2hrs post-workout.</div>
+    <div class="insight-item"><strong>Carbs:</strong> ${carb}g — ${goal==='mass'?'focus around training (pre/intra/post)':'earlier in the day, reduce at night'}.</div>
+    <div class="insight-item"><strong>Fat:</strong> ${fat}g — prioritise unsaturated fats: olive oil, nuts, avocado. Essential for testosterone and hormone health.</div>
+    <div class="insight-item"><strong>TDEE:</strong> ${tdee} kcal/day · ${days} training days/week · adjust split by sliding the bars above.</div>`;
+  state.nutritionTargets={kcal,prot,carb,fat};
+}
+
+function onMacroSlide(macro,val,kcal,lean,goal,surplus,tdee,days){
+  macroSplit[macro]=parseInt(val);
+  renderMacroSplit(kcal,lean,goal,surplus,tdee,days);
+  saveData();
+}
+
+function logNutrition(){
+  const kcal=parseInt(document.getElementById('log-kcal').value)||0;
+  if(!kcal){toast('Enter calories');return;}
+  if(!state.nutritionLog)state.nutritionLog=[];
+  const t=today();
+  const ex=state.nutritionLog.find(e=>e.date===t);
+  if(ex)ex.kcal=kcal;else state.nutritionLog.push({date:t,kcal});
+  const target=state.nutritionTargets?.kcal||0;
+  const diff=kcal-target;
+  const col=Math.abs(diff)<150?'var(--green)':diff>0?'var(--orange)':'var(--red)';
+  const msg=Math.abs(diff)<150?'On target 🎯':diff>0?`${diff} kcal over target`:` ${Math.abs(diff)} kcal under target`;
+  document.getElementById('nutrition-log-display').innerHTML=`
+    <div style="background:var(--bg2);border-left:3px solid ${col};padding:10px 14px">
+      <div style="font-size:13px;font-weight:600;color:var(--text)">${kcal} kcal logged today</div>
+      <div style="font-size:12px;color:var(--muted2);margin-top:4px">${msg}</div>
+      ${target?`<div style="font-size:11px;color:var(--muted);margin-top:4px">Target: ${target} kcal</div>`:''}
+    </div>`;
+  toast('Calories logged');saveData();
+}
+
+// ── ACHIEVEMENTS ──────────────────────────────────────────────
+const ACHIEVEMENT_DEFS=[
+  {id:'first_workout',icon:'🏋️',title:'First Rep',desc:'Complete your first workout',check:()=>state.streak>=1},
+  {id:'week_streak',icon:'🔥',title:'On Fire',desc:'7-day training streak',check:()=>state.streak>=7},
+  {id:'fortnight',icon:'💪',title:'Two Weeks Strong',desc:'14-day training streak',check:()=>state.streak>=14},
+  {id:'month_warrior',icon:'🗓️',title:'Month Warrior',desc:'30-day training streak',check:()=>state.streak>=30},
+  {id:'first_pr',icon:'⚡',title:'Personal Best',desc:'Set your first estimated 1RM',check:()=>Object.keys(planState.history||{}).length>=1},
+  {id:'five_exercises',icon:'📋',title:'Exercise Library',desc:'Log 5 different exercises',check:()=>Object.keys(planState.history||{}).length>=5},
+  {id:'ten_exercises',icon:'📚',title:'Exercise Scholar',desc:'Log 10 different exercises',check:()=>Object.keys(planState.history||{}).length>=10},
+  {id:'weight_logged',icon:'⚖️',title:'Tracked',desc:'Log your first body weight',check:()=>(state.weightLog||[]).length>=1},
+  {id:'ten_weight_logs',icon:'📈',title:'Consistent Tracker',desc:'Log body weight 10 times',check:()=>(state.weightLog||[]).length>=10},
+  {id:'measurements_done',icon:'📏',title:'Body Scanner',desc:'Log your first full measurements',check:()=>Object.keys(state.measurements||{}).length>=5},
+  {id:'recovery_logged',icon:'😴',title:'Sleep Tracker',desc:'Log your first recovery score',check:()=>(state.recLog||[]).length>=1},
+  {id:'plan_built',icon:'🗺️',title:'Mission Briefed',desc:'Generate your first training plan',check:()=>!!planState.plan},
+  {id:'nutrition_set',icon:'🥩',title:'Dialled In',desc:'Calculate your nutrition targets',check:()=>!!state.nutritionTargets},
+  {id:'bf_calculated',icon:'🔬',title:'Body Composition',desc:'Calculate your body fat percentage',check:()=>(state.bfLog||[]).length>=1},
+];
+
+function renderAchievements(){
+  const el=document.getElementById('achievements-list');
+  if(!el)return;
+  const earned=ACHIEVEMENT_DEFS.filter(a=>{try{return a.check();}catch(e){return false;}});
+  const pending=ACHIEVEMENT_DEFS.filter(a=>!earned.includes(a));
+  let html='';
+  if(earned.length){
+    html+=earned.map(a=>`
+      <div style="background:var(--bg2);border-left:2px solid var(--gold);padding:10px 14px;margin-bottom:6px;display:flex;align-items:center;gap:12px">
+        <div style="font-size:24px">${a.icon}</div>
+        <div><div style="font-size:13px;font-weight:700;color:var(--text)">${a.title}</div><div style="font-size:11px;color:var(--muted2)">${a.desc}</div></div>
+        <div style="margin-left:auto;font-size:10px;font-weight:700;color:var(--gold);letter-spacing:1px">UNLOCKED</div>
+      </div>`).join('');
+  }
+  if(pending.length){
+    html+=`<div style="font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--muted);padding:10px 0 6px">Locked</div>`;
+    html+=pending.map(a=>`
+      <div style="background:var(--bg2);border-left:2px solid rgba(255,255,255,0.06);padding:10px 14px;margin-bottom:6px;display:flex;align-items:center;gap:12px;opacity:.5">
+        <div style="font-size:24px;filter:grayscale(1)">${a.icon}</div>
+        <div><div style="font-size:13px;font-weight:700;color:var(--text)">${a.title}</div><div style="font-size:11px;color:var(--muted)">${a.desc}</div></div>
+      </div>`).join('');
+  }
+  el.innerHTML=html||'<div style="font-size:13px;color:var(--muted)">Start training to unlock achievements.</div>';
+}
+
+// ── COMPARISON REPORT ─────────────────────────────────────────
+function runComparison(){
+  const from=document.getElementById('comp-from').value;
+  const to=document.getElementById('comp-to').value;
+  if(!from||!to){toast('Select both dates');return;}
+  if(from>=to){toast('From date must be before To date');return;}
+  const el=document.getElementById('comparison-result');
+  let html='<div style="font-family:var(--ff);font-size:20px;color:var(--text);letter-spacing:.5px;margin-bottom:12px">PROGRESS REPORT</div>';
+  const diffRow=(label,before,after,unit='',higherGood=true)=>{
+    if(before==null||after==null)return '';
+    const d=(after-before).toFixed(1);
+    const pos=parseFloat(d)>0;
+    const good=higherGood?pos:!pos;
+    const col=parseFloat(d)===0?'var(--muted)':good?'var(--green)':'var(--red)';
+    const arrow=parseFloat(d)>0?'↑':parseFloat(d)<0?'↓':'→';
+    return `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.04)">
+      <span style="font-size:12px;color:var(--muted2)">${label}</span>
+      <span style="font-size:13px;font-weight:700;color:${col}">${arrow} ${Math.abs(parseFloat(d)).toFixed(1)}${unit} <span style="font-size:10px;color:var(--muted)">(${before}→${after}${unit})</span></span>
+    </div>`;
+  };
+  // Weight comparison
+  const wBefore=state.weightLog.filter(e=>e.date<=from).slice(-1)[0]?.value;
+  const wAfter=state.weightLog.filter(e=>e.date<=to).slice(-1)[0]?.value;
+  if(wBefore||wAfter)html+=`<div style="font-size:10px;font-weight:700;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:6px">Body Weight</div>`+diffRow('Weight',wBefore,wAfter,'kg',planState.goal!=='fatloss');
+  // BF comparison
+  const bfBefore=state.bfLog.filter(e=>e.date<=from).slice(-1)[0]?.value;
+  const bfAfter=state.bfLog.filter(e=>e.date<=to).slice(-1)[0]?.value;
+  if(bfBefore||bfAfter)html+=diffRow('Body Fat %',bfBefore,bfAfter,'%',false);
+  // Measurements
+  const mBefore=state.measureLog.filter(e=>e.date<=from).slice(-1)[0];
+  const mAfter=state.measureLog.filter(e=>e.date<=to).slice(-1)[0];
+  if(mBefore&&mAfter){
+    html+=`<div style="font-size:10px;font-weight:700;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin:10px 0 6px">Measurements</div>`;
+    const mKeys={chest:'Chest',waist:'Waist','lbicep-f':'L Bicep (flexed)','rbicep-f':'R Bicep (flexed)',lquad:'L Quad',rquad:'R Quad',shoulders:'Shoulders'};
+    for(const k in mKeys){if(mBefore[k]!=null&&mAfter[k]!=null)html+=diffRow(mKeys[k],mBefore[k],mAfter[k],'cm',k!=='waist');}
+  }
+  // Strength PRs
+  const prs=getAllPRs();
+  if(Object.keys(prs).length){
+    html+=`<div style="font-size:10px;font-weight:700;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin:10px 0 6px">Strength (est. 1RM)</div>`;
+    for(const name in planState.history){
+      const h=planState.history[name];
+      const before=h.filter(s=>s.date<=from).slice(-1)[0];
+      const after=h.filter(s=>s.date<=to).slice(-1)[0];
+      if(before&&after){const o1=epley(before.weight,before.reps),o2=epley(after.weight,after.reps);html+=diffRow(name,o1,o2,'kg');}
+    }
+  }
+  if(html.length<100)html+='<div style="font-size:13px;color:var(--muted)">Not enough logged data in this date range. Keep logging consistently to see comparisons.</div>';
+  el.innerHTML=`<div style="background:var(--bg2);border-left:3px solid var(--gold);padding:16px">${html}</div>`;
+}
+
+// ── DATA EXPORT ───────────────────────────────────────────────
+function downloadCSV(filename,rows){
+  const csv=rows.map(r=>r.map(c=>JSON.stringify(c??'')).join(',')).join('\n');
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+  a.download=filename;a.click();
+}
+
+function exportWorkouts(){
+  const rows=[['Date','Exercise','Weight (kg)','Reps','Estimated 1RM (kg)']];
+  for(const name in planState.history){
+    planState.history[name].forEach(s=>{
+      rows.push([s.date,name,s.weight,s.reps,epley(s.weight,s.reps)]);
+    });
+  }
+  rows.sort((a,b)=>String(a[0]).localeCompare(String(b[0])));
+  if(rows.length<2){toast('No workout history to export yet');return;}
+  downloadCSV('traine_workouts.csv',rows);
+  toast('Workout history downloaded');
+}
+
+function exportMeasurements(){
+  const rows=[['Date','Weight (kg)','BF%','Chest','Waist','Hips','Shoulders','L Bicep (f)','R Bicep (f)','L Quad','R Quad','L Calf','R Calf']];
+  const dates=[...new Set([...state.weightLog.map(e=>e.date),...state.measureLog.map(e=>e.date),...state.bfLog.map(e=>e.date)])].sort();
+  dates.forEach(d=>{
+    const w=state.weightLog.find(e=>e.date===d)?.value??'';
+    const bf=state.bfLog.find(e=>e.date===d)?.value??'';
+    const m=state.measureLog.find(e=>e.date===d)||{};
+    rows.push([d,w,bf,m.chest??'',m.waist??'',m.hips??'',m.shoulders??'',m['lbicep-f']??'',m['rbicep-f']??'',m.lquad??'',m.rquad??'',m.lcalf??'',m.rcalf??'']);
+  });
+  if(rows.length<2){toast('No measurement data to export yet');return;}
+  downloadCSV('traine_measurements.csv',rows);
+  toast('Measurements downloaded');
+}
+
+function exportFullReport(){
+  const report={
+    exportDate:today(),
+    profile:{weight:state.weight,gender:state.gender,settings:state.settings},
+    weightLog:state.weightLog,bfLog:state.bfLog,recLog:state.recLog,
+    measureLog:state.measureLog,nutritionLog:state.nutritionLog||[],
+    workoutHistory:planState.history,
+    personalRecords:getAllPRs(),
+    weeklyVolume:calcWeeklyVolume(),
+  };
+  const a=document.createElement('a');
+  a.href='data:application/json;charset=utf-8,'+encodeURIComponent(JSON.stringify(report,null,2));
+  a.download='traine_full_report.json';a.click();
+  toast('Full report downloaded');
+}
+
+// ── LOCALSTORAGE ───────────────────────────────────────────────
+function saveData(){
+  try{
+    localStorage.setItem('traine_state',JSON.stringify({
+      activeCoach:state.activeCoach,
+      gender:state.gender,
+      measurements:state.measurements,
+      settings:state.settings,
+      streak:state.streak,
+      weight:state.weight,
+      recovery:state.recovery,
+      profile:{
+        weight:document.getElementById('prof-weight').value,
+        height:document.getElementById('prof-height').value,
+        age:document.getElementById('prof-age').value,
+        bf:document.getElementById('prof-bf').value,
+        gender:document.getElementById('prof-gender').value
+      },
+      health:{
+        sleep:document.getElementById('inp-sleep').value,
+        energy:document.getElementById('inp-energy').value,
+        rhr:document.getElementById('inp-rhr').value,
+        hrv:document.getElementById('inp-hrv').value
+      },
+      bulk:{
+        start:document.getElementById('set-bulk-start').value,
+        goal:document.getElementById('set-bulk-goal').value
+      },
+      name:document.getElementById('set-name').value,
+      goals:document.getElementById('goals-list').innerHTML,
+      planState:planState,
+      nutritionLog:state.nutritionLog,
+      nutritionTargets:state.nutritionTargets,
+      macroSplit:macroSplit,
+      displayWeight:document.getElementById('home-weight').innerHTML,
+      displayRec:document.getElementById('home-rec').innerHTML,
+      displayRecStatus:document.getElementById('home-rec-status').textContent,
+      displayRecColor:document.getElementById('home-rec-status').style.color,
+      hSleep:document.getElementById('h-sleep').innerHTML,
+      hRec:document.getElementById('h-rec').innerHTML,
+      hRhr:document.getElementById('h-rhr').innerHTML,
+      hHrv:document.getElementById('h-hrv').innerHTML,
+      dispChest:document.getElementById('disp-chest').innerHTML,
+      dispWaist:document.getElementById('disp-waist').innerHTML,
+      dispHips:document.getElementById('disp-hips').innerHTML,
+      dispShoulders:document.getElementById('disp-shoulders').innerHTML,
+      dispLbicep:document.getElementById('disp-lbicep').innerHTML,
+      dispRbicep:document.getElementById('disp-rbicep').innerHTML,
+      dispLquad:document.getElementById('disp-lquad').innerHTML,
+      dispRquad:document.getElementById('disp-rquad').innerHTML,
+      dispLcalf:document.getElementById('disp-lcalf').innerHTML,
+      dispRcalf:document.getElementById('disp-rcalf').innerHTML,
+    }));
+  }catch(e){console.log('Save error',e);}
+}
+
+function loadData(){
+  try{
+    const raw=localStorage.getItem('traine_state');
+    if(!raw)return;
+    const s=JSON.parse(raw);
+    if(s.activeCoach&&COACHES[s.activeCoach]){
+      state.activeCoach=s.activeCoach;
+      activeCoach=COACHES[s.activeCoach];
+    }
+    if(s.gender)state.gender=s.gender;
+    if(s.measurements)state.measurements=s.measurements;
+    if(s.settings)state.settings=s.settings;
+    if(s.streak)state.streak=s.streak;
+    if(s.weight)state.weight=s.weight;
+    if(s.recovery)state.recovery=s.recovery;
+    // restore profile inputs
+    if(s.profile){
+      if(s.profile.weight)document.getElementById('prof-weight').value=s.profile.weight;
+      if(s.profile.height)document.getElementById('prof-height').value=s.profile.height;
+      if(s.profile.age)document.getElementById('prof-age').value=s.profile.age;
+      if(s.profile.bf)document.getElementById('prof-bf').value=s.profile.bf;
+      if(s.profile.gender){document.getElementById('prof-gender').value=s.profile.gender;state.gender=s.profile.gender;}
+    }
+    // restore health inputs
+    if(s.health){
+      if(s.health.sleep)document.getElementById('inp-sleep').value=s.health.sleep;
+      if(s.health.energy)document.getElementById('inp-energy').value=s.health.energy;
+      if(s.health.rhr)document.getElementById('inp-rhr').value=s.health.rhr;
+      if(s.health.hrv)document.getElementById('inp-hrv').value=s.health.hrv;
+    }
+    // restore settings
+    if(s.name){document.getElementById('set-name').value=s.name;}
+    if(s.bulk){
+      if(s.bulk.start)document.getElementById('set-bulk-start').value=s.bulk.start;
+      if(s.bulk.goal)document.getElementById('set-bulk-goal').value=s.bulk.goal;
+    }
+    // restore measurement inputs
+    const mFields=['neck','shoulders','upperchest','chest','lbicep-r','lbicep-f','rbicep-r','rbicep-f','lforearm','rforearm','lwrist','rwrist','waist','navel','hips','lquad','rquad','lham','rham','lcalf','rcalf'];
+    mFields.forEach(f=>{
+      const el=document.getElementById('m-'+f);
+      if(el&&state.measurements[f])el.value=state.measurements[f];
+    });
+    // restore displays
+    if(s.displayWeight)document.getElementById('home-weight').innerHTML=s.displayWeight;
+    if(s.displayRec)document.getElementById('home-rec').innerHTML=s.displayRec;
+    if(s.displayRecStatus){document.getElementById('home-rec-status').textContent=s.displayRecStatus;document.getElementById('home-rec-status').style.color=s.displayRecColor||'var(--muted)';}
+    if(s.hSleep)document.getElementById('h-sleep').innerHTML=s.hSleep;
+    if(s.hRec)document.getElementById('h-rec').innerHTML=s.hRec;
+    if(s.hRhr)document.getElementById('h-rhr').innerHTML=s.hRhr;
+    if(s.hHrv)document.getElementById('h-hrv').innerHTML=s.hHrv;
+    if(s.dispChest)document.getElementById('disp-chest').innerHTML=s.dispChest;
+    if(s.dispWaist)document.getElementById('disp-waist').innerHTML=s.dispWaist;
+    if(s.dispHips)document.getElementById('disp-hips').innerHTML=s.dispHips;
+    if(s.dispShoulders)document.getElementById('disp-shoulders').innerHTML=s.dispShoulders;
+    if(s.dispLbicep)document.getElementById('disp-lbicep').innerHTML=s.dispLbicep;
+    if(s.dispRbicep)document.getElementById('disp-rbicep').innerHTML=s.dispRbicep;
+    if(s.dispLquad)document.getElementById('disp-lquad').innerHTML=s.dispLquad;
+    if(s.dispRquad)document.getElementById('disp-rquad').innerHTML=s.dispRquad;
+    if(s.dispLcalf)document.getElementById('disp-lcalf').innerHTML=s.dispLcalf;
+    if(s.dispRcalf)document.getElementById('disp-rcalf').innerHTML=s.dispRcalf;
+    // restore name and streak
+    if(s.settings.name){
+      document.getElementById('p-name').textContent=s.settings.name.toUpperCase();
+      document.getElementById('p-av').textContent=s.settings.name[0].toUpperCase();
+    }
+    if(s.streak){
+      document.getElementById('home-streak').innerHTML=s.streak+'<span class="scard-unit">d</span>';
+      document.getElementById('p-streak').innerHTML=`<i class="ti ti-flame" style="font-size:14px"></i> ${s.streak} Day Streak`;
+    }
+    if(s.goals)document.getElementById('goals-list').innerHTML=s.goals;
+    if(s.planState){Object.assign(planState,s.planState);}
+    if(s.nutritionLog)state.nutritionLog=s.nutritionLog;
+    if(s.nutritionTargets)state.nutritionTargets=s.nutritionTargets;
+    if(s.macroSplit)Object.assign(macroSplit,s.macroSplit);
+    // bulk progress
+    const bs=state.settings.bulkStart,bg=state.settings.bulkGoal,w=state.weight;
+    if(w){
+      const pct=Math.min(100,Math.max(0,((w-bs)/(bg-bs))*100));
+      document.getElementById('bulk-prog').style.width=pct.toFixed(0)+'%';
+      document.getElementById('bulk-now-lbl').textContent=w.toFixed(1)+'kg';
+    }
+    document.getElementById('bulk-start-lbl').textContent=bs+'kg';
+    document.getElementById('bulk-goal-lbl').textContent=bg+'kg';
+    updateGender();
+  }catch(e){console.log('Load error',e);}
+}
+
+// ── INIT ──────────────────────────────────────────────────────
+initHome();
+loadData();
+renderCoachList();
+updateGender();
+initWorkoutPage();
+checkGoalResets();
+renderDirectiveBoard();
+document.getElementById('bulk-start-lbl').textContent=state.settings.bulkStart+'kg';
+document.getElementById('bulk-goal-lbl').textContent=state.settings.bulkGoal+'kg';
+// Show welcome modal on very first launch
+if(!planState.plan&&!state.weight&&!planState.hasSeenWelcome){
+  planState.hasSeenWelcome=true;
+  setTimeout(()=>{document.getElementById('welcome-modal').classList.add('open');},300);
+}
+</script>
+</body>
+</html>
