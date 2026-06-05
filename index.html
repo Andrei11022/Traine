@@ -881,8 +881,8 @@ html,body{background:var(--bg);color:var(--text);font-family:var(--fb);max-width
     <div style="font-size:12px;color:var(--muted);margin-bottom:20px">Quick guide — takes 30 seconds to read</div>
 
     <div style="background:var(--bg3);border-left:3px solid var(--gold);padding:14px;margin-bottom:10px">
-      <div style="font-family:var(--ff);font-size:16px;color:var(--gold);letter-spacing:1px;margin-bottom:6px">W1, W2 — WARM-UP SETS</div>
-      <div style="font-size:13px;color:var(--muted2);line-height:1.6">Light sets to prepare the muscle and joint. Enter a weight (~50-60% of what you'll work with) and reps. Tap ✓ when done — no rest timer, just move to the next set.</div>
+      <div style="font-family:var(--ff);font-size:16px;color:var(--gold);letter-spacing:1px;margin-bottom:6px">WARM UP 1, WARM UP 2</div>
+      <div style="font-size:13px;color:var(--muted2);line-height:1.6">Light sets to prepare the muscle and joint. Enter your warmup weight and reps — the app will <strong style="color:var(--text)">automatically calculate your working weight</strong> from your warmup. Tap ✓ when done.</div>
     </div>
 
     <div style="background:var(--bg3);border-left:3px solid var(--gold);padding:14px;margin-bottom:10px">
@@ -2539,19 +2539,14 @@ function generatePlan(){
   planState.currentDay=getTodayDay();
   saveData();
   showActivePlan();
-  // Show first-workout guide if this is their first ever plan
-  if(!planState.hasSeenWorkoutGuide&&!state.hasSeenWorkoutGuide){
-    setTimeout(()=>{
-      document.getElementById('first-workout-modal').classList.add('open');
-    },400);
-  }
-  // Show strength test tip for new users
-  if(!state.hasSeenStrengthTest){
+  const showGuide=!planState.hasSeenWorkoutGuide&&!state.hasSeenWorkoutGuide;
+  const showStrengthTest=!state.hasSeenStrengthTest;
+  if(showGuide){
+    setTimeout(()=>document.getElementById('first-workout-modal').classList.add('open'),400);
+  } else if(showStrengthTest){
     state.hasSeenStrengthTest=true;
     saveData();
-    setTimeout(()=>{
-      document.getElementById('strength-test-modal').classList.add('open');
-    },planState.hasSeenWorkoutGuide?400:4000);// after workout guide if shown
+    setTimeout(()=>document.getElementById('strength-test-modal').classList.add('open'),400);
   }
 }
 
@@ -2560,6 +2555,12 @@ function dismissFirstWorkout(){
   planState.hasSeenWorkoutGuide=true;
   state.hasSeenWorkoutGuide=true;
   saveData();
+  // Open strength test tip AFTER workout guide is closed
+  if(!state.hasSeenStrengthTest){
+    state.hasSeenStrengthTest=true;
+    saveData();
+    setTimeout(()=>document.getElementById('strength-test-modal').classList.add('open'),300);
+  }
 }
 
 // Rebuild plan with new coach's scheme but keep all history
@@ -2652,10 +2653,10 @@ function renderDayWorkout(day,el){
     const sId=`sets-${day}-${i}`;
     const typeBadge=ex.type==='compound'?'<span style="font-size:9px;font-weight:700;letter-spacing:1px;color:var(--gold);background:var(--gold-dim);padding:1px 6px;margin-left:6px">COMPOUND</span>':'';
     const warmupRows=Array.from({length:ex.warmups||1},(_,wi)=>`
-      <div class="set-cols">
-        <div class="set-num">W${wi+1}</div>
-        <input class="si" type="number" inputmode="decimal" placeholder="kg"/>
-        <input class="si" type="number" inputmode="numeric" placeholder="reps"/>
+      <div class="set-cols warmup-row">
+        <div class="set-num" style="font-size:9px;line-height:1.1;text-align:center;color:var(--muted)">WARM<br>UP ${wi+1}</div>
+        <input class="si" type="number" inputmode="decimal" placeholder="kg" oninput="liveCalcFromWarmup(this,'${ex.name}','${day}',${i})"/>
+        <input class="si" type="number" inputmode="numeric" placeholder="reps" oninput="liveCalcFromWarmup(this,'${ex.name}','${day}',${i})"/>
         <div class="set-done" onclick="markDone(this)"><i class="ti ti-check"></i></div>
       </div>`).join('');
     const workingRows=Array.from({length:ex.sets},(_,si)=>`
@@ -3357,7 +3358,31 @@ function checkShowStrengthTestTip(){
   }
 }
 
-// Calculate working weights from first session high-rep set
+// Live calculate working weight from warmup set
+function liveCalcFromWarmup(inputEl,exName,day,idx){
+  const row=inputEl.closest('.set-cols');
+  const inputs=row.querySelectorAll('.si');
+  const warmupW=parseFloat(inputs[0]?.value);
+  const warmupR=parseInt(inputs[1]?.value);
+  if(!warmupW||!warmupR||warmupR<1)return;
+  // Estimate working weight from warmup
+  // Warmup is typically 50-60% of working weight
+  // Using Epley to get estimated 1RM, then apply goal-based % 
+  const orm=epley(warmupW,warmupR);
+  const goal=planState.goal||'mass';
+  const pcts={mass:.70,strength:.80,fatloss:.65,recomp:.70,maintenance:.70,endurance:.60};
+  const pct=pcts[goal]||.70;
+  const workingW=Math.round(orm*pct/2.5)*2.5;
+  if(!workingW||workingW<=warmupW)return;// don't suggest if working weight <= warmup weight
+  // Find working set inputs for this exercise and pre-fill if empty
+  const setsArea=row.closest('.sets-area');
+  if(!setsArea)return;
+  const workingRows=[...setsArea.querySelectorAll('.set-cols')].filter(r=>!r.classList.contains('warmup-row'));
+  workingRows.forEach(wr=>{
+    const wi=wr.querySelectorAll('.si')[0];
+    if(wi&&!wi.value)wi.value=workingW;
+  });
+}
 function calcWorkingWeightsFromFirstSet(exName,weight,reps){
   if(reps<20||!weight)return null;
   // User hit 20+ reps — weight is too light. Estimate 1RM and set working weight
