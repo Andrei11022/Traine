@@ -257,7 +257,7 @@ html,body{background:var(--bg);color:var(--text);font-family:var(--fb);max-width
     <div class="scard"><div class="scard-lbl">Body Weight</div><div class="scard-val" id="home-weight">—<span class="scard-unit">kg</span></div><div class="scard-sub" id="home-weight-sub" style="color:var(--muted)">Not logged</div></div>
     <div class="scard"><div class="scard-lbl">Recovery</div><div class="scard-val" id="home-rec">—<span class="scard-unit">%</span></div><div class="scard-sub" id="home-rec-status" style="color:var(--muted)">Log health data</div></div>
     <div class="scard"><div class="scard-lbl">Gym Streak</div><div class="scard-val" id="home-streak">0<span class="scard-unit">d</span></div><div class="scard-sub" style="color:var(--green)" id="home-streak-sub">Keep going!</div></div>
-    <div class="scard"><div class="scard-lbl">Active Coach</div><div class="scard-val" id="home-coach-name" style="font-size:18px;padding-top:4px">ARIA</div><div class="scard-sub" id="home-coach-tag" style="color:var(--muted)">Adaptive AI</div></div>
+    <div class="scard"><div class="scard-lbl">Active Coach</div><div class="scard-val" id="home-coach-name" style="font-size:18px;padding-top:4px">ARIA</div><div class="scard-sub" id="home-coach-tag" style="color:var(--muted)">Your Adaptive Coach</div></div>
   </div>
   <div class="slbl">Coach Insight</div>
   <div class="insight-box">
@@ -294,12 +294,20 @@ html,body{background:var(--bg);color:var(--text);font-family:var(--fb);max-width
         <div class="ob-opt" onclick="selectGoal('endurance')" id="goal-endurance"><i class="ti ti-run"></i><div><div class="ob-opt-title">ENDURANCE</div><div class="ob-opt-sub">Higher reps, conditioning, work capacity</div></div></div>
       </div>
       <div style="padding:18px">
-        <div class="slbl" style="padding:0 0 10px">Days per week you can train</div>
-        <div style="display:flex;gap:8px">
+        <div class="slbl" style="padding:0 0 6px">Days per week you can train</div>
+        <div id="days-suggestion" style="background:var(--bg2);border-left:2px solid var(--gold);padding:10px 14px;margin-bottom:12px;font-size:12px;color:var(--muted2);line-height:1.6;display:none"></div>
+        <div style="display:flex;gap:8px;margin-bottom:10px">
           <div class="day-num-btn" onclick="selectDays(3)" id="days-3">3</div>
           <div class="day-num-btn" onclick="selectDays(4)" id="days-4">4</div>
           <div class="day-num-btn" onclick="selectDays(5)" id="days-5">5</div>
           <div class="day-num-btn" onclick="selectDays(6)" id="days-6">6</div>
+        </div>
+        <div id="days-confirm-box" style="display:none;background:var(--bg3);padding:12px 14px;border:1px solid rgba(255,255,255,0.07)">
+          <div style="font-size:13px;color:var(--text);margin-bottom:10px" id="days-confirm-msg"></div>
+          <div style="display:flex;gap:8px">
+            <button onclick="confirmDays(true)" style="flex:1;background:var(--gold);border:none;padding:10px;font-family:var(--ff);font-size:16px;font-weight:700;color:var(--bg);cursor:pointer">YES, WORKS FOR ME</button>
+            <button onclick="confirmDays(false)" style="flex:1;background:var(--bg2);border:1px solid rgba(255,255,255,0.1);padding:10px;font-family:var(--ff);font-size:14px;color:var(--muted2);cursor:pointer">No, let me adjust</button>
+          </div>
         </div>
       </div>
       <div style="padding:0 18px 18px">
@@ -435,7 +443,10 @@ html,body{background:var(--bg);color:var(--text);font-family:var(--fb);max-width
       <div style="background:var(--bg2);padding:12px 14px;margin-top:4px">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
           <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase" id="progress-label">Goal Progress</div>
-          <button onclick="openGoalTargetModal()" style="background:none;border:1px solid var(--gold-bdr);padding:3px 10px;font-size:10px;font-weight:600;color:var(--gold);cursor:pointer;font-family:var(--fb)">Set Target</button>
+          <div style="display:flex;gap:6px">
+            <button onclick="autoSetTarget()" style="background:none;border:1px solid rgba(255,255,255,0.1);padding:3px 10px;font-size:10px;font-weight:600;color:var(--muted2);cursor:pointer;font-family:var(--fb)">Auto-Set</button>
+            <button onclick="openGoalTargetModal()" style="background:none;border:1px solid var(--gold-bdr);padding:3px 10px;font-size:10px;font-weight:600;color:var(--gold);cursor:pointer;font-family:var(--fb)">Set Target</button>
+          </div>
         </div>
         <!-- Weight bar -->
         <div id="prog-weight-section">
@@ -792,7 +803,7 @@ html,body{background:var(--bg);color:var(--text);font-family:var(--fb);max-width
   <div class="slbl">Nutrition Targets</div>
   <div id="nutrition-targets" style="padding:0 18px 10px">
     <div style="font-size:12px;color:var(--muted2);margin-bottom:10px;line-height:1.5">Based on your body weight, goal, and training frequency. Set weight and goal in Stats → Overview first.</div>
-    <button class="btn-gold" style="width:100%;padding:12px;font-size:18px" onclick="calcNutrition()">CALCULATE NUTRITION TARGETS</button>
+    <button class="btn-gold" style="width:100%;padding:12px;font-size:18px" onclick="calcNutritionWithDisclaimer()">CALCULATE NUTRITION TARGETS</button>
   </div>
   <div id="nutrition-results" style="display:none;padding:0 18px 12px">
     <div class="metric-grid" style="padding:0 0 10px">
@@ -911,6 +922,59 @@ html,body{background:var(--bg);color:var(--text);font-family:var(--fb);max-width
   </div>
 </div>
 
+<!-- STRENGTH TEST TIP MODAL -->
+<div class="modal-bg" id="strength-test-modal">
+  <div class="modal">
+    <div class="modal-title">FIRST SESSION TIP</div>
+    <div style="font-size:13px;color:var(--muted2);line-height:1.7;margin-bottom:16px">
+      <div style="background:var(--bg3);border-left:3px solid var(--gold);padding:14px;margin-bottom:12px">
+        <div style="font-family:var(--ff);font-size:18px;color:var(--gold);margin-bottom:6px">Pick any weight — even light</div>
+        For your first session, don't worry about the right weight. Just grab something manageable and go.
+      </div>
+      <div style="margin-bottom:10px"><strong style="color:var(--text)">The rule:</strong> If you hit 20+ reps on a set, the weight is too light. Your coach will automatically suggest heavier next session.</div>
+      <div style="margin-bottom:10px"><strong style="color:var(--text)">If you hit 6–12 reps</strong> — that's your working range. The app will build progressive overload from there.</div>
+      <div style="margin-bottom:10px"><strong style="color:var(--text)">If you hit fewer than 6</strong> — weight is too heavy. Drop it next session, no shame in that.</div>
+      <div style="background:var(--bg3);padding:10px 12px;font-size:12px;color:var(--muted2)">
+        After one real session, the app knows your strength level and will pre-fill target weights automatically. The first session is just calibration.
+      </div>
+    </div>
+    <button class="modal-ok" style="width:100%;padding:14px;font-size:18px" onclick="document.getElementById('strength-test-modal').classList.remove('open')">GOT IT — LET'S GO</button>
+  </div>
+</div>
+
+<!-- NUTRITION DISCLAIMER MODAL -->
+<div class="modal-bg" id="nutrition-disclaimer-modal">
+  <div class="modal" style="max-height:85vh;overflow-y:auto">
+    <div class="modal-title">NUTRITION INFO — READ FIRST</div>
+    <div style="font-size:12px;color:var(--muted2);line-height:1.8;margin-bottom:16px">
+      <div style="background:var(--bg3);border-left:2px solid var(--gold);padding:10px 12px;margin-bottom:10px">
+        <div style="font-size:10px;font-weight:700;letter-spacing:1px;color:var(--gold);text-transform:uppercase;margin-bottom:4px">General</div>
+        These are estimates based on population-level formulas. Individual metabolism varies. Use as a starting point, adjust after 2–3 weeks based on real progress.
+      </div>
+      <div style="background:var(--bg3);border-left:2px solid var(--orange);padding:10px 12px;margin-bottom:10px">
+        <div style="font-size:10px;font-weight:700;letter-spacing:1px;color:var(--orange);text-transform:uppercase;margin-bottom:4px">High Protein Diets</div>
+        High protein intake (2g+/kg) is safe for healthy individuals and well-supported by research. <strong style="color:var(--text)">However, if you have existing kidney disease or reduced kidney function, high protein intake can accelerate progression.</strong> Consult a doctor before starting a high-protein diet if you have any renal concerns.
+      </div>
+      <div style="background:var(--bg3);border-left:2px solid var(--orange);padding:10px 12px;margin-bottom:10px">
+        <div style="font-size:10px;font-weight:700;letter-spacing:1px;color:var(--orange);text-transform:uppercase;margin-bottom:4px">Carbohydrates & Blood Sugar</div>
+        High carbohydrate targets (50–60% of calories) can impact blood glucose levels. <strong style="color:var(--text)">If you have type 1 or type 2 diabetes, insulin resistance, or metabolic syndrome, do not follow high-carb targets without medical supervision.</strong> Endurance plans in particular use very high carb ratios — these are intended for people with healthy insulin function.
+      </div>
+      <div style="background:var(--bg3);border-left:2px solid var(--red);padding:10px 12px;margin-bottom:10px">
+        <div style="font-size:10px;font-weight:700;letter-spacing:1px;color:var(--red);text-transform:uppercase;margin-bottom:4px">Dietary Fats & Cardiovascular Health</div>
+        Fat targets here include all dietary fat. <strong style="color:var(--text)">If you have cardiovascular disease, high LDL cholesterol, or a family history of heart disease, the type of fat you eat matters significantly.</strong> Prioritise unsaturated fats (olive oil, nuts, avocado, fatty fish). Limit saturated and trans fats regardless of the total fat target shown.
+      </div>
+      <div style="background:var(--bg3);border-left:2px solid var(--muted);padding:10px 12px;margin-bottom:10px">
+        <div style="font-size:10px;font-weight:700;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:4px">Caloric Deficits</div>
+        A 400 kcal/day deficit is moderate and generally safe for healthy adults. <strong style="color:var(--text)">Deficits larger than 500 kcal/day over extended periods increase risk of muscle loss, hormonal disruption, and micronutrient deficiency.</strong> Do not exceed the recommended deficit without professional guidance.
+      </div>
+      <div style="font-size:11px;color:var(--muted);margin-top:8px;line-height:1.6">
+        This app does not provide medical or dietary advice. All recommendations are for informational purposes only. If you have any medical condition, consult a registered dietitian or physician before making significant dietary changes.
+      </div>
+    </div>
+    <button class="modal-ok" style="width:100%;padding:14px;font-size:18px" onclick="acknowledgeNutrition()">I UNDERSTAND — SHOW MY TARGETS</button>
+  </div>
+</div>
+
 <!-- GOAL TARGET MODAL -->
 <div class="modal-bg" id="goal-target-modal" onclick="if(event.target===this)this.classList.remove('open')">
   <div class="modal">
@@ -958,7 +1022,9 @@ let state={
   hasSeenWorkoutGuide:false,
   avatarData:null,
   unitSystem:'metric',
-  goalTarget:null
+  goalTarget:null,
+  nutritionDisclaimerAcknowledged:false,
+  hasSeenStrengthTest:false
 };
 
 function today(){return new Date().toISOString().split('T')[0];}
@@ -1383,7 +1449,7 @@ function initHome(){
 
 // ── COACHES ───────────────────────────────────────────────────
 const COACHES={
-  aria:{id:'aria',init:'AI',name:'ARIA',tag:'Adaptive AI · Default',color:'#F2AA4C',
+  aria:{id:'aria',init:'AI',name:'ARIA',tag:'Your Adaptive Coach',color:'#F2AA4C',
     bio:'Aria is Traine\'s default intelligence — a neutral, data-driven coach that adapts to every athlete. No ego, no extreme philosophy. Just clean analysis of your performance history and science-backed recommendations.',
     philosophy:'Progressive overload, individual recovery, sustainable volume. Aria reads your data first, then speaks.',
     pillars:[{k:'Volume',v:'Evidence-based 10-20 sets per muscle per week'},{k:'Progression',v:'2.5-5% load increase when rep targets are hit'},{k:'Recovery',v:'Rest days guided by performance trends'},{k:'Frequency',v:'2x per muscle minimum per week'}],
@@ -1914,6 +1980,10 @@ function renderDirectiveBoard(){
   // 5. Progression from last logged session
   const prog=getLatestProgressionTip();
   if(prog)cards.push({icon:'ti-trending-up',col:'var(--green)',title:'Progression',txt:prog});
+
+  // 6. Cardio reminder (every goal except endurance)
+  const cardio=getCardioReminder();
+  if(cardio)cards.push({icon:'ti-heart',col:'var(--blue)',title:'Daily Cardio',txt:cardio});
 
   board.innerHTML=cards.map(c=>`
     <div style="background:var(--bg2);border-left:3px solid ${c.col};padding:12px 14px;margin-bottom:8px">
@@ -2536,6 +2606,20 @@ function markDoneEx(el,exName,day,idx){
     const inputs=row.querySelectorAll('.si');
     const w=parseFloat(inputs[0]?.value);
     const r=parseInt(inputs[1]?.value);
+    // Only fire on working sets — warmup rows have class 'warmup-row' or set-num starts with W
+    const setNum=row.querySelector('.set-num');
+    const isWarmup=setNum&&(setNum.textContent.trim().startsWith('W')||row.classList.contains('warmup-row'));
+    if(!isWarmup){
+      // Show strength test tip on first ever working set completion
+      checkShowStrengthTestTip();
+      // 20+ rep detection — only on working sets, only on first ever session for this exercise
+      if(w&&r>=20&&(!planState.history[exName]||planState.history[exName].length===0)){
+        const calc=calcWorkingWeightsFromFirstSet(exName,w,r);
+        if(calc){
+          toast(`${exName}: 20+ reps — your working weight is ~${calc.workingW}kg (${calc.pct}% of est. 1RM ${calc.orm}kg)`);
+        }
+      }
+    }
     // Save to history only if we have real numbers
     if(w&&r){
       if(!planState.history[exName])planState.history[exName]=[];
@@ -3068,7 +3152,149 @@ function scoreRatio(actual,ideal,tolerance){
   return Math.max(0,Math.round(5));
 }
 
-// ── PHASE 3: CHARTS, STRENGTH, DELOAD, WEAK-POINT, NAVY ───────
+// ── DAYS PER WEEK SUGGESTIONS ─────────────────────────────────
+const DAYS_SUGGESTIONS={
+  mass:{     3:'3 days is solid for beginners and works well for mass — Full Body 3x gives every muscle enough stimulus and recovery.',
+             4:'4 days is the sweet spot for mass — Upper/Lower split gives great frequency and volume balance.',
+             5:'5 days is good for intermediate lifters — PPL+2 lets you hit each muscle twice a week.',
+             6:'6 days is high frequency — best for advanced lifters with good recovery. Make sure sleep and nutrition are dialled in.'},
+  strength:{ 3:'3 days is the classic strength approach — used by Starting Strength and StrongLifts. Plenty of recovery between heavy sessions.',
+             4:'4 days works well for strength — Upper/Lower lets you hit big compounds twice a week.',
+             5:'5 days for strength is for intermediate to advanced. You\'ll need solid sleep and nutrition to recover.',
+             6:'6 days strength training is advanced territory. Periodisation becomes very important.'},
+  fatloss:{  3:'3 days is perfect for fat loss — you don\'t need high frequency, diet does the heavy lifting. Keep the sessions intense.',
+             4:'4 days is great for fat loss — enough to preserve muscle while in a deficit.',
+             5:'5 days is on the higher end for a deficit — make sure calories are high enough to recover.',
+             6:'6 days in a caloric deficit is aggressive. Only recommended if you\'re experienced and keeping deficit moderate.'},
+  recomp:{   3:'3 days works for recomp but progress will be slow. Expect 6-12 months for visible changes.',
+             4:'4 days is ideal for recomp — enough frequency to stimulate muscle while burning fat.',
+             5:'5 days accelerates recomp — good choice if you enjoy training and recover well.',
+             6:'6 days recomp is only for experienced lifters. Prioritise sleep and protein.'},
+  maintenance:{3:'3 days is plenty for maintenance — you\'re just keeping what you have.',
+               4:'4 days keeps the stimulus high enough to maintain strength and size comfortably.',
+               5:'5 days for maintenance is more than needed but fine if you enjoy it.',
+               6:'6 days for maintenance is overkill unless you enjoy the lifestyle.'},
+  endurance:{ 3:'3 days is the minimum for endurance development — great for beginners.',
+              4:'4 days adds a cardio-only session alongside resistance training.',
+              5:'5 days is solid endurance programming — mix of resistance and conditioning.',
+              6:'6 days endurance training is for serious athletes. Recovery and nutrition are critical.'},
+};
+
+function selectDays(n){
+  document.querySelectorAll('.day-num-btn').forEach(b=>b.classList.remove('on'));
+  const btn=document.getElementById('days-'+n);
+  if(btn)btn.classList.add('on');
+  planState.days=n;
+  // Show suggestion + confirmation
+  const goal=planState.goal||'mass';
+  const suggestion=DAYS_SUGGESTIONS[goal]?.[n]||'';
+  const suggEl=document.getElementById('days-suggestion');
+  const confirmBox=document.getElementById('days-confirm-box');
+  const confirmMsg=document.getElementById('days-confirm-msg');
+  if(suggEl){suggEl.style.display='block';suggEl.textContent=suggestion;}
+  if(confirmMsg)confirmMsg.textContent=`Train ${n} days/week — does this fit your schedule?`;
+  if(confirmBox)confirmBox.style.display='block';
+  // Enable next button
+  const nextBtn=document.getElementById('next-to-prefs');
+  if(nextBtn){nextBtn.disabled=false;nextBtn.style.opacity='1';}
+}
+
+function confirmDays(yes){
+  const confirmBox=document.getElementById('days-confirm-box');
+  if(yes){
+    if(confirmBox)confirmBox.style.display='none';
+    const suggEl=document.getElementById('days-suggestion');
+    if(suggEl)suggEl.style.background='rgba(122,196,154,0.08)';
+  } else {
+    // Reset — let them pick again
+    if(confirmBox)confirmBox.style.display='none';
+    const suggEl=document.getElementById('days-suggestion');
+    if(suggEl)suggEl.style.display='none';
+    document.querySelectorAll('.day-num-btn').forEach(b=>b.classList.remove('on'));
+    planState.days=null;
+    const nextBtn=document.getElementById('next-to-prefs');
+    if(nextBtn){nextBtn.disabled=true;nextBtn.style.opacity='.4';}
+    toast('Pick the number of days that works best for you');
+  }
+}
+
+// ── NUTRITION DISCLAIMER ──────────────────────────────────────
+function calcNutritionWithDisclaimer(){
+  if(!state.nutritionDisclaimerAcknowledged){
+    document.getElementById('nutrition-disclaimer-modal').classList.add('open');
+  } else {
+    calcNutrition();
+  }
+}
+function acknowledgeNutrition(){
+  state.nutritionDisclaimerAcknowledged=true;
+  saveData();
+  document.getElementById('nutrition-disclaimer-modal').classList.remove('open');
+  calcNutrition();
+}
+
+// ── SIMPLE TARGET AUTO-CALC ───────────────────────────────────
+// User just enters starting weight + BF% → app sets optimal target automatically
+function autoSetTarget(){
+  const goal=planState.goal||'mass';
+  const curW=state.weight||parseFloat(document.getElementById('prof-weight')?.value)||0;
+  const curBF=state.bfLog.length?state.bfLog[state.bfLog.length-1].value:
+              parseFloat(document.getElementById('prof-bf')?.value)||null;
+  if(!curW||!curBF){toast('Enter your weight and body fat % in Stats → Overview first');return;}
+  if(!state.goalTarget)state.goalTarget={};
+  const lean=Math.round(curW*(1-curBF/100)*10)/10;
+  const gender=state.gender||'m';
+  // Recommended target BF% by goal and gender
+  const recBF={
+    mass:{m:15,f:22},strength:{m:15,f:22},fatloss:{m:12,f:18},
+    recomp:{m:13,f:19},maintenance:{m:curBF,f:curBF},endurance:{m:10,f:16}
+  };
+  const targetBF=(recBF[goal]?.[gender])||15;
+  const targetW=Math.round(lean/(1-targetBF/100)*10)/10;
+  state.goalTarget={
+    startWeight:curW,startBF:curBF,
+    targetWeight:targetW,targetBF,goal
+  };
+  saveData();
+  updateProgressBar();
+  toast(`Target auto-set: ${dispWt(targetW)} at ${targetBF}% BF — based on your current stats`);
+}
+
+// ── CARDIO REMINDER ───────────────────────────────────────────
+function getCardioReminder(){
+  const goal=planState.goal||'mass';
+  if(goal==='endurance'){
+    // Only remind if they haven't logged enough cardio (no cardio log system yet — just show if recovery is low)
+    if(state.recovery&&state.recovery<60)return null;// already training hard
+    return null;// endurance users train more than 30min anyway
+  }
+  return'💧 30 min cardio daily — walk, cycle, swim, or row. Every goal benefits: heart health, recovery circulation, and mental clarity. It doesn\'t need to be intense.';
+}
+
+// ── STRENGTH TEST TIP ─────────────────────────────────────────
+// Show once on first workout session
+function checkShowStrengthTestTip(){
+  const allHistory=Object.values(planState.history||{});
+  const totalSets=allHistory.reduce((a,h)=>a+h.length,0);
+  if(totalSets===0&&!state.hasSeenStrengthTest){
+    state.hasSeenStrengthTest=true;
+    saveData();
+    setTimeout(()=>document.getElementById('strength-test-modal').classList.add('open'),600);
+  }
+}
+
+// Calculate working weights from first session high-rep set
+function calcWorkingWeightsFromFirstSet(exName,weight,reps){
+  if(reps<20||!weight)return null;
+  // User hit 20+ reps — weight is too light. Estimate 1RM and set working weight
+  const orm=epley(weight,reps);
+  const goal=planState.goal||'mass';
+  // Rep max percentages by goal
+  const pcts={mass:.70,strength:.80,fatloss:.65,recomp:.70,maintenance:.70,endurance:.60};
+  const pct=pcts[goal]||.70;
+  const workingW=Math.round(orm*pct/2.5)*2.5;// round to nearest 2.5kg
+  return{orm,workingW,pct:Math.round(pct*100)};
+}
 
 // ── SVG MINI-CHART ENGINE ──────────────────────────────────────
 function sparkline(data,opts={}){
@@ -3784,6 +4010,8 @@ function saveData(){
       avatarData:state.avatarData,
       unitSystem:state.unitSystem,
       goalTarget:state.goalTarget,
+      nutritionDisclaimerAcknowledged:state.nutritionDisclaimerAcknowledged,
+      hasSeenStrengthTest:state.hasSeenStrengthTest,
       displayWeight:document.getElementById('home-weight').innerHTML,
       displayRec:document.getElementById('home-rec').innerHTML,
       displayRecStatus:document.getElementById('home-rec-status').textContent,
@@ -3885,6 +4113,8 @@ function loadData(){
     if(s.avatarData)state.avatarData=s.avatarData;
     if(s.unitSystem)state.unitSystem=s.unitSystem;
     if(s.goalTarget)state.goalTarget=s.goalTarget;
+    if(s.nutritionDisclaimerAcknowledged)state.nutritionDisclaimerAcknowledged=s.nutritionDisclaimerAcknowledged;
+    if(s.hasSeenStrengthTest)state.hasSeenStrengthTest=s.hasSeenStrengthTest;
     // Restore inline name field
     if(s.settings?.name){const il=document.getElementById('inline-name');if(il)il.value=s.settings.name;}
     // Restore profile stats
