@@ -410,6 +410,7 @@ html,body{background:var(--bg);color:var(--text);font-family:var(--fb);max-width
   </div>
   <!-- OVERVIEW -->
   <div class="panel on" id="pan-overview">
+    <div style="padding:10px 18px 4px;font-size:11px;color:var(--muted2)">💡 Tip: Switch between metric (cm/kg) and imperial (in/lbs) in the <strong style="color:var(--gold)">Profile tab</strong> under Unit System.</div>
     <div class="slbl">Profile</div>
     <div style="padding:0 18px 12px">
       <div class="inp-row"><span class="inp-lbl">Gender</span><select class="sel" id="prof-gender" onchange="updateGender()"><option value="m">Male</option><option value="f">Female</option></select></div>
@@ -429,27 +430,46 @@ html,body{background:var(--bg);color:var(--text);font-family:var(--fb);max-width
       <div class="mc"><div class="mc-lbl">FFMI</div><div class="mc-val" id="ov-ffmi">—</div><div class="mc-sub" id="ov-ffmi-lbl" style="color:var(--muted)"></div></div>
     </div>
     <div class="slbl">Log Weight</div>
-    <div style="padding:0 18px 12px">
-      <div class="inp-row"><span class="inp-lbl">Today's Weight</span><input class="inp" id="log-weight" type="number" inputmode="decimal" step="0.1" placeholder="87.4"/><button class="btn-gold" style="padding:9px 16px;font-size:16px" onclick="logWeight()">LOG</button></div>
+    <div style="padding:0 18px 12px;margin-top:8px">
+      <div class="inp-row"><span class="inp-lbl" id="log-weight-lbl">Today's Weight</span><input class="inp" id="log-weight" type="number" inputmode="decimal" step="0.1" placeholder="87.4"/><button class="btn-gold" style="padding:9px 16px;font-size:16px" onclick="logWeight()">LOG</button></div>
       <div style="background:var(--bg2);padding:12px 14px;margin-top:4px">
-        <div style="font-size:10px;font-weight:600;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin-bottom:8px">Bulk Progress</div>
-        <div class="prog-bar"><div class="prog-fill" id="bulk-prog" style="width:0%"></div></div>
-        <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted);font-weight:600;margin-top:4px">
-          <span>Start: <span id="bulk-start-lbl">—</span></span>
-          <span>Now: <span id="bulk-now-lbl">—</span></span>
-          <span>Goal: <span id="bulk-goal-lbl">—</span></span>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase" id="progress-label">Goal Progress</div>
+          <button onclick="openGoalTargetModal()" style="background:none;border:1px solid var(--gold-bdr);padding:3px 10px;font-size:10px;font-weight:600;color:var(--gold);cursor:pointer;font-family:var(--fb)">Set Target</button>
         </div>
+        <!-- Weight bar -->
+        <div id="prog-weight-section">
+          <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted);font-weight:600;margin-bottom:4px">
+            <span id="bulk-start-lbl">—</span>
+            <span style="color:var(--muted2)">WEIGHT</span>
+            <span id="bulk-goal-lbl">—</span>
+          </div>
+          <div class="prog-bar"><div class="prog-fill" id="bulk-prog" style="width:0%"></div></div>
+          <div style="text-align:center;font-size:10px;color:var(--muted);margin-top:3px">Now: <span id="bulk-now-lbl">—</span></div>
+        </div>
+        <!-- BF% bar -->
+        <div id="prog-bf-section" style="margin-top:10px">
+          <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted);font-weight:600;margin-bottom:4px">
+            <span id="bf-start-lbl">—</span>
+            <span style="color:var(--muted2)">BODY FAT %</span>
+            <span id="bf-goal-lbl">—</span>
+          </div>
+          <div class="prog-bar"><div class="prog-fill" id="bf-prog" style="width:0%;background:var(--orange)"></div></div>
+          <div style="text-align:center;font-size:10px;color:var(--muted);margin-top:3px">Now: <span id="bf-now-lbl">—</span></div>
+        </div>
+        <div id="progress-no-target" style="font-size:11px;color:var(--muted);margin-top:8px;display:none">Tap <strong style="color:var(--gold)">Set Target</strong> to define your goal weight and body fat targets.</div>
       </div>
     </div>
   </div>
   <!-- MEASUREMENTS -->
   <div class="panel" id="pan-measure">
     <div class="slbl">Upper Body</div>
+    <div style="padding:0 18px 8px;font-size:11px;color:var(--muted2)">💡 Tip: You can switch between metric (cm/kg) and imperial (in/lbs) in the <strong style="color:var(--gold)">Profile tab</strong> under Unit System.</div>
     <div style="padding:0 18px 4px">
-      <div class="inp-row"><span class="inp-lbl">Neck (cm)</span><input class="inp" id="m-neck" type="number" inputmode="decimal" step="0.1" placeholder="38"/></div>
-      <div class="inp-row"><span class="inp-lbl">Shoulders (cm)</span><input class="inp" id="m-shoulders" type="number" inputmode="decimal" step="0.1" placeholder="120"/></div>
-      <div class="inp-row"><span class="inp-lbl">Upper Chest (cm)</span><input class="inp" id="m-upperchest" type="number" inputmode="decimal" step="0.1" placeholder="100"/></div>
-      <div class="inp-row"><span class="inp-lbl">Chest (cm)</span><input class="inp" id="m-chest" type="number" inputmode="decimal" step="0.1" placeholder="104"/></div>
+      <div class="inp-row"><span class="inp-lbl" data-m="Neck">Neck (cm)</span><input class="inp" id="m-neck" type="number" inputmode="decimal" step="0.1" placeholder="38"/></div>
+      <div class="inp-row"><span class="inp-lbl" data-m="Shoulders">Shoulders (cm)</span><input class="inp" id="m-shoulders" type="number" inputmode="decimal" step="0.1" placeholder="120"/></div>
+      <div class="inp-row"><span class="inp-lbl" data-m="Upper Chest">Upper Chest (cm)</span><input class="inp" id="m-upperchest" type="number" inputmode="decimal" step="0.1" placeholder="100"/></div>
+      <div class="inp-row"><span class="inp-lbl" data-m="Chest">Chest (cm)</span><input class="inp" id="m-chest" type="number" inputmode="decimal" step="0.1" placeholder="104"/></div>
     </div>
     <div class="slbl">Arms</div>
     <div style="padding:0 18px 4px">
@@ -457,25 +477,25 @@ html,body{background:var(--bg);color:var(--text);font-family:var(--fb);max-width
       <div class="inp-row"><span class="inp-lbl">L Bicep flexed</span><input class="inp-sm" id="m-lbicep-f" type="number" inputmode="decimal" step="0.1" placeholder="40"/></div>
       <div class="inp-row"><span class="inp-lbl">R Bicep relaxed</span><input class="inp-sm" id="m-rbicep-r" type="number" inputmode="decimal" step="0.1" placeholder="38"/></div>
       <div class="inp-row"><span class="inp-lbl">R Bicep flexed</span><input class="inp-sm" id="m-rbicep-f" type="number" inputmode="decimal" step="0.1" placeholder="40.5"/></div>
-      <div class="inp-row"><span class="inp-lbl">L Forearm (cm)</span><input class="inp-sm" id="m-lforearm" type="number" inputmode="decimal" step="0.1" placeholder="30"/></div>
-      <div class="inp-row"><span class="inp-lbl">R Forearm (cm)</span><input class="inp-sm" id="m-rforearm" type="number" inputmode="decimal" step="0.1" placeholder="30.5"/></div>
-      <div class="inp-row"><span class="inp-lbl">L Wrist (cm)</span><input class="inp-sm" id="m-lwrist" type="number" inputmode="decimal" step="0.1" placeholder="17"/></div>
-      <div class="inp-row"><span class="inp-lbl">R Wrist (cm)</span><input class="inp-sm" id="m-rwrist" type="number" inputmode="decimal" step="0.1" placeholder="17"/></div>
+      <div class="inp-row"><span class="inp-lbl" data-m="L Forearm">L Forearm (cm)</span><input class="inp-sm" id="m-lforearm" type="number" inputmode="decimal" step="0.1" placeholder="30"/></div>
+      <div class="inp-row"><span class="inp-lbl" data-m="R Forearm">R Forearm (cm)</span><input class="inp-sm" id="m-rforearm" type="number" inputmode="decimal" step="0.1" placeholder="30.5"/></div>
+      <div class="inp-row"><span class="inp-lbl" data-m="L Wrist">L Wrist (cm)</span><input class="inp-sm" id="m-lwrist" type="number" inputmode="decimal" step="0.1" placeholder="17"/></div>
+      <div class="inp-row"><span class="inp-lbl" data-m="R Wrist">R Wrist (cm)</span><input class="inp-sm" id="m-rwrist" type="number" inputmode="decimal" step="0.1" placeholder="17"/></div>
     </div>
     <div class="slbl">Core</div>
     <div style="padding:0 18px 4px">
-      <div class="inp-row"><span class="inp-lbl">Waist (cm)</span><input class="inp" id="m-waist" type="number" inputmode="decimal" step="0.1" placeholder="82"/></div>
-      <div class="inp-row"><span class="inp-lbl">Navel (cm)</span><input class="inp" id="m-navel" type="number" inputmode="decimal" step="0.1" placeholder="85"/></div>
-      <div class="inp-row"><span class="inp-lbl">Hips (cm)</span><input class="inp" id="m-hips" type="number" inputmode="decimal" step="0.1" placeholder="95"/></div>
+      <div class="inp-row"><span class="inp-lbl" data-m="Waist">Waist (cm)</span><input class="inp" id="m-waist" type="number" inputmode="decimal" step="0.1" placeholder="82"/></div>
+      <div class="inp-row"><span class="inp-lbl" data-m="Navel">Navel (cm)</span><input class="inp" id="m-navel" type="number" inputmode="decimal" step="0.1" placeholder="85"/></div>
+      <div class="inp-row"><span class="inp-lbl" data-m="Hips">Hips (cm)</span><input class="inp" id="m-hips" type="number" inputmode="decimal" step="0.1" placeholder="95"/></div>
     </div>
     <div class="slbl">Legs</div>
     <div style="padding:0 18px 4px">
-      <div class="inp-row"><span class="inp-lbl">L Quad (cm)</span><input class="inp-sm" id="m-lquad" type="number" inputmode="decimal" step="0.1" placeholder="62"/></div>
-      <div class="inp-row"><span class="inp-lbl">R Quad (cm)</span><input class="inp-sm" id="m-rquad" type="number" inputmode="decimal" step="0.1" placeholder="62.5"/></div>
-      <div class="inp-row"><span class="inp-lbl">L Hamstring (cm)</span><input class="inp-sm" id="m-lham" type="number" inputmode="decimal" step="0.1" placeholder="48"/></div>
-      <div class="inp-row"><span class="inp-lbl">R Hamstring (cm)</span><input class="inp-sm" id="m-rham" type="number" inputmode="decimal" step="0.1" placeholder="48"/></div>
-      <div class="inp-row"><span class="inp-lbl">L Calf (cm)</span><input class="inp-sm" id="m-lcalf" type="number" inputmode="decimal" step="0.1" placeholder="38"/></div>
-      <div class="inp-row"><span class="inp-lbl">R Calf (cm)</span><input class="inp-sm" id="m-rcalf" type="number" inputmode="decimal" step="0.1" placeholder="38.5"/></div>
+      <div class="inp-row"><span class="inp-lbl" data-m="L Quad">L Quad (cm)</span><input class="inp-sm" id="m-lquad" type="number" inputmode="decimal" step="0.1" placeholder="62"/></div>
+      <div class="inp-row"><span class="inp-lbl" data-m="R Quad">R Quad (cm)</span><input class="inp-sm" id="m-rquad" type="number" inputmode="decimal" step="0.1" placeholder="62.5"/></div>
+      <div class="inp-row"><span class="inp-lbl" data-m="L Hamstring">L Hamstring (cm)</span><input class="inp-sm" id="m-lham" type="number" inputmode="decimal" step="0.1" placeholder="48"/></div>
+      <div class="inp-row"><span class="inp-lbl" data-m="R Hamstring">R Hamstring (cm)</span><input class="inp-sm" id="m-rham" type="number" inputmode="decimal" step="0.1" placeholder="48"/></div>
+      <div class="inp-row"><span class="inp-lbl" data-m="L Calf">L Calf (cm)</span><input class="inp-sm" id="m-lcalf" type="number" inputmode="decimal" step="0.1" placeholder="38"/></div>
+      <div class="inp-row"><span class="inp-lbl" data-m="R Calf">R Calf (cm)</span><input class="inp-sm" id="m-rcalf" type="number" inputmode="decimal" step="0.1" placeholder="38.5"/></div>
     </div>
     <div style="padding:0 18px 12px;display:flex;justify-content:flex-end"><button class="btn-gold" onclick="saveMeasurements()">SAVE ALL</button></div>
     <div class="slbl">Saved Measurements</div>
@@ -567,34 +587,50 @@ html,body{background:var(--bg);color:var(--text);font-family:var(--fb);max-width
   </div>
   <!-- SYMMETRY -->
   <div class="panel" id="pan-symmetry">
+    <!-- OVERALL SCORE -->
     <div class="score-ring">
       <div class="score-circle">
         <svg width="120" height="120" viewBox="0 0 120 120">
           <circle cx="60" cy="60" r="52" fill="none" stroke="#1c1c1f" stroke-width="8"/>
           <circle cx="60" cy="60" r="52" fill="none" stroke="#F2AA4C" stroke-width="8" stroke-dasharray="326.7" id="sym-ring-fill" stroke-dashoffset="326.7" stroke-linecap="butt"/>
         </svg>
-        <div class="score-inner"><div class="score-num" id="sym-score">—</div><div class="score-lbl-sm">Symmetry</div></div>
+        <div class="score-inner">
+          <div class="score-num" id="sym-score">—</div>
+          <div class="score-lbl-sm">Aesthetic</div>
+        </div>
       </div>
       <div class="score-status" id="sym-status" style="color:var(--muted)">Enter measurements first</div>
-      <div class="score-desc" id="sym-desc">Go to Measure tab, enter left and right values, then return here.</div>
+      <div class="score-desc" id="sym-desc">Go to Measure tab and fill in your measurements, then come back here.</div>
     </div>
-    <div class="slbl">Arms</div>
-    <div style="padding:0 18px 4px">
-      <div class="sym-bar-wrap"><div class="sym-bar-lbl"><span>Left Bicep (flexed)</span><span id="sa-lb">—</span></div><div class="sym-bar"><div class="sym-fill" id="sa-lb-fill" style="width:0%"></div></div></div>
-      <div class="sym-bar-wrap"><div class="sym-bar-lbl"><span>Right Bicep (flexed)</span><span id="sa-rb">—</span></div><div class="sym-bar"><div class="sym-fill" id="sa-rb-fill" style="width:0%"></div></div></div>
-      <div class="sym-bar-wrap"><div class="sym-bar-lbl"><span>Left Forearm</span><span id="sa-lf">—</span></div><div class="sym-bar"><div class="sym-fill" id="sa-lf-fill" style="width:0%"></div></div></div>
-      <div class="sym-bar-wrap"><div class="sym-bar-lbl"><span>Right Forearm</span><span id="sa-rf">—</span></div><div class="sym-bar"><div class="sym-fill" id="sa-rf-fill" style="width:0%"></div></div></div>
+
+    <!-- TIER BADGE -->
+    <div id="sym-tier" style="display:none;text-align:center;padding:0 18px 16px">
+      <div id="sym-tier-badge" style="display:inline-block;padding:8px 24px;font-family:var(--ff);font-size:18px;letter-spacing:2px"></div>
+      <div id="sym-tier-desc" style="font-size:12px;color:var(--muted2);margin-top:8px;line-height:1.6"></div>
     </div>
-    <div class="slbl">Legs</div>
-    <div style="padding:0 18px 4px">
-      <div class="sym-bar-wrap"><div class="sym-bar-lbl"><span>Left Quad</span><span id="sl-lq">—</span></div><div class="sym-bar"><div class="sym-fill" id="sl-lq-fill" style="width:0%"></div></div></div>
-      <div class="sym-bar-wrap"><div class="sym-bar-lbl"><span>Right Quad</span><span id="sl-rq">—</span></div><div class="sym-bar"><div class="sym-fill" id="sl-rq-fill" style="width:0%"></div></div></div>
-      <div class="sym-bar-wrap"><div class="sym-bar-lbl"><span>Left Calf</span><span id="sl-lc">—</span></div><div class="sym-bar"><div class="sym-fill" id="sl-lc-fill" style="width:0%"></div></div></div>
-      <div class="sym-bar-wrap"><div class="sym-bar-lbl"><span>Right Calf</span><span id="sl-rc">—</span></div><div class="sym-bar"><div class="sym-fill" id="sl-rc-fill" style="width:0%"></div></div></div>
+
+    <!-- PROPORTION BREAKDOWN -->
+    <div class="slbl">Proportion Analysis</div>
+    <div id="sym-ratios" style="padding:0 18px 10px">
+      <div style="font-size:13px;color:var(--muted);padding:10px 0">Enter your measurements in the Measure tab to see your aesthetic score.</div>
     </div>
-    <div class="slbl">Left / Right Differences</div>
-    <div id="imbalance-list" style="padding:0 18px 10px"><div style="font-size:13px;color:var(--muted);padding:10px 0">Enter measurements to compare left vs right.</div></div>
-    <div style="padding:0 18px 12px;display:flex;justify-content:flex-end"><button class="btn-gold" onclick="calcSymmetry()">ANALYSE SYMMETRY</button></div>
+
+    <!-- WHAT TO IMPROVE -->
+    <div id="sym-improve-wrap" style="display:none">
+      <div class="slbl">Priority Improvements</div>
+      <div id="sym-improve" style="padding:0 18px 10px"></div>
+    </div>
+
+    <!-- IDEAL TARGETS -->
+    <div id="sym-targets-wrap" style="display:none">
+      <div class="slbl">Your Ideal Measurements</div>
+      <div style="padding:0 18px 4px;font-size:11px;color:var(--muted2);margin-bottom:8px">Based on golden ratio proportions for your frame. These are targets, not requirements.</div>
+      <div id="sym-targets" style="padding:0 18px 12px"></div>
+    </div>
+
+    <div style="padding:0 18px 16px;display:flex;justify-content:flex-end">
+      <button class="btn-gold" onclick="calcSymmetry()">ANALYSE PHYSIQUE</button>
+    </div>
   </div>
 
   <!-- TRENDS -->
@@ -641,12 +677,92 @@ html,body{background:var(--bg);color:var(--text);font-family:var(--fb);max-width
 
 <!-- ===== PROFILE ===== -->
 <div class="page" id="pg-profile">
-  <div class="profile-hero">
-    <div class="p-av" id="p-av">?</div>
-    <div>
-      <div class="p-name" id="p-name">YOUR NAME</div>
-      <div class="p-since" id="p-since">Set up your profile</div>
-      <div class="p-streak" id="p-streak"><i class="ti ti-flame" style="font-size:14px"></i> 0 Day Streak</div>
+  <!-- PROFILE SETUP — inline, no modal needed -->
+  <div style="background:var(--bg2);border-bottom:1px solid rgba(255,255,255,0.06);padding:18px">
+    <div style="display:flex;align-items:center;gap:16px;margin-bottom:16px">
+      <!-- Avatar with tap-to-change photo -->
+      <div style="position:relative;flex-shrink:0">
+        <div class="p-av" id="p-av" onclick="document.getElementById('av-upload').click()" style="cursor:pointer;position:relative;overflow:hidden">
+          <span id="p-av-letter">?</span>
+          <img id="p-av-img" src="" alt="" style="display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:50%"/>
+        </div>
+        <div onclick="document.getElementById('av-upload').click()" style="position:absolute;bottom:-2px;right:-2px;width:20px;height:20px;background:var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer">
+          <i class="ti ti-camera" style="font-size:11px;color:var(--bg)"></i>
+        </div>
+        <input type="file" id="av-upload" accept="image/*" style="display:none" onchange="handleAvatarUpload(this)"/>
+      </div>
+      <div style="flex:1;min-width:0">
+        <!-- Inline name edit -->
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+          <input id="inline-name" class="inp" placeholder="Your name" style="font-family:var(--ff);font-size:22px;padding:4px 8px;border:1px solid transparent;background:transparent;width:100%" onfocus="this.style.borderColor='var(--gold)'" onblur="saveInlineName(this)" onkeydown="if(event.key==='Enter')this.blur()"/>
+        </div>
+        <div class="p-since" id="p-since">Set up your profile</div>
+        <div class="p-streak" id="p-streak"><i class="ti ti-flame" style="font-size:14px"></i> 0 Day Streak</div>
+      </div>
+    </div>
+
+    <!-- Quick stats row -->
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px">
+      <div style="background:var(--bg3);padding:10px;text-align:center">
+        <div style="font-family:var(--ff);font-size:20px;color:var(--text)" id="prof-stat-weight">—</div>
+        <div style="font-size:9px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--muted)">Weight</div>
+      </div>
+      <div style="background:var(--bg3);padding:10px;text-align:center">
+        <div style="font-family:var(--ff);font-size:20px;color:var(--gold)" id="prof-stat-streak">0</div>
+        <div style="font-size:9px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--muted)">Streak</div>
+      </div>
+      <div style="background:var(--bg3);padding:10px;text-align:center">
+        <div style="font-family:var(--ff);font-size:20px;color:var(--green)" id="prof-stat-rec">—</div>
+        <div style="font-size:9px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--muted)">Recovery</div>
+      </div>
+    </div>
+
+    <!-- Goal selector — always visible, changeable -->
+    <div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:8px">Current Goal</div>
+    <div id="profile-goal-selector" style="display:grid;grid-template-columns:repeat(2,1fr);gap:6px"></div>
+    <div id="goal-calorie-preview" style="margin-top:10px;display:none;background:var(--bg3);border-left:2px solid var(--gold);padding:10px 12px;font-size:12px;color:var(--muted2);line-height:1.6"></div>
+
+    <!-- Basic stats for nutrition calc -->
+    <!-- Unit System -->
+    <div style="margin-top:14px;padding-top:14px;border-top:1px solid rgba(255,255,255,0.06)">
+      <div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:10px">Unit System</div>
+      <div style="display:flex;gap:8px">
+        <div id="unit-metric" onclick="setUnitSystem('metric')" style="flex:1;background:var(--gold-dim);border:1px solid var(--gold);padding:10px;text-align:center;cursor:pointer">
+          <div style="font-family:var(--ff);font-size:16px;color:var(--gold)">METRIC</div>
+          <div style="font-size:10px;color:var(--muted);margin-top:2px">kg · cm</div>
+        </div>
+        <div id="unit-imperial" onclick="setUnitSystem('imperial')" style="flex:1;background:var(--bg3);border:1px solid rgba(255,255,255,0.07);padding:10px;text-align:center;cursor:pointer">
+          <div style="font-family:var(--ff);font-size:16px;color:var(--muted)">IMPERIAL</div>
+          <div style="font-size:10px;color:var(--muted);margin-top:2px">lbs · inches</div>
+        </div>
+      </div>
+      <div style="font-size:11px;color:var(--muted2);margin-top:8px;line-height:1.5">All inputs and displays will switch units. Stored values are always metric internally.</div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px">
+      <div>
+        <div style="font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:5px">Gender</div>
+        <select class="sel" id="prof-gender" onchange="updateGender();updateGoalCalPreview()">
+          <option value="m">Male</option>
+          <option value="f">Female</option>
+        </select>
+      </div>
+      <div>
+        <div style="font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:5px">Age</div>
+        <input class="inp" id="prof-age" type="number" inputmode="numeric" placeholder="23" onchange="updateGoalCalPreview()"/>
+      </div>
+      <div>
+        <div style="font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:5px" id="prof-height-lbl">Height (cm)</div>
+        <input class="inp" id="prof-height" type="number" inputmode="decimal" placeholder="180" onchange="updateGoalCalPreview()"/>
+      </div>
+      <div>
+        <div style="font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:5px" id="prof-weight-lbl">Weight (kg)</div>
+        <input class="inp" id="prof-weight" type="number" inputmode="decimal" step="0.1" placeholder="80" onchange="updateGoalCalPreview()"/>
+      </div>
+    </div>
+    <div style="margin-top:8px">
+      <div style="font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:5px">Body Fat % <span style="font-weight:400;color:var(--muted)">(optional — use Body Fat tab)</span></div>
+      <input class="inp" id="prof-bf" type="number" inputmode="decimal" step="0.1" placeholder="Calculate in Stats → Body Fat" onchange="updateGoalCalPreview()"/>
     </div>
   </div>
   <div class="slbl">Health Log</div>
@@ -795,6 +911,18 @@ html,body{background:var(--bg);color:var(--text);font-family:var(--fb);max-width
   </div>
 </div>
 
+<!-- GOAL TARGET MODAL -->
+<div class="modal-bg" id="goal-target-modal" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="modal">
+    <div class="modal-title" id="goal-target-title">SET YOUR TARGET</div>
+    <div id="goal-target-body"></div>
+    <div class="modal-btns">
+      <button class="modal-cancel" onclick="document.getElementById('goal-target-modal').classList.remove('open')">Cancel</button>
+      <button class="modal-ok" onclick="saveGoalTarget()">SAVE TARGET</button>
+    </div>
+  </div>
+</div>
+
 <!-- SETTINGS MODAL -->
 <div class="modal-bg" id="settings-modal" onclick="if(event.target===this)this.classList.remove('open')">
   <div class="modal">
@@ -807,6 +935,8 @@ html,body{background:var(--bg);color:var(--text);font-family:var(--fb);max-width
 </div>
 
 <script>
+// ── UTILITY ───────────────────────────────────────────────────
+function pick(arr){if(!arr||!arr.length)return'';return arr[Math.floor(Math.random()*arr.length)];}
 // ── STATE ──────────────────────────────────────────────────────
 let state={
   activeCoach:'aria',
@@ -823,7 +953,12 @@ let state={
   measureLog:[],
   prs:{},
   nutritionLog:[],
-  nutritionTargets:null
+  nutritionTargets:null,
+  hasSeenWelcome:false,
+  hasSeenWorkoutGuide:false,
+  avatarData:null,
+  unitSystem:'metric',
+  goalTarget:null
 };
 
 function today(){return new Date().toISOString().split('T')[0];}
@@ -848,7 +983,7 @@ function goPage(id){
   if(id==='coach')renderCoachList();
   if(id==='workout')initWorkoutPage();
   if(id==='stats'&&document.querySelector('.tbt.on')?.textContent==='Symmetry')calcSymmetry();
-  if(id==='profile'){renderAchievements();initComparisonDates();}
+  if(id==='profile'){renderAchievements();initComparisonDates();renderProfileGoalSelector();initUnitUI();}
 }
 
 // ── TOAST ─────────────────────────────────────────────────────
@@ -859,22 +994,381 @@ function toast(msg){
 }
 
 // ── SETTINGS ──────────────────────────────────────────────────
+function openGoalTargetModal(){
+  const goal=planState.goal||'mass';
+  const modal=document.getElementById('goal-target-modal');
+  const title=document.getElementById('goal-target-title');
+  const body=document.getElementById('goal-target-body');
+  const w=wtUnit();
+  const goalLabels={mass:'Build Mass',strength:'Strength',fatloss:'Fat Loss',recomp:'Recomp',maintenance:'Maintenance',endurance:'Endurance'};
+  title.textContent='TARGET — '+goalLabels[goal];
+
+  const curW=state.weight||parseFloat(document.getElementById('prof-weight')?.value)||0;
+  const curBF=state.bfLog.length?state.bfLog[state.bfLog.length-1].value:
+              parseFloat(document.getElementById('prof-bf')?.value)||null;
+  const startWVal=curW?inputWt(curW):'';
+  const startBFVal=state.goalTarget?.startBF||curBF||'';
+  const targetBFVal=state.goalTarget?.targetBF||'';
+  const targetWVal=state.goalTarget?.targetWeight?inputWt(state.goalTarget.targetWeight):'';
+
+  // Goal-specific context
+  const goalCtx={
+    mass:{    bfDir:'up',   bfNote:'Bulking adds some fat — estimate your BF% at target weight.',       bfPh:'18',  wPh:isImperial()?'198':'90',  wNote:'Target weight for lean bulk'},
+    strength:{bfDir:'up',   bfNote:'Strength bulk — similar to mass, some fat gain is expected.',       bfPh:'18',  wPh:isImperial()?'198':'90',  wNote:'Target weight for strength phase'},
+    fatloss:{ bfDir:'down', bfNote:'Enter your target BF% and we calculate the weight automatically.', bfPh:'12',  wPh:isImperial()?'165':'75',  wNote:'Auto-calculated from BF% target'},
+    recomp:{  bfDir:'down', bfNote:'Recomp: lose fat, gain muscle. Weight barely changes, BF% drops.',  bfPh:'15',  wPh:isImperial()?'185':'84',  wNote:'May stay similar to current weight'},
+    maintenance:{bfDir:'',  bfNote:'Maintenance: keep your current composition stable.',                bfPh:String(curBF||18), wPh:startWVal,wNote:'Stay within 1-2kg of this'},
+    endurance:{bfDir:'down',bfNote:'Endurance athletes typically aim for lower BF% for performance.',   bfPh:'12',  wPh:isImperial()?'165':'75',  wNote:'Performance-optimised weight'},
+  };
+  const ctx=goalCtx[goal]||goalCtx.mass;
+
+  // Bulk BF% estimate: if user enters target weight, estimate BF% assuming 40% of gain is fat
+  let bulkBFEstimate='';
+  if(['mass','strength'].includes(goal)&&curW&&curBF&&targetWVal){
+    const targetWkg=parseWt(targetWVal);
+    if(targetWkg>curW){
+      const weightGain=targetWkg-curW;
+      const fatGain=weightGain*0.4;// 40% of bulk weight gain is fat (natural estimate)
+      const newFatMass=curW*(curBF/100)+fatGain;
+      const estBF=Math.round((newFatMass/targetWkg)*100*10)/10;
+      bulkBFEstimate=estBF;
+    }
+  }
+
+  body.innerHTML=`
+    ${curW&&curBF?`<div style="background:var(--bg3);border-left:2px solid var(--gold);padding:10px 12px;margin-bottom:12px;font-size:12px;color:var(--muted2);line-height:1.7">
+      <div style="font-size:10px;font-weight:700;letter-spacing:1px;color:var(--gold);text-transform:uppercase;margin-bottom:6px">Your Current Stats</div>
+      Weight: <strong style="color:var(--text)">${dispWt(curW)}</strong> · BF%: <strong style="color:var(--text)">${curBF}%</strong> · Lean mass: <strong style="color:var(--text)">${dispWt(Math.round(curW*(1-curBF/100)*10)/10)}</strong>
+      ${['fatloss','recomp'].includes(goal)?`<div style="margin-top:6px;display:grid;grid-template-columns:repeat(4,1fr);gap:4px;font-size:10px">${[10,12,15,18].map(bf=>{const lean=curW*(1-curBF/100);const tw=Math.round(lean/(1-bf/100)*10)/10;return`<div style="background:var(--bg2);padding:5px;text-align:center"><div style="color:var(--gold)">${bf}%</div><div style="color:var(--text)">${dispWt(tw)}</div></div>`;}).join('')}</div>`:''}
+    </div>`:''}
+
+    <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:6px">Body Fat % Target</div>
+    <div style="font-size:11px;color:var(--muted2);margin-bottom:10px;line-height:1.5">${ctx.bfNote}</div>
+    <div class="modal-row"><div class="modal-lbl">Current BF%</div><input class="modal-in" id="gt-start-bf" type="number" inputmode="decimal" step="0.1" value="${startBFVal}" placeholder="${curBF||'20'}" oninput="liveCalcTargetW()"/></div>
+    <div class="modal-row"><div class="modal-lbl">Target BF%</div><input class="modal-in" id="gt-target-bf" type="number" inputmode="decimal" step="0.1" value="${targetBFVal}" placeholder="${ctx.bfPh}" oninput="liveCalcTargetW()"/></div>
+
+    <div id="bf-to-weight-preview" style="background:var(--bg3);border-left:2px solid var(--gold);padding:10px 12px;margin:10px 0;font-size:12px;color:var(--muted2);display:none">
+      <span id="bf-preview-label">At target BF%:</span> <strong id="bf-calc-result" style="color:var(--gold)"></strong>
+      <div id="bf-calc-lean" style="font-size:10px;color:var(--muted);margin-top:3px"></div>
+    </div>
+
+    <div style="height:1px;background:rgba(255,255,255,0.07);margin:14px 0"></div>
+    <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:6px">Weight Target</div>
+    <div class="modal-row"><div class="modal-lbl">Starting Weight (${w})</div><input class="modal-in" id="gt-start-w" type="number" inputmode="decimal" step="0.1" value="${startWVal}" placeholder="${isImperial()?'176':'80'}"/></div>
+    <div class="modal-row"><div class="modal-lbl">Target Weight (${w})</div><input class="modal-in" id="gt-target-w" type="number" inputmode="decimal" step="0.1" value="${targetWVal}" placeholder="${ctx.wPh}" oninput="liveCalcBFFromWeight()"/></div>
+    <div style="font-size:11px;color:var(--muted2);margin-top:4px">${ctx.wNote}</div>
+    <div id="w-to-bf-preview" style="background:var(--bg3);border-left:2px solid var(--orange);padding:10px 12px;margin-top:10px;font-size:12px;color:var(--muted2);display:${bulkBFEstimate?'block':'none'}">
+      At <strong id="w-calc-result" style="color:var(--orange)">${bulkBFEstimate?bulkBFEstimate+'%':''}</strong> estimated BF at target weight
+      <div id="w-calc-note" style="font-size:10px;color:var(--muted);margin-top:3px">${bulkBFEstimate?`Assuming ~40% of weight gain is fat (natural bulking estimate)`:''}
+      </div>
+    </div>
+    <div style="font-size:11px;color:var(--muted2);margin-top:10px;line-height:1.5">Both progress bars update — weight bar tracks kg, BF% bar tracks body fat.</div>`;
+
+  modal.classList.add('open');
+  if(startBFVal&&targetBFVal)liveCalcTargetW();
+  if(targetWVal&&['mass','strength','endurance','maintenance'].includes(goal))liveCalcBFFromWeight();
+}
+
+// BF% → weight (for fat loss, recomp, endurance)
+function liveCalcTargetW(){
+  const sbEl=document.getElementById('gt-start-bf');
+  const tbEl=document.getElementById('gt-target-bf');
+  const twEl=document.getElementById('gt-target-w');
+  const preview=document.getElementById('bf-to-weight-preview');
+  const result=document.getElementById('bf-calc-result');
+  const leanEl=document.getElementById('bf-calc-lean');
+  const label=document.getElementById('bf-preview-label');
+  if(!sbEl||!tbEl)return;
+  const startBF=parseFloat(sbEl.value);
+  const targetBF=parseFloat(tbEl.value);
+  const curW=state.weight||parseFloat(document.getElementById('prof-weight')?.value);
+  const goal=planState.goal||'mass';
+  if(!startBF||!targetBF||!curW){if(preview)preview.style.display='none';return;}
+  const lean=Math.round(curW*(1-startBF/100)*10)/10;
+
+  if(['mass','strength'].includes(goal)){
+    // For bulk: if target BF% is given, what weight would you be at that BF% with same lean mass?
+    // (useful for lean bulk — stay at X% BF while gaining muscle)
+    const targetWkg=Math.round(lean/(1-targetBF/100)*10)/10;
+    const displayW=isImperial()?+(targetWkg*KG_TO_LBS).toFixed(1):targetWkg;
+    if(twEl&&!twEl.value)twEl.value=displayW;
+    if(preview)preview.style.display='block';
+    if(label)label.textContent=`At ${targetBF}% BF with current lean mass:`;
+    if(result)result.textContent=displayW+' '+wtUnit();
+    if(leanEl)leanEl.textContent=`Lean mass stays at ${dispWt(lean)} — only fat % changes`;
+  } else if(['fatloss','recomp','endurance'].includes(goal)){
+    // Fat loss: lean mass stays same, fat drops
+    const targetWkg=Math.round(lean/(1-targetBF/100)*10)/10;
+    const displayW=isImperial()?+(targetWkg*KG_TO_LBS).toFixed(1):targetWkg;
+    if(twEl)twEl.value=displayW;
+    const fatLost=Math.round((curW-targetWkg)*10)/10;
+    if(preview)preview.style.display='block';
+    if(label)label.textContent=`At ${targetBF}% BF you'll weigh:`;
+    if(result)result.textContent=displayW+' '+wtUnit();
+    if(leanEl)leanEl.textContent=`Lean mass: ${dispWt(lean)} preserved · Fat to lose: ~${dispWt(Math.max(0,fatLost))}`;
+  } else {
+    if(preview)preview.style.display='none';
+  }
+}
+
+// Weight → BF% estimate (for bulk/strength — entering target weight estimates resulting BF%)
+function liveCalcBFFromWeight(){
+  const twEl=document.getElementById('gt-target-w');
+  const sbEl=document.getElementById('gt-start-bf');
+  const preview=document.getElementById('w-to-bf-preview');
+  const result=document.getElementById('w-calc-result');
+  const note=document.getElementById('w-calc-note');
+  const goal=planState.goal||'mass';
+  if(!['mass','strength','maintenance','endurance'].includes(goal)){if(preview)preview.style.display='none';return;}
+  if(!twEl||!sbEl)return;
+  const targetWkg=parseWt(twEl.value);
+  const startBF=parseFloat(sbEl.value)||parseFloat(document.getElementById('prof-bf')?.value)||20;
+  const curW=state.weight||parseFloat(document.getElementById('prof-weight')?.value);
+  if(!targetWkg||!curW){if(preview)preview.style.display='none';return;}
+
+  let estBF,noteText;
+  if(['mass','strength'].includes(goal)){
+    if(targetWkg<=curW){if(preview)preview.style.display='none';return;}
+    const weightGain=targetWkg-curW;
+    const curFatMass=curW*(startBF/100);
+    const fatGain=weightGain*0.40;// ~40% of bulk is fat (natural estimate)
+    const newFatMass=curFatMass+fatGain;
+    estBF=Math.round((newFatMass/targetWkg)*100*10)/10;
+    noteText=`Assuming ~40% of gain (${dispWt(fatGain)}) is fat — natural bulking estimate`;
+  } else if(goal==='maintenance'){
+    const lean=curW*(1-startBF/100);
+    estBF=Math.round(((targetWkg-lean)/targetWkg)*100*10)/10;
+    noteText='Estimated BF% at this weight with current lean mass';
+  } else {
+    if(preview)preview.style.display='none';return;
+  }
+  estBF=Math.max(3,Math.min(50,estBF));
+  // Auto-fill BF target field
+  const tbEl=document.getElementById('gt-target-bf');
+  if(tbEl&&!tbEl.value)tbEl.value=estBF.toFixed(1);
+  if(preview)preview.style.display='block';
+  if(result)result.textContent=estBF.toFixed(1)+'%';
+  if(note)note.textContent=noteText;
+}
+
+function saveGoalTarget(){
+  const goal=planState.goal||'mass';
+  if(!state.goalTarget)state.goalTarget={};
+
+  const swEl=document.getElementById('gt-start-w');
+  const twEl=document.getElementById('gt-target-w');
+  const sbEl=document.getElementById('gt-start-bf');
+  const tbEl=document.getElementById('gt-target-bf');
+
+  if(swEl?.value)state.goalTarget.startWeight=parseWt(swEl.value);
+  if(twEl?.value)state.goalTarget.targetWeight=parseWt(twEl.value);
+  if(sbEl?.value)state.goalTarget.startBF=parseFloat(sbEl.value);
+  if(tbEl?.value)state.goalTarget.targetBF=parseFloat(tbEl.value);
+  state.goalTarget.goal=goal;
+
+  // Auto-calculate target weight from target BF% if weight not manually set
+  if(state.goalTarget.targetBF&&!twEl?.value){
+    const curW=state.weight||parseFloat(document.getElementById('prof-weight')?.value);
+    const startBF=state.goalTarget.startBF;
+    if(curW&&startBF){
+      const leanMass=Math.round(curW*(1-startBF/100)*10)/10;
+      const calcTargetW=Math.round(leanMass/(1-state.goalTarget.targetBF/100)*10)/10;
+      state.goalTarget.targetWeight=calcTargetW;
+      state.goalTarget.startWeight=state.goalTarget.startWeight||curW;
+      toast(`Auto-calc: lean mass ${dispWt(leanMass)} → at ${state.goalTarget.targetBF}% BF = ${dispWt(calcTargetW)}`);
+    }
+  }
+  // Also auto-set start weight if not set
+  if(!state.goalTarget.startWeight&&state.weight){
+    state.goalTarget.startWeight=state.weight;
+  }
+
+  document.getElementById('goal-target-modal').classList.remove('open');
+  updateProgressBar();
+  saveData();
+  toast('Target saved ✓');
+}
+
+// Goal-aware dual progress bars
+function updateProgressBar(){
+  const goal=planState.goal||'mass';
+  const target=state.goalTarget;
+  const progLabel=document.getElementById('progress-label');
+  const noTarget=document.getElementById('progress-no-target');
+  const labels={mass:'Bulk Progress',strength:'Strength Progress',fatloss:'Cut Progress',recomp:'Recomp Progress',maintenance:'Maintenance Progress',endurance:'Endurance Progress'};
+  if(progLabel)progLabel.textContent=labels[goal]||'Goal Progress';
+
+  const hasWeightTarget=target?.targetWeight;
+  const hasBFTarget=target?.targetBF&&target?.startBF;
+  if(!hasWeightTarget&&!hasBFTarget){
+    if(noTarget)noTarget.style.display='block';
+    const nw=document.getElementById('bulk-now-lbl');
+    if(nw)nw.textContent=state.weight?dispWt(state.weight):'—';
+    const ns=document.getElementById('bulk-start-lbl');if(ns)ns.textContent='—';
+    const ng=document.getElementById('bulk-goal-lbl');if(ng)ng.textContent='Set target';
+    const bfs=document.getElementById('prog-bf-section');if(bfs)bfs.style.display='none';
+    return;
+  }
+  if(noTarget)noTarget.style.display='none';
+
+  // WEIGHT BAR
+  const weightSection=document.getElementById('prog-weight-section');
+  if(hasWeightTarget){
+    if(weightSection)weightSection.style.display='block';
+    const sw=target.startWeight||state.weight||target.targetWeight;
+    const tw=target.targetWeight;
+    const now=state.weight||sw;
+    const total=Math.abs(tw-sw);
+    const done=Math.abs(now-sw);
+    const pct=total>0?Math.min(100,Math.max(0,(done/total)*100)):0;
+    const fill=document.getElementById('bulk-prog');
+    if(fill){fill.style.width=pct.toFixed(0)+'%';fill.style.background=pct>=100?'var(--green)':'var(--gold)';}
+    const sl=document.getElementById('bulk-start-lbl');
+    const gl=document.getElementById('bulk-goal-lbl');
+    const nl=document.getElementById('bulk-now-lbl');
+    if(sl)sl.textContent=dispWt(sw);
+    if(gl)gl.textContent=dispWt(tw);
+    if(nl)nl.textContent=dispWt(now);
+  } else {
+    if(weightSection)weightSection.style.display='none';
+  }
+
+  // BF% BAR
+  const bfSection=document.getElementById('prog-bf-section');
+  if(hasBFTarget){
+    if(bfSection)bfSection.style.display='block';
+    const startBF=target.startBF;
+    const targetBF=target.targetBF;
+    const curBF=state.bfLog.length?state.bfLog[state.bfLog.length-1].value:startBF;
+    const total=Math.abs(startBF-targetBF);
+    const done=Math.abs(startBF-curBF);
+    const pct=total>0?Math.min(100,Math.max(0,(done/total)*100)):0;
+    const fill=document.getElementById('bf-prog');
+    if(fill){fill.style.width=pct.toFixed(0)+'%';fill.style.background=pct>=100?'var(--green)':'var(--orange)';}
+    const sl=document.getElementById('bf-start-lbl');
+    const gl=document.getElementById('bf-goal-lbl');
+    const nl=document.getElementById('bf-now-lbl');
+    if(sl)sl.textContent=startBF.toFixed(1)+'%';
+    if(gl)gl.textContent=targetBF+'%';
+    if(nl)nl.textContent=curBF.toFixed(1)+'%';
+  } else {
+    if(bfSection)bfSection.style.display='none';
+  }
+}
+
 function openSettings(){document.getElementById('settings-modal').classList.add('open');}
 function saveSettings(){
   const name=document.getElementById('set-name').value.trim();
   const bs=parseFloat(document.getElementById('set-bulk-start').value);
   const bg=parseFloat(document.getElementById('set-bulk-goal').value);
-  if(name){
-    state.settings.name=name;
-    document.getElementById('p-name').textContent=name.toUpperCase();
-    document.getElementById('p-av').textContent=name[0].toUpperCase();
-  }
+  if(name)applyName(name);
   if(bs)state.settings.bulkStart=bs;
   if(bg)state.settings.bulkGoal=bg;
-  document.getElementById('bulk-start-lbl').textContent=state.settings.bulkStart+'kg';
-  document.getElementById('bulk-goal-lbl').textContent=state.settings.bulkGoal+'kg';
   document.getElementById('settings-modal').classList.remove('open');
+  updateProgressBar();
   toast('Settings saved');saveData();
+}
+
+function applyName(name){
+  state.settings.name=name;
+  // Sync all name displays
+  const pn=document.getElementById('p-name');if(pn)pn.textContent=name.toUpperCase();
+  const il=document.getElementById('inline-name');if(il&&il.value!==name)il.value=name;
+  const sn=document.getElementById('set-name');if(sn&&sn.value!==name)sn.value=name;
+  const av=document.getElementById('p-av-letter');if(av)av.textContent=name[0]?.toUpperCase()||'?';
+  // Update home coach name display
+  const hcn=document.getElementById('home-coach-name');if(hcn)hcn.textContent=activeCoach.name;
+}
+
+function saveInlineName(inp){
+  const name=inp.value.trim();
+  if(name)applyName(name);
+  saveData();
+}
+
+function handleAvatarUpload(input){
+  const file=input.files[0];
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    state.avatarData=e.target.result;
+    const img=document.getElementById('p-av-img');
+    const letter=document.getElementById('p-av-letter');
+    if(img){img.src=e.target.result;img.style.display='block';}
+    if(letter)letter.style.display='none';
+    saveData();
+    toast('Profile photo updated');
+  };
+  reader.readAsDataURL(file);
+}
+
+function restoreAvatar(){
+  if(!state.avatarData)return;
+  const img=document.getElementById('p-av-img');
+  const letter=document.getElementById('p-av-letter');
+  if(img){img.src=state.avatarData;img.style.display='block';}
+  if(letter)letter.style.display='none';
+}
+
+// Render goal selector cards on profile page
+function renderProfileGoalSelector(){
+  const el=document.getElementById('profile-goal-selector');
+  if(!el)return;
+  const goals=[
+    {id:'mass',    icon:'ti-barbell', label:'Build Mass',    sub:'Bulk + high carbs'},
+    {id:'strength',icon:'ti-trophy',  label:'Strength',      sub:'Bulk + compounds'},
+    {id:'fatloss', icon:'ti-flame',   label:'Fat Loss',      sub:'Cut + high protein'},
+    {id:'recomp',  icon:'ti-refresh', label:'Recomp',        sub:'Balanced + high protein'},
+    {id:'maintenance',icon:'ti-equal',label:'Maintenance',   sub:'TDEE match'},
+    {id:'endurance',icon:'ti-run',    label:'Endurance',     sub:'Very high carbs'},
+  ];
+  const current=planState.goal||'mass';
+  el.innerHTML=goals.map(g=>`
+    <div onclick="selectProfileGoal('${g.id}')" style="background:var(--bg3);border:1px solid ${g.id===current?'var(--gold)':'rgba(255,255,255,0.07)'};border-radius:0;padding:10px 12px;cursor:pointer;transition:border-color .15s;${g.id===current?'background:var(--gold-dim)':''}">
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px">
+        <i class="ti ${g.icon}" style="font-size:14px;color:${g.id===current?'var(--gold)':'var(--muted)'}"></i>
+        <span style="font-size:12px;font-weight:700;color:${g.id===current?'var(--gold)':'var(--text)'}">${g.label}</span>
+      </div>
+      <div style="font-size:10px;color:var(--muted)">${g.sub}</div>
+    </div>`).join('');
+  updateGoalCalPreview();
+}
+
+function selectProfileGoal(goal){
+  planState.goal=goal;
+  renderProfileGoalSelector();
+  if(planState.plan)rebuildPlanKeepHistory();
+  updateProgressBar();
+  saveData();
+  toast('Goal updated to '+goal+' — plan adjusted');
+}
+
+function updateGoalCalPreview(){
+  const el=document.getElementById('goal-calorie-preview');
+  if(!el)return;
+  const w=parseFloat(document.getElementById('prof-weight')?.value)||state.weight||0;
+  if(!w){el.style.display='none';return;}
+  const goal=planState.goal||'mass';
+  const days=planState.days||4;
+  const bf=parseFloat(document.getElementById('prof-bf')?.value)||null;
+  const gender=document.getElementById('prof-gender')?.value||state.gender||'m';
+  const h=parseFloat(document.getElementById('prof-height')?.value)||null;
+  const age=parseFloat(document.getElementById('prof-age')?.value)||null;
+  const lean=estLean(w,bf,gender);
+  const bmr=calcBMR(w,h,age,gender,bf);
+  const act=days>=6?1.725:days>=5?1.65:days>=4?1.55:days>=3?1.45:1.375;
+  const tdee=Math.round(bmr*act);
+  let kcal,surplus;
+  if(goal==='mass'||goal==='strength'){kcal=tdee+300;surplus='+300 kcal bulk';}
+  else if(goal==='fatloss'){kcal=tdee-400;surplus='−400 kcal cut';}
+  else if(goal==='endurance'){kcal=tdee+100;surplus='+100 kcal';}
+  else{kcal=tdee;surplus='maintenance';}
+  const preset=GOAL_MACROS[goal]||GOAL_MACROS.maintenance;
+  const prot=Math.round(lean*protPerKgLean(gender,goal));
+  const fat=Math.round(kcal*(preset.fat/100)/9);
+  const carb=Math.round((kcal-prot*4-fat*9)/4);
+  el.style.display='block';
+  el.innerHTML=`<strong style="color:var(--gold)">${kcal} kcal/day</strong> · ${surplus} · P: ${prot}g · C: ${Math.max(0,carb)}g · F: ${fat}g<br><span style="font-size:10px;color:var(--muted)">${preset.rationale}</span><br><button onclick="goPage('profile');setTimeout(calcNutrition,100)" style="margin-top:6px;background:var(--gold);border:none;padding:5px 12px;font-family:var(--ff);font-size:14px;color:var(--bg);cursor:pointer">Calculate Full Targets →</button>`;
 }
 
 // ── HOME ──────────────────────────────────────────────────────
@@ -1084,48 +1578,340 @@ function generateInsight(){
 }
 
 // Build the directive board: prioritized action cards from real data
+// ── UNIT SYSTEM ───────────────────────────────────────────────
+// All values stored internally as metric (cm, kg). Imperial is display-only.
+const CM_TO_IN=0.393701;
+const IN_TO_CM=2.54;
+const KG_TO_LBS=2.20462;
+const LBS_TO_KG=0.453592;
+
+function isImperial(){return state.unitSystem==='imperial';}
+
+// Convert a cm value to display string
+function dispLen(cm){
+  if(!cm&&cm!==0)return'—';
+  if(isImperial())return(cm*CM_TO_IN).toFixed(1)+' in';
+  return cm.toFixed(1)+' cm';
+}
+// Convert a kg value to display string
+function dispWt(kg){
+  if(!kg&&kg!==0)return'—';
+  if(isImperial())return(kg*KG_TO_LBS).toFixed(1)+' lbs';
+  return kg.toFixed(1)+' kg';
+}
+// Length unit label
+function lenUnit(){return isImperial()?'in':'cm';}
+// Weight unit label
+function wtUnit(){return isImperial()?'lbs':'kg';}
+
+// Parse a length input value → always returns cm internally
+function parseLen(val){
+  const n=parseFloat(val);
+  if(isNaN(n))return null;
+  return isImperial()?n*IN_TO_CM:n;
+}
+// Parse a weight input value → always returns kg internally
+function parseWt(val){
+  const n=parseFloat(val);
+  if(isNaN(n))return null;
+  return isImperial()?n*LBS_TO_KG:n;
+}
+// Format cm for input field (user-facing)
+function inputLen(cm){
+  if(!cm)return'';
+  return isImperial()?+(cm*CM_TO_IN).toFixed(1):+cm.toFixed(1);
+}
+// Format kg for input field
+function inputWt(kg){
+  if(!kg)return'';
+  return isImperial()?+(kg*KG_TO_LBS).toFixed(1):+kg.toFixed(1);
+}
+
+function setUnitSystem(sys){
+  state.unitSystem=sys;
+  document.getElementById('unit-metric').style.cssText=
+    sys==='metric'?'flex:1;background:var(--gold-dim);border:1px solid var(--gold);padding:10px;text-align:center;cursor:pointer':
+    'flex:1;background:var(--bg3);border:1px solid rgba(255,255,255,0.07);padding:10px;text-align:center;cursor:pointer';
+  document.getElementById('unit-metric').querySelector('[style*="font-family"]').style.color=sys==='metric'?'var(--gold)':'var(--muted)';
+  document.getElementById('unit-imperial').style.cssText=
+    sys==='imperial'?'flex:1;background:var(--gold-dim);border:1px solid var(--gold);padding:10px;text-align:center;cursor:pointer':
+    'flex:1;background:var(--bg3);border:1px solid rgba(255,255,255,0.07);padding:10px;text-align:center;cursor:pointer';
+  document.getElementById('unit-imperial').querySelector('[style*="font-family"]').style.color=sys==='imperial'?'var(--gold)':'var(--muted)';
+  applyUnitLabels();
+  saveData();
+}
+
+function applyUnitLabels(){
+  const u=lenUnit(),w=wtUnit();
+  // Profile inputs
+  const hl=document.getElementById('prof-height-lbl');if(hl)hl.textContent=`Height (${u})`;
+  const wl=document.getElementById('prof-weight-lbl');if(wl)wl.textContent=`Weight (${w})`;
+  const ll=document.getElementById('log-weight-lbl');if(ll)ll.textContent=`Today's Weight (${w})`;
+  // Update placeholders and current values for height/weight
+  const ph=document.getElementById('prof-height');
+  const pw=document.getElementById('prof-weight');
+  const lw=document.getElementById('log-weight');
+  if(ph){ph.placeholder=isImperial()?'71':'180';}
+  if(pw){pw.placeholder=isImperial()?'176':'80';}
+  if(lw){lw.placeholder=isImperial()?'176':'80';}
+
+  // Measurement labels — find all inp-lbl spans inside pan-measure
+  const mPanel=document.getElementById('pan-measure');
+  if(mPanel){
+    mPanel.querySelectorAll('.inp-lbl[data-m]').forEach(el=>{
+      el.textContent=el.dataset.m+' ('+u+')';
+    });
+    // Update saved measurement displays
+    const dispIds=['disp-chest','disp-waist','disp-hips','disp-shoulders','disp-lbicep','disp-rbicep','disp-lquad','disp-rquad','disp-lcalf','disp-rcalf'];
+    const mKeys=['chest','waist','hips','shoulders','lbicep-f','rbicep-f','lquad','rquad','lcalf','rcalf'];
+    dispIds.forEach((id,i)=>{
+      const el=document.getElementById(id);
+      const val=state.measurements[mKeys[i]];
+      if(el&&val)el.innerHTML=dispLen(val)+'';
+    });
+    // Repopulate input fields with correct unit values
+    const fieldMap={neck:'m-neck',shoulders:'m-shoulders',upperchest:'m-upperchest',chest:'m-chest',
+      'lbicep-r':'m-lbicep-r','lbicep-f':'m-lbicep-f','rbicep-r':'m-rbicep-r','rbicep-f':'m-rbicep-f',
+      lforearm:'m-lforearm',rforearm:'m-rforearm',lwrist:'m-lwrist',rwrist:'m-rwrist',
+      waist:'m-waist',navel:'m-navel',hips:'m-hips',
+      lquad:'m-lquad',rquad:'m-rquad',lham:'m-lham',rham:'m-rham',lcalf:'m-lcalf',rcalf:'m-rcalf'};
+    for(const key in fieldMap){
+      const el=document.getElementById(fieldMap[key]);
+      const val=state.measurements[key];
+      if(el&&val)el.value=inputLen(val);
+    }
+  }
+
+  // Stats overview weight + height inputs
+  const oh=document.getElementById('prof-height');
+  const ow=document.getElementById('prof-weight');
+  if(oh&&state.settings?.height)oh.value=inputLen(state.settings.height);
+  if(ow&&state.weight)ow.value=inputWt(state.weight);
+
+  // Workout exercise weights — update target labels
+  document.querySelectorAll('.ex-target').forEach(el=>{
+    // Leave as-is — workout weights handled separately
+  });
+
+  // Update home weight display
+  const hw=document.getElementById('home-weight');
+  if(hw&&state.weight)hw.innerHTML=inputWt(state.weight)+'<span class="scard-unit">'+w+'</span>';
+}
+
+function initUnitUI(){
+  const sys=state.unitSystem||'metric';
+  // Set correct button state
+  const im=document.getElementById('unit-metric');
+  const ii=document.getElementById('unit-imperial');
+  if(im){
+    im.style.cssText=sys==='metric'?'flex:1;background:var(--gold-dim);border:1px solid var(--gold);padding:10px;text-align:center;cursor:pointer':'flex:1;background:var(--bg3);border:1px solid rgba(255,255,255,0.07);padding:10px;text-align:center;cursor:pointer';
+    const span=im.querySelector('[style*="font-family"]');if(span)span.style.color=sys==='metric'?'var(--gold)':'var(--muted)';
+  }
+  if(ii){
+    ii.style.cssText=sys==='imperial'?'flex:1;background:var(--gold-dim);border:1px solid var(--gold);padding:10px;text-align:center;cursor:pointer':'flex:1;background:var(--bg3);border:1px solid rgba(255,255,255,0.07);padding:10px;text-align:center;cursor:pointer';
+    const span=ii.querySelector('[style*="font-family"]');if(span)span.style.color=sys==='imperial'?'var(--gold)':'var(--muted)';
+  }
+  applyUnitLabels();
+}
+
+// Coach-aware volume config — what counts as enough for THIS coach
+const COACH_VOLUME={
+  ivan: {min:1,   opt:3,   max:5,   note:'1 all-out set IS sufficient — High Intensity Training principle'},
+  caesar:{min:12,  opt:18,  max:25,  note:'High volume is the stimulus — more sets means more pump and growth'},
+  blaze: {min:15,  opt:22,  max:30,  note:'Maximum volume approach — every set counts toward exhaustion'},
+  thor:  {min:8,   opt:14,  max:20,  note:'Moderate-high volume on big compound lifts'},
+  rex:   {min:8,   opt:14,  max:18,  note:'Strength-first with moderate hypertrophy volume'},
+  marcus:{min:9,   opt:15,  max:21,  note:'Consistent moderate volume — same effort every session'},
+  ford:  {min:10,  opt:16,  max:20,  note:'Evidence-based MEV to MAV range for hypertrophy'},
+  zen:   {min:8,   opt:12,  max:16,  note:'Quality over quantity — controlled reps, full mind-muscle'},
+  aria:  {min:10,  opt:16,  max:20,  note:'Adaptive — balanced evidence-based volume targets'}
+};
+
+function coachVolConfig(){
+  return COACH_VOLUME[activeCoach.id]||COACH_VOLUME.aria;
+}
+
+// Stall detection — same weight 3+ sessions on same exercise
+function detectStall(exName){
+  const h=planState.history[exName];
+  if(!h||h.length<3)return false;
+  const last3=h.slice(-3);
+  return last3.every(s=>s.weight===last3[0].weight);
+}
+
+// Get coach's signature stall-buster technique
+function stallBuster(exName){
+  const id=activeCoach.id;
+  if(id==='ivan')return`${exName} stalled. Apply rest-pause: hit failure, rest 15 seconds, grind 3-5 more reps. This extends the one set beyond normal failure.`;
+  if(id==='caesar')return`${exName} stalled. Add a triple drop set after your working sets — drop weight 20% three times with no rest. The pump will break the plateau.`;
+  if(id==='blaze')return`${exName} stalled. Superset with an isolation movement and add a drop set. Volume is your solution — attack it harder.`;
+  if(id==='zen')return`${exName} stalled. Slow the tempo to 4-2-4. The weight doesn't need to go up — the connection needs to deepen. Master the movement first.`;
+  if(id==='rex'||id==='thor')return`${exName} stalled. Deload 20% for one session, then come back fresh and aim for a new rep PR. Strength responds to reset.`;
+  if(id==='ford')return`${exName} stalled. Introduce a micro-load (1.25kg plates). If unavailable, target +1 rep per session instead of weight increase.`;
+  if(id==='marcus')return`${exName} stalled. Show up anyway. Perform the same weight with stricter form. Discipline through the plateau.`;
+  return`${exName} stalled at the same weight for 3 sessions. Try adding 1 rep rather than weight, or deload 15% and rebuild.`;
+}
+
+// Auto-adjust today's session based on recovery
+function applyRecoveryAdjustment(session){
+  const rec=state.recovery;
+  if(rec===null||session.isRest)return session;
+  if(rec>=60)return session; // no change
+
+  // Low recovery — reduce sets by 1 (Ivan stays at 1 always)
+  const adjusted={...session,exercises:session.exercises.map(ex=>{
+    const id=activeCoach.id;
+    if(id==='ivan')return ex; // HIT: 1 set is already minimum — never reduce
+    const reducedSets=Math.max(1,ex.sets-1);
+    return{...ex,sets:reducedSets};
+  })};
+  adjusted._recoveryAdjusted=true;
+  adjusted._recoveryScore=rec;
+  return adjusted;
+}
+
+// Auto-fix undertrained/overtrained muscles in the plan
+function autoBalancePlan(){
+  if(!planState.plan)return;
+  const vol=calcWeeklyVolume();
+  const cfg=coachVolConfig();
+  const DAYS=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+
+  for(const muscle in vol){
+    // OVERTRAINED — remove lowest-priority isolation from next relevant session
+    if(vol[muscle]>cfg.max){
+      for(const day of DAYS){
+        const s=planState.plan[day];
+        if(!s||s.isRest)continue;
+        const relevant=s.exercises.filter(e=>e.muscle===muscle&&e.type==='isolation');
+        if(relevant.length>0){
+          // Remove last isolation exercise for this muscle
+          const idx=s.exercises.lastIndexOf(relevant[relevant.length-1]);
+          s.exercises.splice(idx,1);
+          break;
+        }
+      }
+    }
+
+    // UNDERTRAINED — add one exercise to next relevant session (skip Ivan — he's always enough)
+    if(activeCoach.id!=='ivan'&&vol[muscle]>0&&vol[muscle]<cfg.min){
+      for(const day of DAYS){
+        const s=planState.plan[day];
+        if(!s||s.isRest)continue;
+        if(s.muscles.includes(muscle)){
+          const sch=getSetScheme(planState.goal);
+          const pool=pickForGroup(muscle,1);
+          if(pool.length){
+            const ex=pool[0];
+            // Only add if not already in this session
+            const alreadyThere=s.exercises.some(e=>e.name===ex.name);
+            if(!alreadyThere){
+              s.exercises.push({
+                name:ex.name,muscle:ex.group,region:ex.region,
+                type:ex.type,cue:ex.cue,sets:sch.sets,warmups:sch.warmups,
+                reps:repsForExercise(ex,planState.goal),
+                _autoAdded:true
+              });
+            }
+          }
+          break;
+        }
+      }
+    }
+  }
+  saveData();
+}
+
 function renderDirectiveBoard(){
   const board=document.getElementById('directive-board');
+  if(!board)return;
   document.getElementById('directive-coach-lbl').textContent=activeCoach.name;
   const cards=[];
   const day=planState.currentDay||getTodayDay();
-  const session=planState.plan?.[day];
+  const rawSession=planState.plan?.[day];
   const rec=state.recovery;
+  const cfg=coachVolConfig();
 
-  // 1. Recovery directive
+  // Run auto-balance once when board renders (silently adjusts plan)
+  if(planState.plan)autoBalancePlan();
+
+  // Apply recovery adjustment for display
+  const session=rawSession?applyRecoveryAdjustment(rawSession):null;
+
+  // 1. Recovery card — coach-voiced
   if(rec!==null){
     const col=rec>=85?'var(--green)':rec>=60?'var(--gold)':'var(--red)';
     const icon=rec>=85?'ti-bolt':rec>=60?'ti-activity':'ti-bed';
-    const txt=rec>=85?'High recovery ('+rec+'%). Push hard — add intensity today.':rec>=60?'Moderate recovery ('+rec+'%). Train as planned.':'Low recovery ('+rec+'%). Cut volume 30-40% or rest.';
-    cards.push({icon,col,title:'Recovery Status',txt});
+    let txt;
+    if(rec>=85){
+      const id=activeCoach.id;
+      txt=id==='ivan'?`Recovery at ${rec}% — CNS is primed. Today your working set must reach absolute failure. No excuses.`:
+          id==='blaze'?`Recovery at ${rec}%! Attack everything today. Add a drop set to every working set. The body is ready.`:
+          id==='caesar'?`Recovery is ${rec}% — MAGNIFICO! Today the muscle is ready to be annihilated with volume!`:
+          `Recovery ${rec}% — green light. Push your working weights hard today.`;
+    } else if(rec>=60){
+      txt=`Recovery ${rec}% — moderate. Train as planned. Listen to your body on the last rep of each set.`;
+    } else {
+      const id=activeCoach.id;
+      txt=id==='ivan'?`Recovery only ${rec}%. The body is not ready. Either rest completely or reduce to warm-ups only — forced training on a fatigued CNS is counterproductive.`:
+          `Recovery ${rec}% — I've automatically reduced your sets by 1 today to protect your recovery. Train smart, not hard.`;
+    }
+    cards.push({icon,col,title:'Recovery',txt});
   } else {
-    cards.push({icon:'ti-bed',col:'var(--muted)',title:'Recovery Status',txt:'Log sleep in Profile to get recovery-based training adjustments.'});
+    cards.push({icon:'ti-bed',col:'var(--muted)',title:'Recovery',txt:'Log sleep in Profile → Health Log to get recovery-based session adjustments.'});
   }
 
-  // 2. Today's session
+  // 2. Today's session card
   if(session){
     if(session.isRest){
-      cards.push({icon:'ti-zzz',col:'var(--muted)',title:'Today: Rest Day',txt:pick(activeCoach.responses.recovery||activeCoach.responses.default)});
+      const id=activeCoach.id;
+      const restMsg=id==='ivan'?'Rest day. This is where the growth happens. Do not train. Sleep, eat, recover.':
+                    id==='marcus'?'Scheduled rest day. Recovery is part of the mission. Execute it.':
+                    id==='zen'?'Rest day — but not idle. Breathe, stretch, connect to the body without iron.':
+                    'Rest day. Stick to the plan — recovery is training too.';
+      cards.push({icon:'ti-zzz',col:'var(--muted)',title:'Rest Day',txt:restMsg});
     } else {
       const exCount=session.exercises.length;
-      cards.push({icon:'ti-barbell',col:'var(--gold)',title:'Today: '+session.name,txt:exCount+' exercises · '+session.muscles.join(', ')+'. '+(activeCoach.responses.bench?activeCoach.responses.bench[0]:'')});
+      const totalSets=session.exercises.reduce((a,e)=>a+(e.sets||0),0);
+      const adjusted=session._recoveryAdjusted?` (reduced from full volume — recovery at ${session._recoveryScore}%)`:'';
+      cards.push({
+        icon:'ti-barbell',col:'var(--gold)',
+        title:'Today: '+session.name,
+        txt:`${exCount} exercises · ${totalSets} working sets · ${session.muscles.join(', ')}${adjusted}.`
+      });
     }
   } else {
-    cards.push({icon:'ti-clipboard',col:'var(--gold)',title:'No Plan Yet',txt:'Head to the Workout tab and set up your training plan to get daily directives.'});
+    cards.push({icon:'ti-clipboard',col:'var(--muted)',title:'No Plan',txt:'Set up your training plan in the Workout tab.'});
   }
 
-  // 3. Volume alert (weekly sets per muscle)
-  const vol=calcWeeklyVolume();
-  const alerts=[];
-  for(const m in vol){
-    if(vol[m]<6&&vol[m]>0)alerts.push(m+' is undertrained ('+vol[m]+' sets/wk)');
-    if(vol[m]>22)alerts.push(m+' may be overtrained ('+vol[m]+' sets/wk)');
-  }
-  if(alerts.length){
-    cards.push({icon:'ti-alert-triangle',col:'var(--orange)',title:'Volume Alert',txt:alerts.slice(0,2).join(' · ')+'.'});
+  // 3. Volume card — coach-aware, no dumb alerts for Ivan
+  if(planState.plan){
+    const vol=calcWeeklyVolume();
+    const issues=[];
+    for(const m in vol){
+      if(activeCoach.id==='ivan'){
+        // Ivan: only flag if somehow >5 sets on a muscle — that contradicts his philosophy
+        if(vol[m]>5)issues.push(`${m} has ${vol[m]} sets/week — above Ivan's HIT protocol. Your plan should have 1 working set per muscle. Review your plan.`);
+      } else {
+        if(vol[m]>0&&vol[m]<cfg.min)issues.push(`${m}: ${vol[m]} sets/week is below ${activeCoach.name}'s minimum of ${cfg.min}. Auto-adjusting next session.`);
+        if(vol[m]>cfg.max)issues.push(`${m}: ${vol[m]} sets/week exceeds ${activeCoach.name}'s maximum of ${cfg.max}. Removing excess isolation work.`);
+      }
+    }
+    if(issues.length){
+      cards.push({icon:'ti-adjustments',col:'var(--orange)',title:'Plan Auto-Adjusted',txt:issues.slice(0,2).join(' ')});
+    } else if(Object.keys(vol).length>0){
+      const totalSetsWeek=Object.values(vol).reduce((a,b)=>a+b,0);
+      cards.push({icon:'ti-check',col:'var(--green)',title:'Volume On Track',txt:`Weekly plan: ${totalSetsWeek} total sets across ${Object.keys(vol).length} muscle groups. Within ${activeCoach.name}'s optimal range (${cfg.note}).`});
+    }
   }
 
-  // 4. Progression directive from last logged exercise
+  // 4. Stall detection across recent exercises
+  const stalls=Object.keys(planState.history||{}).filter(detectStall);
+  if(stalls.length>0){
+    cards.push({icon:'ti-alert-circle',col:'var(--orange)',title:'Plateau Detected',txt:stallBuster(stalls[0])});
+  }
+
+  // 5. Progression from last logged session
   const prog=getLatestProgressionTip();
   if(prog)cards.push({icon:'ti-trending-up',col:'var(--green)',title:'Progression',txt:prog});
 
@@ -1239,7 +2025,35 @@ function submitCoachQuery(){
   inp.value='';
 }
 
-function pick(arr){return arr[Math.floor(Math.random()*arr.length)];}
+// Gender-aware BMR using Mifflin-St Jeor formula
+// Male:   BMR = 10×weight + 6.25×height − 5×age + 5
+// Female: BMR = 10×weight + 6.25×height − 5×age − 161
+// Falls back to lean-mass method if age/height missing
+function calcBMR(w,h,age,gender,bf){
+  if(h&&age){
+    if(gender==='f')return Math.round(10*w+6.25*h-5*age-161);
+    return Math.round(10*w+6.25*h-5*age+5);
+  }
+  // Fallback: Katch-McArdle from lean mass (gender-neutral but needs BF%)
+  const defaultBF=gender==='f'?0.25:0.18;// female avg ~25%, male avg ~18%
+  const lean=bf?w*(1-bf/100):w*(1-defaultBF);
+  return Math.round(370+(21.6*lean));
+}
+
+// Gender-aware lean mass estimate
+function estLean(w,bf,gender){
+  const defaultBF=gender==='f'?0.25:0.18;
+  return bf?w*(1-bf/100):w*(1-(defaultBF));
+}
+
+// Gender-aware protein multiplier — females need slightly less per kg lean mass
+// Evidence: 1.6-2.2g/kg for males, 1.4-2.0g/kg for females
+function protPerKgLean(gender,goal){
+  const base=gender==='f'?1.8:2.2;
+  if(goal==='fatloss')return base+0.2;// higher in deficit to preserve muscle
+  if(goal==='recomp')return base+0.1;
+  return base;
+}
 
 function initComparisonDates(){
   const toEl=document.getElementById('comp-to');
@@ -1550,7 +2364,7 @@ function generatePlan(){
   saveData();
   showActivePlan();
   // Show first-workout guide if this is their first ever plan
-  if(!planState.hasSeenWorkoutGuide){
+  if(!planState.hasSeenWorkoutGuide&&!state.hasSeenWorkoutGuide){
     setTimeout(()=>{
       document.getElementById('first-workout-modal').classList.add('open');
     },400);
@@ -1560,6 +2374,7 @@ function generatePlan(){
 function dismissFirstWorkout(){
   document.getElementById('first-workout-modal').classList.remove('open');
   planState.hasSeenWorkoutGuide=true;
+  state.hasSeenWorkoutGuide=true;
   saveData();
 }
 
@@ -1609,16 +2424,39 @@ function renderDayRow(){
 
 function renderDayWorkout(day,el){
   planState.currentDay=day;
-  if(el){document.querySelectorAll('.dpill').forEach(p=>p.classList.remove('on'));el.classList.add('on');}
+  // Always update pill highlight
+  document.querySelectorAll('.dpill').forEach(p=>p.classList.remove('on'));
+  if(el)el.classList.add('on');
+  else{
+    // Find and highlight correct pill by day name
+    document.querySelectorAll('.dpill').forEach(p=>{
+      if(p.textContent.trim().startsWith(day))p.classList.add('on');
+    });
+  }
   const session=planState.plan?.[day];
   if(!session){return;}
-  document.getElementById('wo-session-name').textContent=session.name.toUpperCase();
-  document.getElementById('wo-day-label').textContent=`${day} · ${session.muscles.join(', ')||'Rest'}`;
+  const sessionName=document.getElementById('wo-session-name');
+  const dayLabel=document.getElementById('wo-day-label');
+  if(sessionName)sessionName.textContent=session.name.toUpperCase();
+  if(dayLabel)dayLabel.textContent=`${day} · ${session.isRest?'Rest Day':session.muscles.join(', ')||'Rest'}`;
   const container=document.getElementById('ex-container');
+  if(!container)return;
   if(session.isRest){
+    const restMessages={
+      ivan:'Rest day. The body grows during recovery, not during training. Do not train — full systemic rest is mandatory.',
+      caesar:'Rest day! Give the muscle time to grow. Eat well, sleep deeply, come back tomorrow with fire!',
+      thor:'Rest day. Eat big and sleep. The body is repairing. Show up stronger tomorrow.',
+      ford:'Scheduled rest day. Muscle protein synthesis peaks 24-48hrs post-session. Rest is part of the programme.',
+      marcus:'Rest day. Recovery is part of the mission. Execute it with the same discipline as training.',
+      zen:'Rest day. Move gently, breathe deeply, let the body speak. You do not always need iron to improve.',
+      rex:'Rest day. Strength is built during recovery. Come back tomorrow ready to add weight to the bar.',
+      blaze:'Rest day. Even the hardest athletes rest. Eat, sleep, recover — attack it harder tomorrow.',
+      aria:'Scheduled rest day. Your muscles are recovering and growing right now. Stay out of the gym.'
+    };
+    const msg=restMessages[activeCoach.id]||restMessages.aria;
     container.innerHTML=`<div style="padding:40px 18px;text-align:center">
       <div style="font-family:var(--ff);font-size:36px;color:var(--muted);letter-spacing:2px;margin-bottom:10px">REST DAY</div>
-      <div style="font-size:13px;color:var(--muted2)">${pick(activeCoach.responses.recovery||activeCoach.responses.default)}</div>
+      <div style="font-size:13px;color:var(--muted2);line-height:1.6;max-width:280px;margin:0 auto">${msg}</div>
     </div>`;
     return;
   }
@@ -1718,9 +2556,12 @@ function markDoneEx(el,exName,day,idx){
   }
 }
 
-// Warmup sets — just mark done, no timer
+// Warmup sets — mark done + short timer
 function markDone(el){
   el.classList.toggle('checked');
+  if(el.classList.contains('checked')){
+    startRestTimer('Warm-up set',15);
+  }
 }
 
 // ── REST TIMER ────────────────────────────────────────────────
@@ -1728,6 +2569,8 @@ let restInterval=null;
 let _restRemaining=0;
 
 function recommendedRest(exName,reps){
+  // Warmup sets always get 60s
+  if(exName==='Warm-up set')return 60;
   const compounds=['Bench Press','Squat','Deadlift','Overhead Press','Barbell Row','Romanian Deadlift','Incline Bench Press','Hack Squat','Leg Press','Pull-Ups','T-Bar Row','Rack Pull','Close Grip Bench','Decline Bench Press','Bulgarian Split Squat','Lunges','Front Squat','Hip Thrust'];
   const isCompound=compounds.includes(exName);
   const id=activeCoach.id;
@@ -1879,8 +2722,9 @@ function setCaliper(n){
 }
 
 function calcOverview(){
-  const w=parseFloat(document.getElementById('prof-weight').value);
-  const h=parseFloat(document.getElementById('prof-height').value);
+  const w=parseWt(document.getElementById('prof-weight').value);
+  const hRaw=parseFloat(document.getElementById('prof-height').value);
+  const h=isImperial()?hRaw*IN_TO_CM:hRaw;// height in cm
   const bf=parseFloat(document.getElementById('prof-bf').value);
   if(!w||!h){toast('Enter weight and height first');return;}
   const bmi=w/((h/100)**2);
@@ -1901,29 +2745,28 @@ function calcOverview(){
 }
 
 function logWeight(){
-  const v=parseFloat(document.getElementById('log-weight').value);
+  const raw=document.getElementById('log-weight').value;
+  const v=parseWt(raw);
   if(!v){toast('Enter a weight first');return;}
   state.weight=v;
   logEntry(state.weightLog,v);
   document.getElementById('prof-weight').value=v;
-  document.getElementById('home-weight').innerHTML=v.toFixed(1)+'<span class="scard-unit">kg</span>';
+  document.getElementById('home-weight').innerHTML=dispWt(v)+'<span class="scard-unit">'+wtUnit()+'</span>';
   document.getElementById('home-weight-sub').textContent='Logged today';
   document.getElementById('home-weight-sub').style.color='var(--green)';
-  document.getElementById('bulk-now-lbl').textContent=v.toFixed(1)+'kg';
-  const bs=state.settings.bulkStart,bg=state.settings.bulkGoal;
-  const pct=Math.min(100,Math.max(0,((v-bs)/(bg-bs))*100));
-  document.getElementById('bulk-prog').style.width=pct.toFixed(0)+'%';
-  document.getElementById('bulk-start-lbl').textContent=bs+'kg';
-  document.getElementById('bulk-goal-lbl').textContent=bg+'kg';
   calcOverview();
-  toast('Weight logged: '+v.toFixed(1)+'kg');saveData();
+  updateProgressBar();
+  toast('Weight logged: '+dispWt(v));saveData();
 }
 
 function saveMeasurements(){
   const fields=['neck','shoulders','upperchest','chest','lbicep-r','lbicep-f','rbicep-r','rbicep-f','lforearm','rforearm','lwrist','rwrist','waist','navel','hips','lquad','rquad','lham','rham','lcalf','rcalf'];
   fields.forEach(f=>{
     const el=document.getElementById('m-'+f);
-    if(el&&el.value)state.measurements[f]=parseFloat(el.value);
+    if(el&&el.value){
+      // Always store in cm internally
+      state.measurements[f]=parseLen(el.value);
+    }
   });
   const d=state.measurements;
   const upd=(id,val)=>{if(val)document.getElementById(id).innerHTML=val.toFixed(1)+'<span class="mc-unit">cm</span>';};
@@ -2004,53 +2847,225 @@ function calcFat(){
 
 function calcSymmetry(){
   const d=state.measurements;
-  const pairs=[
-    {name:'Bicep (flexed)',l:'lbicep-f',r:'rbicep-f',lE:'sa-lb',rE:'sa-rb',lF:'sa-lb-fill',rF:'sa-rb-fill'},
-    {name:'Forearm',l:'lforearm',r:'rforearm',lE:'sa-lf',rE:'sa-rf',lF:'sa-lf-fill',rF:'sa-rf-fill'},
-    {name:'Quad',l:'lquad',r:'rquad',lE:'sl-lq',rE:'sl-rq',lF:'sl-lq-fill',rF:'sl-rq-fill'},
-    {name:'Calf',l:'lcalf',r:'rcalf',lE:'sl-lc',rE:'sl-rc',lF:'sl-lc-fill',rF:'sl-rc-fill'},
-  ];
-  let scores=[],imbs=[],hasData=false;
-  pairs.forEach(p=>{
-    const lv=d[p.l],rv=d[p.r];
-    if(lv&&rv){
-      hasData=true;
-      const big=Math.max(lv,rv),sm=Math.min(lv,rv),diff=big-sm,pct=(diff/big)*100;
-      scores.push(Math.max(0,100-(pct*5)));
-      const max=70;
-      const lPct=Math.min(100,(lv/max)*100),rPct=Math.min(100,(rv/max)*100);
-      const el=document.getElementById(p.lE);if(el)el.textContent=lv.toFixed(1)+'cm';
-      const er=document.getElementById(p.rE);if(er)er.textContent=rv.toFixed(1)+'cm';
-      // Only flag if difference exceeds 1.5cm (measurement-error threshold)
-      const cls=diff>1.5?'warn':'';
-      const lf=document.getElementById(p.lF);if(lf){lf.style.width=lPct.toFixed(0)+'%';lf.className='sym-fill'+(cls?' '+cls:'');}
-      const rf=document.getElementById(p.rF);if(rf){rf.style.width=rPct.toFixed(0)+'%';rf.className='sym-fill'+(cls?' '+cls:'');}
-      if(diff>1.5)imbs.push({name:p.name,diff:diff.toFixed(1),pct:pct.toFixed(1),smallSide:lv<rv?'Left':'Right',small:sm,big});
-    }
+  const gender=state.gender||document.getElementById('prof-gender')?.value||'m';
+
+  // Need at least shoulders and waist
+  const shoulders=d.shoulders;
+  const waist=d.waist;
+  const chest=d.chest;
+  const hips=d.hips;
+  const bicep=((d['lbicep-f']||0)+(d['rbicep-f']||0))/2||(d['lbicep-f']||d['rbicep-f']);
+  const neck=d.neck;
+  const calf=((d.lcalf||0)+(d.rcalf||0))/2||(d.lcalf||d.rcalf);
+  const quad=((d.lquad||0)+(d.rquad||0))/2||(d.lquad||d.rquad);
+  const forearm=((d.lforearm||0)+(d.rforearm||0))/2;
+
+  if(!shoulders||!waist){
+    document.getElementById('sym-desc').textContent='Enter at least Shoulders and Waist in the Measure tab to calculate your aesthetic score.';
+    return;
+  }
+
+  // ── GOLDEN RATIO PROPORTIONS ──────────────────────────────────
+  // Based on classical aesthetic bodybuilding standards + golden ratio (1.618)
+  const GOLDEN=1.618;
+
+  // Gender-specific ideal ratios
+  const isMale=gender==='m';
+
+  const ratios=[];
+
+  // 1. SHOULDER-TO-WAIST (V-Taper) — most important aesthetic metric
+  // Male ideal: 1.618 (golden ratio). Female ideal: 1.4 (hourglass)
+  const swIdeal=isMale?1.618:1.40;
+  const swActual=shoulders/waist;
+  const swScore=scoreRatio(swActual,swIdeal,0.08);
+  ratios.push({
+    name:'Shoulder-to-Waist (V-Taper)',
+    weight:0.30,
+    actual:swActual.toFixed(2),
+    ideal:swIdeal.toFixed(2),
+    score:swScore,
+    unit:'ratio',
+    tip:swActual<swIdeal?'Build wider shoulders (lateral raises, OHP) and/or reduce waist with cardio/diet.':
+        swActual>swIdeal+0.15?'Waist may be too narrow relative to shoulders — ensure you\'re not in too aggressive a deficit.':
+        'V-taper is solid.',
+    actual_str:`${shoulders}cm ÷ ${waist}cm = ${swActual.toFixed(2)}`
   });
-  if(!hasData)return;
-  const avg=Math.round(scores.reduce((a,b)=>a+b,0)/scores.length);
-  document.getElementById('sym-score').textContent=avg;
-  const circ=326.7,off=circ-(circ*(avg/100));
+
+  // 2. CHEST-TO-WAIST ratio
+  // Male ideal: 1.45-1.50. Female ideal: 1.35
+  if(chest){
+    const cwIdeal=isMale?1.47:1.35;
+    const cwActual=chest/waist;
+    const cwScore=scoreRatio(cwActual,cwIdeal,0.07);
+    ratios.push({
+      name:'Chest-to-Waist',
+      weight:0.20,
+      actual:cwActual.toFixed(2),
+      ideal:cwIdeal.toFixed(2),
+      score:cwScore,
+      unit:'ratio',
+      tip:cwActual<cwIdeal?'Build chest thickness (bench press, incline) while managing waist circumference.':'Great chest-to-waist proportion.',
+      actual_str:`${chest}cm ÷ ${waist}cm = ${cwActual.toFixed(2)}`
+    });
+  }
+
+  // 3. WAIST-TO-HIP ratio
+  // Male ideal: 0.85-0.90 (athletic). Female ideal: 0.70 (hourglass)
+  if(hips){
+    const whIdeal=isMale?0.87:0.70;
+    const whActual=waist/hips;
+    const whScore=scoreRatio(whActual,whIdeal,isMale?0.05:0.04);
+    ratios.push({
+      name:isMale?'Waist-to-Hip (Athletic)':'Waist-to-Hip (Hourglass)',
+      weight:isMale?0.15:0.25,
+      actual:whActual.toFixed(2),
+      ideal:whIdeal.toFixed(2),
+      score:whScore,
+      unit:'ratio',
+      tip:whActual>whIdeal+0.05?'Waist is high relative to hips — focus on body fat reduction and hip/glute development.':'Waist-to-hip proportion is good.',
+      actual_str:`${waist}cm ÷ ${hips}cm = ${whActual.toFixed(2)}`
+    });
+  }
+
+  // 4. ARM-TO-NECK (flexed bicep should ~= neck) — classic golden-era standard
+  if(bicep&&neck){
+    const anActual=bicep/neck;
+    const anIdeal=1.00;// equal is the goal
+    const anScore=scoreRatio(anActual,anIdeal,0.06);
+    ratios.push({
+      name:'Arm-to-Neck (Bicep = Neck)',
+      weight:0.15,
+      actual:anActual.toFixed(2),
+      ideal:'1.00',
+      score:anScore,
+      unit:'ratio',
+      tip:bicep<neck?`Arms lag behind neck. Need ${(neck-bicep).toFixed(1)}cm more on the bicep — focus on bicep training and reduce any neck/trap excess.`:
+          bicep>neck*1.08?'Arms are well developed. Ensure neck/trap development keeps pace.':'Arm-to-neck proportion is balanced.',
+      actual_str:`${bicep.toFixed(1)}cm bicep ÷ ${neck}cm neck = ${anActual.toFixed(2)}`
+    });
+  }
+
+  // 5. CALF-TO-ARM (calves should match flexed arm — classic standard)
+  if(calf&&bicep){
+    const caActual=calf/bicep;
+    const caIdeal=1.00;
+    const caScore=scoreRatio(caActual,caIdeal,0.07);
+    ratios.push({
+      name:'Calf-to-Arm Proportion',
+      weight:0.10,
+      actual:caActual.toFixed(2),
+      ideal:'1.00',
+      score:caScore,
+      unit:'ratio',
+      tip:calf<bicep*0.92?`Calves lag by ${(bicep-calf).toFixed(1)}cm. Add 3-4 sets of heavy calf raises (standing + seated) per session.`:'Calf-to-arm proportion is balanced.',
+      actual_str:`${calf.toFixed(1)}cm calf ÷ ${bicep.toFixed(1)}cm arm = ${caActual.toFixed(2)}`
+    });
+  }
+
+  // ── COMPOSITE SCORE ───────────────────────────────────────────
+  const totalWeight=ratios.reduce((a,r)=>a+r.weight,0);
+  const weightedScore=ratios.reduce((a,r)=>a+(r.score*r.weight),0)/totalWeight;
+  const finalScore=Math.round(weightedScore);
+
+  // Update ring
+  document.getElementById('sym-score').textContent=finalScore;
+  const circ=326.7,off=circ-(circ*(finalScore/100));
   document.getElementById('sym-ring-fill').style.strokeDashoffset=off.toFixed(1);
-  const col=avg>=90?'var(--green)':avg>=75?'var(--gold)':'var(--orange)';
+  const col=finalScore>=85?'var(--green)':finalScore>=70?'var(--gold)':finalScore>=55?'var(--orange)':'var(--red)';
   document.getElementById('sym-ring-fill').style.stroke=col;
-  const st=avg>=90?'Well Balanced':avg>=75?'Minor Differences':'Notable Differences';
-  document.getElementById('sym-status').textContent=st;
-  document.getElementById('sym-status').style.color=col;
-  document.getElementById('sym-desc').textContent=avg>=90?'Left and right measurements are very close.':'Some left/right measurement differences detected. Small differences are normal — see notes below.';
-  const iEl=document.getElementById('imbalance-list');
-  if(!imbs.length){iEl.innerHTML='<div style="font-size:13px;color:var(--green);padding:10px 0">No notable left/right differences (all under 1.5cm). Small differences are completely normal.</div>';return;}
-  let tips='<div style="background:var(--bg3);border-left:2px solid var(--muted);padding:10px 12px;margin-bottom:10px;font-size:11px;color:var(--muted2);line-height:1.5">Note: tape-measure differences of 1-2cm are often just measurement error, not a real imbalance. These are general training suggestions, not medical advice. Only add corrective work if you are pain-free. If you have pain or a known injury, consult a physiotherapist before changing your training.</div>';
-  imbs.forEach(im=>{
-    let tip=im.name.includes('Bicep')?`Optional: you could begin curls with your ${im.smallSide} arm and use dumbbells so each side works independently.`:im.name.includes('Forearm')?`Optional: hammer/wrist curls done one arm at a time can help even out forearm development.`:im.name.includes('Quad')?`Optional: unilateral leg work (split squats, lunges) starting with the ${im.smallSide} leg can help balance development.`:`Optional: single-leg calf raises let each side work independently.`;
-    tips+=`<div style="background:var(--bg2);border-left:2px solid var(--orange);padding:12px 14px;margin-bottom:8px">
-      <div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:4px">${im.name}: ${im.smallSide} side measures smaller</div>
-      <div style="font-size:12px;color:var(--muted2)">Difference: <strong style="color:var(--text)">${im.diff}cm</strong></div>
-      <div style="font-size:11px;color:var(--muted);margin-top:6px">${tip}</div>
+
+  // Tier
+  let tier,tierCol,tierDesc;
+  if(finalScore>=90){
+    tier='🏆 ELITE';tierCol='var(--gold)';
+    tierDesc=isMale?'Your proportions are in the top tier of aesthetic physiques. V-taper, waist, and muscle balance are all working together.':'Your proportions reflect elite aesthetic balance. Shoulder-to-waist and hourglass ratios are exceptional.';
+  } else if(finalScore>=75){
+    tier='💪 ATHLETIC';tierCol='var(--green)';
+    tierDesc='Clearly trained with strong proportional balance. A few measurements away from elite-level aesthetics.';
+  } else if(finalScore>=60){
+    tier='✅ GOOD';tierCol='var(--blue)';
+    tierDesc='Solid physique with good foundational proportions. Focus on the priority improvements below.';
+  } else if(finalScore>=45){
+    tier='📈 DEVELOPING';tierCol='var(--muted2)';
+    tierDesc='You\'re building the foundation. The proportions are taking shape — keep training consistently.';
+  } else {
+    tier='🔨 EARLY STAGE';tierCol='var(--muted)';
+    tierDesc='Early in the journey. Use the ideal targets below as your long-term roadmap.';
+  }
+
+  document.getElementById('sym-status').textContent=tier;
+  document.getElementById('sym-status').style.color=tierCol;
+  document.getElementById('sym-desc').textContent='';
+
+  const tierEl=document.getElementById('sym-tier');
+  tierEl.style.display='block';
+  document.getElementById('sym-tier-badge').textContent=tier;
+  document.getElementById('sym-tier-badge').style.cssText=`display:inline-block;padding:8px 24px;font-family:var(--ff);font-size:18px;letter-spacing:2px;color:${tierCol};background:var(--bg2);border:1px solid ${tierCol}`;
+  document.getElementById('sym-tier-desc').textContent=tierDesc;
+
+  // Proportion bars
+  const ratioEl=document.getElementById('sym-ratios');
+  ratioEl.innerHTML=ratios.map(r=>{
+    const barPct=Math.min(100,r.score);
+    const barCol=r.score>=85?'var(--green)':r.score>=65?'var(--gold)':'var(--orange)';
+    const gapLabel=r.score>=90?'✓ On point':r.score>=70?'Close':r.score<50?'Needs work':'Developing';
+    return `<div style="margin-bottom:14px">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px">
+        <span style="font-size:12px;font-weight:600;color:var(--text)">${r.name}</span>
+        <span style="font-size:11px;font-weight:700;color:${barCol}">${r.score}/100</span>
+      </div>
+      <div style="font-size:10px;color:var(--muted);margin-bottom:5px">${r.actual_str} · Ideal: ${r.ideal}</div>
+      <div style="background:var(--bg3);height:5px;border-radius:2px;overflow:hidden">
+        <div style="width:${barPct}%;background:${barCol};height:5px;transition:width .5s;border-radius:2px"></div>
+      </div>
     </div>`;
-  });
-  iEl.innerHTML=tips;
+  }).join('');
+
+  // Priority improvements — sorted by lowest score
+  const sorted=[...ratios].sort((a,b)=>a.score-b.score);
+  const improvements=sorted.filter(r=>r.score<85);
+  const impWrap=document.getElementById('sym-improve-wrap');
+  const impEl=document.getElementById('sym-improve');
+  if(improvements.length){
+    impWrap.style.display='block';
+    impEl.innerHTML=improvements.slice(0,3).map((r,i)=>`
+      <div style="background:var(--bg2);border-left:2px solid ${i===0?'var(--gold)':'rgba(255,255,255,0.08)'};padding:12px 14px;margin-bottom:8px">
+        <div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:4px">${i===0?'#1 Priority: ':''}${r.name}</div>
+        <div style="font-size:12px;color:var(--muted2);line-height:1.5">${r.tip}</div>
+      </div>`).join('');
+  } else {
+    impWrap.style.display='none';
+  }
+
+  // Ideal targets — compute what measurements would hit ideal ratios
+  const targWrap=document.getElementById('sym-targets-wrap');
+  const targEl=document.getElementById('sym-targets');
+  targWrap.style.display='block';
+  const targets=[];
+  const swIdealFinal=isMale?1.618:1.40;
+  targets.push({label:'Ideal Shoulders',val:(waist*swIdealFinal).toFixed(1)+'cm',current:shoulders?shoulders+'cm':null});
+  if(chest)targets.push({label:'Ideal Chest',val:(waist*(isMale?1.47:1.35)).toFixed(1)+'cm',current:chest+'cm'});
+  if(hips)targets.push({label:'Ideal Waist',val:((isMale?0.87:0.70)*hips).toFixed(1)+'cm',current:waist+'cm'});
+  if(bicep)targets.push({label:'Ideal Bicep (flexed)',val:bicep.toFixed(1)+'cm (match neck)',current:neck?neck+'cm neck':null});
+  if(bicep)targets.push({label:'Ideal Calf',val:bicep.toFixed(1)+'cm (match arm)',current:calf?calf.toFixed(1)+'cm':null});
+  targEl.innerHTML=`<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px">`+
+    targets.map(t=>`
+      <div style="background:var(--bg2);padding:10px 12px">
+        <div style="font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:4px">${t.label}</div>
+        <div style="font-family:var(--ff);font-size:18px;color:var(--gold)">${t.val}</div>
+        ${t.current?`<div style="font-size:10px;color:var(--muted);margin-top:2px">Now: ${t.current}</div>`:''}
+      </div>`).join('')+'</div>';
+}
+
+// Score a ratio vs its ideal — returns 0-100
+function scoreRatio(actual,ideal,tolerance){
+  const diff=Math.abs(actual-ideal);
+  if(diff<=tolerance*0.3)return 100;
+  if(diff<=tolerance)return Math.round(100-(diff/tolerance)*30);
+  if(diff<=tolerance*2)return Math.round(70-(diff/tolerance-1)*35);
+  if(diff<=tolerance*4)return Math.round(35-(diff/tolerance-2)*15);
+  return Math.max(0,Math.round(5));
 }
 
 // ── PHASE 3: CHARTS, STRENGTH, DELOAD, WEAK-POINT, NAVY ───────
@@ -2210,12 +3225,20 @@ function checkDeload(){
   const el=document.getElementById('deload-alert');
   if(!el)return;
   const flags=[];
-  // 1. Recovery score low 3+ consecutive days
+  const cfg=coachVolConfig();
+
+  // 1. Recovery low 3+ days
   if(state.recLog.length>=3){
     const last3=state.recLog.slice(-3).map(e=>e.value);
-    if(last3.every(v=>v<65))flags.push('Your recovery has been below 65% for 3 days in a row. Accumulated fatigue is building.');
+    if(last3.every(v=>v<65)){
+      const id=activeCoach.id;
+      const msg=id==='ivan'?'Recovery below 65% for 3 consecutive days. A full rest week is mandatory — the CNS cannot produce quality contractions in this state.':
+                'Recovery has been below 65% for 3 days. Your body is signalling accumulated fatigue.';
+      flags.push(msg);
+    }
   }
-  // 2. Performance regression: 1RM dropping on 2+ exercises
+
+  // 2. 1RM dropping on 2+ exercises
   let dropping=0;
   for(const name in planState.history){
     const h=planState.history[name];
@@ -2223,48 +3246,68 @@ function checkDeload(){
     const orms=h.slice(-3).map(s=>epley(s.weight,s.reps));
     if(orms[2]<orms[0]-2.5)dropping++;
   }
-  if(dropping>=2)flags.push(`Estimated 1RM is declining on ${dropping} exercises. This is a sign of accumulated fatigue.`);
-  // 3. Training streak > 12 days without a rest day logged
-  if(state.streak>12)flags.push('You\'ve trained '+state.streak+' days in a row. A planned rest or deload reduces injury risk and improves long-term adaptation.');
-  if(!flags.length){
-    el.style.display='none';
-    return;
+  if(dropping>=2){
+    const id=activeCoach.id;
+    flags.push(id==='ivan'?`Performance declining on ${dropping} exercises. The body is overtrained. Full rest week — no training at all.`:
+      `Estimated 1RM declining on ${dropping} exercises. Performance regression = accumulated fatigue.`);
   }
+
+  // 3. Streak too long (coach-adjusted threshold)
+  const id=activeCoach.id;
+  const streakLimit=id==='ivan'?10:id==='blaze'||id==='caesar'?18:14;
+  if(state.streak>streakLimit){
+    flags.push(`${state.streak}-day streak exceeds ${activeCoach.name}'s recommended limit of ${streakLimit} consecutive days.`);
+  }
+
+  if(!flags.length){el.style.display='none';return;}
+
+  // Deload prescription based on coach
+  const deloadAdvice=id==='ivan'?'Complete rest for 7 days. No training. Eat, sleep, let the CNS recover fully. You will come back stronger.':
+    id==='blaze'||id==='caesar'?'One week at 50% volume, 60% of normal weights. Keep the frequency, cut the sets in half.':
+    'One deload week: reduce weight 40-50%, cut sets by 60%. Same exercises, same schedule, far less stress.';
+
   el.style.display='block';
   el.innerHTML=`<div style="background:var(--bg2);border-left:3px solid var(--red);padding:14px 16px;margin-bottom:10px">
-    <div style="font-size:10px;font-weight:700;letter-spacing:2px;color:var(--red);text-transform:uppercase;margin-bottom:8px"><i class="ti ti-alert-triangle"></i> Deload Recommended</div>
+    <div style="font-size:10px;font-weight:700;letter-spacing:2px;color:var(--red);text-transform:uppercase;margin-bottom:8px"><i class="ti ti-alert-triangle"></i> ${activeCoach.name}: Deload Recommended</div>
     ${flags.map(f=>`<div style="font-size:12px;color:var(--muted2);padding:4px 0;border-bottom:1px solid rgba(255,255,255,.04)">${f}</div>`).join('')}
-    <div style="font-size:11px;color:var(--muted);margin-top:8px">Deload: reduce weight by 40-50% and volume by 60% for one week. Keep the same exercises and rep ranges. You will come back stronger.</div>
+    <div style="font-size:11px;color:var(--muted);margin-top:8px">${deloadAdvice}</div>
   </div>`;
+  detectWeakPoints();
 }
 
-// ── WEAK POINT DETECTION ──────────────────────────────────────
 function detectWeakPoints(){
   const el=document.getElementById('weak-point-list');
   if(!el)return;
   const issues=[];
   const vol=calcWeeklyVolume();
-  // Under-trained muscles (< 8 sets/week)
+  const cfg=coachVolConfig();
   const muscleLabels={chest:'Chest',back:'Back',legs:'Legs',shoulders:'Shoulders',arms:'Arms',core:'Core'};
+
   for(const m in vol){
-    if(vol[m]>0&&vol[m]<8)issues.push({severity:'warn',msg:`${muscleLabels[m]||m} only gets ${vol[m]} sets/week — below the minimum effective volume of 8. Add ${8-vol[m]} more sets.`});
+    if(activeCoach.id==='ivan'){
+      // Ivan: 1 set IS the protocol — never flag undertrained
+      if(vol[m]>5)issues.push({severity:'warn',msg:`${muscleLabels[m]||m}: ${vol[m]} sets/week contradicts Ivan's HIT principle. Reduce to 1 working set per muscle.`});
+    } else {
+      if(vol[m]>0&&vol[m]<cfg.min)issues.push({severity:'warn',msg:`${muscleLabels[m]||m}: ${vol[m]} sets/week is below ${activeCoach.name}'s minimum of ${cfg.min}. Plan auto-adjusted.`});
+      if(vol[m]>cfg.max)issues.push({severity:'warn',msg:`${muscleLabels[m]||m}: ${vol[m]} sets/week exceeds ${activeCoach.name}'s maximum of ${cfg.max}. Excess isolation work removed.`});
+    }
   }
-  // Strength lag: if one muscle's exercises have low estimated 1RM relative to session frequency
-  const prs=getAllPRs();
-  const bigLifts={chest:'Bench Press',back:'Barbell Row',legs:'Squat',shoulders:'Overhead Press'};
-  for(const m in bigLifts){
-    const lift=bigLifts[m];
-    if(prs[lift]&&prs[lift]<40)issues.push({severity:'info',msg:`${lift} estimated 1RM is ${prs[lift]}kg. Focus on progressive overload here — it's your weak point for ${m}.`});
+
+  // Stall detection
+  for(const name in planState.history){
+    if(detectStall(name))issues.push({severity:'info',msg:stallBuster(name)});
   }
-  // Measurement imbalances
+
+  // Measurement gaps > 2cm
   const d=state.measurements;
   const mPairs=[{name:'Biceps',l:'lbicep-f',r:'rbicep-f'},{name:'Quads',l:'lquad',r:'rquad'},{name:'Calves',l:'lcalf',r:'rcalf'}];
   mPairs.forEach(p=>{
     const lv=d[p.l],rv=d[p.r];
-    if(lv&&rv&&Math.abs(lv-rv)>2)issues.push({severity:'warn',msg:`${p.name}: ${Math.abs(lv-rv).toFixed(1)}cm left/right difference detected. Prioritise unilateral work.`});
+    if(lv&&rv&&Math.abs(lv-rv)>2)issues.push({severity:'info',msg:`${p.name}: ${Math.abs(lv-rv).toFixed(1)}cm left/right measurement difference. Consider starting unilateral work with the smaller side.`});
   });
+
   if(!issues.length){
-    el.innerHTML='<div style="font-size:13px;color:var(--green);padding:10px 0">No significant weak points detected. Keep logging to improve analysis accuracy.</div>';
+    el.innerHTML='<div style="font-size:13px;color:var(--green);padding:10px 0">No issues detected. Volume is within '+activeCoach.name+'\'s optimal range.</div>';
     return;
   }
   el.innerHTML=issues.map(i=>`
@@ -2312,9 +3355,6 @@ function calcNavyFat(){
   saveData();
 }
 
-// Hook weak-point into strength tab render
-const _origCheckDeload=checkDeload;
-function checkDeload(){_origCheckDeload();detectWeakPoints();}
 
 // ── HEALTH ────────────────────────────────────────────────────
 function calcRecovery(){
@@ -2406,15 +3446,28 @@ function addGoal(){
 
 // ── NUTRITION ─────────────────────────────────────────────────
 // Macro split state (percentages of calories from each macro)
-let macroSplit={prot:30,carb:45,fat:25};// default balanced
+// Goal-specific macro presets (% of calories)
+const GOAL_MACROS={
+  mass:       {prot:25, carb:50, fat:25, label:'High carb bulk',     rationale:'Higher carbs fuel heavy training and maximise muscle glycogen for intense sessions.'},
+  strength:   {prot:28, carb:47, fat:25, label:'Strength bulk',      rationale:'Slightly higher protein to support neural and muscular adaptation under heavy load.'},
+  fatloss:    {prot:40, carb:30, fat:30, label:'High protein cut',   rationale:'High protein preserves lean mass in a deficit. Lower carbs create the caloric deficit.'},
+  recomp:     {prot:35, carb:38, fat:27, label:'Body recomp',        rationale:'High protein for muscle retention and growth. Moderate carbs on training days, lower on rest.'},
+  maintenance:{prot:28, carb:45, fat:27, label:'Maintenance',        rationale:'Balanced macros to sustain current composition and performance.'},
+  endurance:  {prot:20, carb:60, fat:20, label:'Endurance fuelling', rationale:'Very high carbs for glycogen replenishment and sustained aerobic performance.'},
+};
+
+let macroSplit={prot:30,carb:45,fat:25};
 
 function calcNutrition(){
   const w=state.weight||parseFloat(document.getElementById('prof-weight')?.value)||80;
   const goal=planState.goal||'mass';
   const days=planState.days||4;
   const bf=parseFloat(document.getElementById('prof-bf')?.value)||null;
-  const lean=bf?w*(1-bf/100):w*0.82;
-  const bmr=Math.round(370+(21.6*lean));
+  const gender=document.getElementById('prof-gender')?.value||state.gender||'m';
+  const h=parseFloat(document.getElementById('prof-height')?.value)||null;
+  const age=parseFloat(document.getElementById('prof-age')?.value)||null;
+  const lean=estLean(w,bf,gender);
+  const bmr=calcBMR(w,h,age,gender,bf);
   const act=days>=6?1.725:days>=5?1.65:days>=4?1.55:days>=3?1.45:1.375;
   const tdee=Math.round(bmr*act);
   let kcal,surplus;
@@ -2423,12 +3476,19 @@ function calcNutrition(){
   else if(goal==='endurance'){kcal=tdee+100;surplus='Light surplus for performance';}
   else{kcal=tdee;surplus='Maintenance (TDEE match)';}
 
+  // Apply goal-specific macro preset
+  const preset=GOAL_MACROS[goal]||GOAL_MACROS.maintenance;
+  macroSplit={prot:preset.prot,carb:preset.carb,fat:preset.fat};
+
   // Show results + macro split UI
   document.getElementById('nutrition-results').style.display='block';
 
   // Render macro split sliders
   const splitEl=document.getElementById('macro-split-ui');
   if(splitEl){
+    // Update slider values to match new preset
+    const sp=document.getElementById('slider-prot');const sc=document.getElementById('slider-carb');const sf=document.getElementById('slider-fat');
+    if(sp)sp.value=macroSplit.prot;if(sc)sc.value=macroSplit.carb;if(sf)sf.value=macroSplit.fat;
     renderMacroSplit(kcal,lean,goal,surplus,tdee,days);
   } else {
     // First time — inject slider UI
@@ -2466,12 +3526,15 @@ function calcNutrition(){
 }
 
 function computeMacros(kcal,lean){
-  // Protein is computed from lean mass (2.2g/kg) OR from split % — take higher
-  const protFromLean=Math.round(lean*2.2);
+  const gender=document.getElementById('prof-gender')?.value||state.gender||'m';
+  const goal=planState.goal||'mass';
+  // Gender + goal aware protein: females need slightly less per kg lean mass
+  const protPerKg=protPerKgLean(gender,goal);
+  const protFromLean=Math.round(lean*protPerKg);
   const protFromSplit=Math.round(kcal*(macroSplit.prot/100)/4);
   const prot=Math.max(protFromLean,protFromSplit);
   const fat=Math.round(kcal*(macroSplit.fat/100)/9);
-  const carb=Math.round((kcal-prot*4-fat*9)/4);
+  const carb=Math.max(0,Math.round((kcal-prot*4-fat*9)/4));
   return{prot,carb,fat};
 }
 
@@ -2500,12 +3563,14 @@ function renderMacroSplit(kcal,lean,goal,surplus,tdee,days){
   }
   // Advice
   const adv=document.getElementById('nutrition-advice');
-  if(adv)adv.innerHTML=`<div class="insight-title">Coach Recommendation</div>
+  const preset=GOAL_MACROS[goal]||GOAL_MACROS.maintenance;
+  if(adv)adv.innerHTML=`<div class="insight-title">Macro Strategy: ${preset.label}</div>
+    <div class="insight-item"><strong>Why this split:</strong> ${preset.rationale}</div>
     <div class="insight-item"><strong>Strategy:</strong> ${surplus}</div>
-    <div class="insight-item"><strong>Protein:</strong> ${prot}g — spread across ${Math.ceil(prot/40)} meals (~${Math.round(prot/Math.ceil(prot/40))}g each). Prioritise within 2hrs post-workout.</div>
-    <div class="insight-item"><strong>Carbs:</strong> ${carb}g — ${goal==='mass'?'focus around training (pre/intra/post)':'earlier in the day, reduce at night'}.</div>
-    <div class="insight-item"><strong>Fat:</strong> ${fat}g — prioritise unsaturated fats: olive oil, nuts, avocado. Essential for testosterone and hormone health.</div>
-    <div class="insight-item"><strong>TDEE:</strong> ${tdee} kcal/day · ${days} training days/week · adjust split by sliding the bars above.</div>`;
+    <div class="insight-item"><strong>Protein:</strong> ${prot}g (${macroSplit.prot}%) — spread across ${Math.ceil(prot/40)} meals (~${Math.round(prot/Math.ceil(prot/40))}g each). Eat within 2hrs post-workout.</div>
+    <div class="insight-item"><strong>Carbs:</strong> ${carb}g (${macroSplit.carb}%) — ${goal==='mass'||goal==='strength'?'focus around training (pre + post workout)':goal==='fatloss'?'earlier in the day, reduce at night and on rest days':goal==='endurance'?'distribute evenly — your primary fuel source':'balanced throughout the day'}.</div>
+    <div class="insight-item"><strong>Fat:</strong> ${fat}g (${macroSplit.fat}%) — olive oil, nuts, avocado, eggs. Essential for testosterone and hormone health.</div>
+    <div class="insight-item"><strong>TDEE:</strong> ${tdee} kcal/day · ${days} training days/week · adjust split with sliders above.</div>`;
   state.nutritionTargets={kcal,prot,carb,fat};
 }
 
@@ -2714,6 +3779,11 @@ function saveData(){
       nutritionLog:state.nutritionLog,
       nutritionTargets:state.nutritionTargets,
       macroSplit:macroSplit,
+      hasSeenWelcome:state.hasSeenWelcome,
+      hasSeenWorkoutGuide:state.hasSeenWorkoutGuide,
+      avatarData:state.avatarData,
+      unitSystem:state.unitSystem,
+      goalTarget:state.goalTarget,
       displayWeight:document.getElementById('home-weight').innerHTML,
       displayRec:document.getElementById('home-rec').innerHTML,
       displayRecStatus:document.getElementById('home-rec-status').textContent,
@@ -2810,15 +3880,21 @@ function loadData(){
     if(s.nutritionLog)state.nutritionLog=s.nutritionLog;
     if(s.nutritionTargets)state.nutritionTargets=s.nutritionTargets;
     if(s.macroSplit)Object.assign(macroSplit,s.macroSplit);
-    // bulk progress
-    const bs=state.settings.bulkStart,bg=state.settings.bulkGoal,w=state.weight;
-    if(w){
-      const pct=Math.min(100,Math.max(0,((w-bs)/(bg-bs))*100));
-      document.getElementById('bulk-prog').style.width=pct.toFixed(0)+'%';
-      document.getElementById('bulk-now-lbl').textContent=w.toFixed(1)+'kg';
-    }
-    document.getElementById('bulk-start-lbl').textContent=bs+'kg';
-    document.getElementById('bulk-goal-lbl').textContent=bg+'kg';
+    if(s.hasSeenWelcome)state.hasSeenWelcome=s.hasSeenWelcome;
+    if(s.hasSeenWorkoutGuide)state.hasSeenWorkoutGuide=s.hasSeenWorkoutGuide;
+    if(s.avatarData)state.avatarData=s.avatarData;
+    if(s.unitSystem)state.unitSystem=s.unitSystem;
+    if(s.goalTarget)state.goalTarget=s.goalTarget;
+    // Restore inline name field
+    if(s.settings?.name){const il=document.getElementById('inline-name');if(il)il.value=s.settings.name;}
+    // Restore profile stats
+    setTimeout(()=>{
+      restoreAvatar();
+      const pw=document.getElementById('prof-stat-weight');if(pw&&state.weight)pw.textContent=state.weight.toFixed(1)+'kg';
+      const ps=document.getElementById('prof-stat-streak');if(ps)ps.textContent=state.streak||0;
+      const pr=document.getElementById('prof-stat-rec');if(pr&&state.recovery!==null)pr.textContent=state.recovery+'%';
+    },50);
+    // Let updateProgressBar handle progress display — no more manual bulkStart/bulkGoal overrides
     updateGender();
   }catch(e){console.log('Load error',e);}
 }
@@ -2831,11 +3907,12 @@ updateGender();
 initWorkoutPage();
 checkGoalResets();
 renderDirectiveBoard();
-document.getElementById('bulk-start-lbl').textContent=state.settings.bulkStart+'kg';
-document.getElementById('bulk-goal-lbl').textContent=state.settings.bulkGoal+'kg';
+initUnitUI();
+updateProgressBar();
 // Show welcome modal on very first launch
-if(!planState.plan&&!state.weight&&!planState.hasSeenWelcome){
-  planState.hasSeenWelcome=true;
+if(!planState.plan&&!state.weight&&!state.hasSeenWelcome){
+  state.hasSeenWelcome=true;
+  saveData();
   setTimeout(()=>{document.getElementById('welcome-modal').classList.add('open');},300);
 }
 </script>
