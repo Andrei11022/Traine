@@ -1406,8 +1406,48 @@ function selectProfileGoal(goal){
   renderProfileGoalSelector();
   if(planState.plan)rebuildPlanKeepHistory();
   updateProgressBar();
+  // Show recommendation card
+  const rec=DAYS_REC[goal];
+  if(rec){
+    const preview=document.getElementById('goal-calorie-preview');
+    if(preview){
+      preview.style.display='block';
+      const currentDays=planState.days||4;
+      const dayMatch=currentDays===rec.days;
+      preview.innerHTML=`<div style="margin-bottom:8px"><strong style="color:var(--gold)">📅 Recommended: ${rec.days} days/week</strong><br><span style="font-size:11px">${rec.why}</span></div>
+        ${!dayMatch?`<div style="font-size:11px;color:var(--orange);margin-bottom:8px">Your current plan uses ${currentDays} days/week. Consider rebuilding your plan with ${rec.days} days for better results.</div>`:''}
+        <button onclick="goPage('workout')" style="background:none;border:1px solid var(--gold-bdr);padding:4px 12px;font-size:11px;font-weight:600;color:var(--gold);cursor:pointer;font-family:var(--fb);margin-bottom:8px">REBUILD PLAN WITH ${rec.days} DAYS →</button><br>
+        ${updateGoalCalPreviewHTML(goal)}`;
+    }
+  } else {
+    updateGoalCalPreview();
+  }
   saveData();
   toast('Goal updated to '+goal+' — plan adjusted');
+}
+
+function updateGoalCalPreviewHTML(goal){
+  const w=parseFloat(document.getElementById('prof-weight')?.value)||state.weight||0;
+  if(!w)return '';
+  const days=planState.days||4;
+  const bf=parseFloat(document.getElementById('prof-bf')?.value)||null;
+  const gender=document.getElementById('prof-gender')?.value||state.gender||'m';
+  const h=parseFloat(document.getElementById('prof-height')?.value)||null;
+  const age=parseFloat(document.getElementById('prof-age')?.value)||null;
+  const lean=estLean(w,bf,gender);
+  const bmr=calcBMR(w,h,age,gender,bf);
+  const act=days>=6?1.725:days>=5?1.65:days>=4?1.55:days>=3?1.45:1.375;
+  const tdee=Math.round(bmr*act);
+  let kcal,surplus;
+  if(goal==='mass'||goal==='strength'){kcal=tdee+300;surplus='+300 kcal bulk';}
+  else if(goal==='fatloss'){kcal=tdee-400;surplus='−400 kcal cut';}
+  else if(goal==='endurance'){kcal=tdee+100;surplus='+100 kcal';}
+  else{kcal=tdee;surplus='maintenance';}
+  const preset=GOAL_MACROS[goal]||GOAL_MACROS.maintenance;
+  const prot=Math.round(lean*protPerKgLean(gender,goal));
+  const fat=Math.round(kcal*(preset.fat/100)/9);
+  const carb=Math.max(0,Math.round((kcal-prot*4-fat*9)/4));
+  return `<strong style="color:var(--gold)">${kcal} kcal/day</strong> · ${surplus} · P: ${prot}g · C: ${carb}g · F: ${fat}g<br><span style="font-size:10px;color:var(--muted)">${preset.rationale}</span><br><button onclick="goPage('profile');setTimeout(calcNutrition,100)" style="margin-top:6px;background:var(--gold);border:none;padding:5px 12px;font-family:var(--ff);font-size:14px;color:var(--bg);cursor:pointer">Calculate Full Targets →</button>`;
 }
 
 function updateGoalCalPreview(){
