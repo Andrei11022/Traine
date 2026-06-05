@@ -75,6 +75,7 @@ html,body{background:var(--bg);color:var(--text);font-family:var(--fb);max-width
 .ob-opt-sub{font-size:11px;color:var(--muted);margin-top:2px}
 .day-num-btn{width:52px;height:52px;background:var(--bg2);border:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:center;font-family:var(--ff);font-size:26px;color:var(--muted);cursor:pointer;transition:all .15s}
 .day-num-btn.on{background:var(--gold);color:var(--bg);border-color:var(--gold)}
+.day-num-btn.recommended{border-color:var(--gold);color:var(--gold);box-shadow:0 0 0 1px var(--gold)}
 .eq-btn{background:var(--bg2);border:1px solid rgba(255,255,255,0.08);padding:7px 14px;font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;transition:all .15s}
 .eq-btn.on{border-color:var(--gold);color:var(--gold);background:var(--gold-dim)}
 .pref-item{display:flex;align-items:center;justify-content:space-between;padding:10px 18px;border-bottom:1px solid rgba(255,255,255,0.04)}
@@ -2259,23 +2260,88 @@ function selectGoal(g){
   planState.goal=g;
   document.querySelectorAll('.ob-opt').forEach(o=>o.classList.remove('on'));
   document.getElementById('goal-'+g).classList.add('on');
+  // Auto-recommend days for this goal
+  showDaysRecommendation(g);
   checkNextReady();
 }
+
+// Goal + experience based days recommendation
+const DAYS_REC={
+  mass:{     days:4, why:'4 days is the sweet spot for building mass — Upper/Lower split hits every muscle twice a week with enough recovery between sessions. Great for beginners and intermediates.'},
+  strength:{ days:4, why:'4 days is ideal for strength — 2 upper and 2 lower sessions per week lets you push heavy compounds frequently without burning out.'},
+  fatloss:{  days:4, why:'4 days for fat loss — your diet does most of the work, but 4 sessions preserves muscle and keeps metabolism elevated. More than 5 days in a deficit increases injury risk.'},
+  recomp:{   days:4, why:'4 days is the recomp sweet spot — enough stimulus to build muscle while the deficit burns fat. Consistency matters more than frequency here.'},
+  maintenance:{days:3, why:'3 days is plenty for maintenance — you\'re keeping what you have, not building. Low commitment, sustainable long term.'},
+  endurance:{ days:4, why:'4 days for endurance — 2 resistance + 2 cardio/conditioning sessions. Add daily 30-min walks on rest days for aerobic base.'},
+};
+
+function showDaysRecommendation(goal){
+  const rec=DAYS_REC[goal];
+  if(!rec)return;
+  const suggEl=document.getElementById('days-suggestion');
+  const confirmBox=document.getElementById('days-confirm-box');
+  const confirmMsg=document.getElementById('days-confirm-msg');
+  // Highlight recommended day
+  document.querySelectorAll('.day-num-btn').forEach(b=>b.classList.remove('on','recommended'));
+  const recBtn=document.getElementById('days-'+rec.days);
+  if(recBtn)recBtn.classList.add('recommended');
+  if(suggEl){
+    suggEl.style.display='block';
+    suggEl.innerHTML=`<strong style="color:var(--gold)">Recommended: ${rec.days} days/week</strong><br>${rec.why}`;
+  }
+  if(confirmMsg)confirmMsg.textContent=`Train ${rec.days} days/week — does this fit your current schedule and lifestyle?`;
+  if(confirmBox)confirmBox.style.display='block';
+  // Pre-select recommended days
+  planState.days=rec.days;
+  if(recBtn)recBtn.classList.add('on');
+  checkNextReady();
+}
+
 function selectDays(n){
+  document.querySelectorAll('.day-num-btn').forEach(b=>b.classList.remove('on','recommended'));
+  const btn=document.getElementById('days-'+n);
+  if(btn)btn.classList.add('on');
   planState.days=n;
-  document.querySelectorAll('.day-num-btn').forEach(b=>b.classList.remove('on'));
-  document.getElementById('days-'+n).classList.add('on');
+  const goal=planState.goal||'mass';
+  const rec=DAYS_REC[goal];
+  const suggEl=document.getElementById('days-suggestion');
+  const confirmBox=document.getElementById('days-confirm-box');
+  const confirmMsg=document.getElementById('days-confirm-msg');
+  // Show context for this specific day count
+  const dayContext=DAYS_SUGGESTIONS[goal]?.[n]||'';
+  if(suggEl&&dayContext){
+    suggEl.style.display='block';
+    const isRec=rec&&rec.days===n;
+    suggEl.innerHTML=`${isRec?`<strong style="color:var(--gold)">✓ Recommended for your goal</strong><br>`:''}${dayContext}`;
+  }
+  if(confirmMsg)confirmMsg.textContent=`Train ${n} days/week — does this fit your schedule?`;
+  if(confirmBox)confirmBox.style.display='block';
   checkNextReady();
 }
-function toggleEquip(el,eq){
-  document.querySelectorAll('.eq-btn').forEach(b=>{b.classList.remove('on');});
-  el.classList.add('on');
-  planState.equipment=eq;
+
+function confirmDays(yes){
+  const confirmBox=document.getElementById('days-confirm-box');
+  if(yes){
+    if(confirmBox)confirmBox.style.display='none';
+    toast(`${planState.days} training days/week confirmed ✓`);
+  } else {
+    // Show alternative suggestions
+    const goal=planState.goal||'mass';
+    const confirmMsg=document.getElementById('days-confirm-msg');
+    const suggEl=document.getElementById('days-suggestion');
+    if(suggEl)suggEl.innerHTML=`<strong style="color:var(--gold)">No problem!</strong> Pick the number that fits your life — even 2-3 days is enough to make progress. Consistency beats perfection every time. Any of the options below will work.`;
+    if(confirmBox){
+      // Replace buttons with just a close
+      const btns=confirmBox.querySelector('div[style*="display:flex"]');
+      if(btns)btns.innerHTML=`<button onclick="document.getElementById('days-confirm-box').style.display='none'" style="width:100%;background:var(--bg2);border:1px solid rgba(255,255,255,0.1);padding:10px;font-family:var(--ff);font-size:14px;color:var(--gold);cursor:pointer">OK — I'LL PICK THE RIGHT NUMBER FOR ME</button>`;
+    }
+  }
 }
+
 function checkNextReady(){
   const btn=document.getElementById('next-to-prefs');
   const ready=planState.goal&&planState.days;
-  btn.disabled=!ready;btn.style.opacity=ready?'1':'0.4';
+  if(btn){btn.disabled=!ready;btn.style.opacity=ready?'1':'0.4';}
 }
 
 function goToPrefs(){
@@ -2438,6 +2504,14 @@ function generatePlan(){
     setTimeout(()=>{
       document.getElementById('first-workout-modal').classList.add('open');
     },400);
+  }
+  // Show strength test tip for new users
+  if(!state.hasSeenStrengthTest){
+    state.hasSeenStrengthTest=true;
+    saveData();
+    setTimeout(()=>{
+      document.getElementById('strength-test-modal').classList.add('open');
+    },planState.hasSeenWorkoutGuide?400:4000);// after workout guide if shown
   }
 }
 
@@ -2610,8 +2684,6 @@ function markDoneEx(el,exName,day,idx){
     const setNum=row.querySelector('.set-num');
     const isWarmup=setNum&&(setNum.textContent.trim().startsWith('W')||row.classList.contains('warmup-row'));
     if(!isWarmup){
-      // Show strength test tip on first ever working set completion
-      checkShowStrengthTestTip();
       // 20+ rep detection — only on working sets, only on first ever session for this exercise
       if(w&&r>=20&&(!planState.history[exName]||planState.history[exName].length===0)){
         const calc=calcWorkingWeightsFromFirstSet(exName,w,r);
@@ -3179,44 +3251,6 @@ const DAYS_SUGGESTIONS={
               5:'5 days is solid endurance programming — mix of resistance and conditioning.',
               6:'6 days endurance training is for serious athletes. Recovery and nutrition are critical.'},
 };
-
-function selectDays(n){
-  document.querySelectorAll('.day-num-btn').forEach(b=>b.classList.remove('on'));
-  const btn=document.getElementById('days-'+n);
-  if(btn)btn.classList.add('on');
-  planState.days=n;
-  // Show suggestion + confirmation
-  const goal=planState.goal||'mass';
-  const suggestion=DAYS_SUGGESTIONS[goal]?.[n]||'';
-  const suggEl=document.getElementById('days-suggestion');
-  const confirmBox=document.getElementById('days-confirm-box');
-  const confirmMsg=document.getElementById('days-confirm-msg');
-  if(suggEl){suggEl.style.display='block';suggEl.textContent=suggestion;}
-  if(confirmMsg)confirmMsg.textContent=`Train ${n} days/week — does this fit your schedule?`;
-  if(confirmBox)confirmBox.style.display='block';
-  // Enable next button
-  const nextBtn=document.getElementById('next-to-prefs');
-  if(nextBtn){nextBtn.disabled=false;nextBtn.style.opacity='1';}
-}
-
-function confirmDays(yes){
-  const confirmBox=document.getElementById('days-confirm-box');
-  if(yes){
-    if(confirmBox)confirmBox.style.display='none';
-    const suggEl=document.getElementById('days-suggestion');
-    if(suggEl)suggEl.style.background='rgba(122,196,154,0.08)';
-  } else {
-    // Reset — let them pick again
-    if(confirmBox)confirmBox.style.display='none';
-    const suggEl=document.getElementById('days-suggestion');
-    if(suggEl)suggEl.style.display='none';
-    document.querySelectorAll('.day-num-btn').forEach(b=>b.classList.remove('on'));
-    planState.days=null;
-    const nextBtn=document.getElementById('next-to-prefs');
-    if(nextBtn){nextBtn.disabled=true;nextBtn.style.opacity='.4';}
-    toast('Pick the number of days that works best for you');
-  }
-}
 
 // ── NUTRITION DISCLAIMER ──────────────────────────────────────
 function calcNutritionWithDisclaimer(){
