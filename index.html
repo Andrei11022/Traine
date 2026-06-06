@@ -2589,7 +2589,40 @@ function calcWeeklyVolume(){
   return vol;
 }
 
-// Instantly update the next unchecked working set's weight based on current reps
+// Auto-advance to next exercise when all sets are done
+function checkExerciseComplete(row,day,idx){
+  const setsArea=row.closest('.sets-area');
+  if(!setsArea)return;
+  // Check if all working sets are checked
+  const allWorkingRows=[...setsArea.querySelectorAll('.set-cols:not(.warmup-row)')];
+  const allDone=allWorkingRows.every(r=>r.querySelector('.set-done')?.classList.contains('checked'));
+  if(!allDone)return;
+  // All done — mark this exercise block visually complete
+  const exBlock=setsArea.closest('.ex-block');
+  if(exBlock){
+    exBlock.style.opacity='0.6';
+    exBlock.style.borderLeft='2px solid var(--green)';
+  }
+  // Collapse this exercise and open the next one
+  setTimeout(()=>{
+    setsArea.classList.remove('open');
+    // Find the next exercise block
+    const allBlocks=[...document.querySelectorAll('.ex-block')];
+    const currentBlockIdx=allBlocks.indexOf(exBlock);
+    const nextBlock=allBlocks[currentBlockIdx+1];
+    if(nextBlock){
+      // Scroll to next exercise
+      nextBlock.scrollIntoView({behavior:'smooth',block:'center'});
+      // Open its sets area
+      const nextSets=nextBlock.querySelector('.sets-area');
+      if(nextSets)nextSets.classList.add('open');
+      // Flash gold border to draw attention
+      nextBlock.style.borderLeft='2px solid var(--gold)';
+      setTimeout(()=>{nextBlock.style.borderLeft='';},2000);
+    }
+  },600);// slight delay so user sees the last checkmark
+}
+
 function updateNextSet(currentRow,exName,w,r){
   const setsArea=currentRow.closest('.sets-area');
   if(!setsArea)return;
@@ -2785,10 +2818,21 @@ function onRepEntered(el,exName,day,idx){
   const w=parseFloat(row.querySelector('.si').value);
   const tipEl=document.getElementById(`tip-${day}-${idx}`);
   if(!tipEl||!w)return;
+  // Check if this is the last working set
+  const setsArea=row.closest('.sets-area');
+  const allWorkingRows=setsArea?[...setsArea.querySelectorAll('.set-cols:not(.warmup-row)')]:[];
+  const isLastSet=allWorkingRows.indexOf(row)===allWorkingRows.length-1;
   let msg='';
-  if(reps>=10)msg=`Strong! ${w}kg × ${reps} — add 2.5kg next session.`;
-  else if(reps>=6)msg=`Solid. ${reps} reps at ${w}kg is hypertrophy range. Hold weight next set.`;
-  else msg=`Only ${reps} reps. Next set drop to ${(w-2.5).toFixed(1)}kg and control the movement.`;
+  if(isLastSet){
+    // Last set — give session summary, not "next set" instruction
+    if(reps>=10)msg=`${w}kg × ${reps} — great finish! Add 2.5kg next session.`;
+    else if(reps>=6)msg=`${w}kg × ${reps} — solid session. Same weight next time.`;
+    else msg=`${reps} reps — tough finish. Drop 2.5kg next session and build back up.`;
+  } else {
+    if(reps>=10)msg=`Strong! ${w}kg × ${reps} — add 2.5kg next set.`;
+    else if(reps>=6)msg=`Solid. ${reps} reps at ${w}kg — hold weight next set.`;
+    else msg=`Only ${reps} reps. Drop to ${(w-2.5).toFixed(1)}kg next set.`;
+  }
   tipEl.textContent=msg;
 }
 
@@ -2816,8 +2860,10 @@ function markDoneEx(el,exName,day,idx){
         toast('🏆 New PR: '+exName+' — '+w+'kg × '+r+' (e1RM '+est+'kg)');
       }
       saveData();
-      // Instantly update the NEXT unchecked set's weight field
+      // Update next set weight immediately
       updateNextSet(row,exName,w,r);
+      // Check if ALL working sets in this exercise are done → auto-advance to next exercise
+      checkExerciseComplete(row,day,idx);
     }
     // Always start the rest timer when a working set is completed
     startRestTimer(exName,r||10);
