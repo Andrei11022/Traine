@@ -2645,7 +2645,12 @@ function showActivePlan(){
   document.getElementById('wo-onboarding').style.display='none';
   document.getElementById('wo-active').style.display='block';
   renderDayRow();
-  renderDayWorkout(planState.currentDay||getTodayDay());
+  // Always resolve to a training day — never show rest day on load
+  const savedDay=planState.currentDay||getTodayDay();
+  const session=planState.plan?.[savedDay];
+  const startDay=(!session||session.isRest)?getFirstTrainingDay(planState.plan):savedDay;
+  planState.currentDay=startDay;
+  renderDayWorkout(startDay);
 }
 
 function renderDayRow(){
