@@ -2447,15 +2447,18 @@ function repsForExercise(ex,goal){
 // Returns array of exercise objects. compounds first.
 function pickForGroup(group,count){
   const{equipment,prefs,goal}=planState;
-  const liked=name=>!prefs[name]||prefs[name]==='like';
+  const cantDo=name=>prefs[name]==='cant';
+  const isDisliked=name=>prefs[name]==='dislike';
   const eqOk=e=>equipment==='full'||(equipment==='dumbbells'&&(e.eq==='dumbbells'||e.eq==='home'))||(equipment==='home'&&e.eq==='home');
   const pref=COACH_EX_PREF[activeCoach.id]||COACH_EX_PREF.aria;
-  let pool=EX_DB.filter(e=>e.group===group&&eqOk(e)&&liked(e.name));
+  // 'cant' = hard exclude. 'dislike' = allowed but low priority
+  let pool=EX_DB.filter(e=>e.group===group&&eqOk(e)&&!cantDo(e.name));
   if(!pool.length)return [];
   // score each by coach preference
   const score=e=>{
     let s=pref[e.type]||1;
     s*=pref[exTool(e)]||1;
+    if(isDisliked(e.name))s*=0.1;// disliked = strong penalty but not excluded
     s*=(0.8+Math.random()*0.5); // variation
     return s;
   };
@@ -2652,17 +2655,21 @@ function renderDayWorkout(day,el){
     const id=`ex-${day}-${i}`;
     const sId=`sets-${day}-${i}`;
     const typeBadge=ex.type==='compound'?'<span style="font-size:9px;font-weight:700;letter-spacing:1px;color:var(--gold);background:var(--gold-dim);padding:1px 6px;margin-left:6px">COMPOUND</span>':'';
+    // Pre-fill warmup placeholder from history (50% of last working weight)
+    const lastW=hist?.length?hist[hist.length-1].weight:null;
+    const warmupHint=lastW?Math.round(lastW*0.5/2.5)*2.5:null;
+    const targetW=hist?.length?calcTargetWeight(ex.name):'';
     const warmupRows=Array.from({length:ex.warmups||1},(_,wi)=>`
       <div class="set-cols warmup-row">
         <div class="set-num" style="font-size:9px;line-height:1.1;text-align:center;color:var(--muted)">WARM<br>UP ${wi+1}</div>
-        <input class="si" type="number" inputmode="decimal" placeholder="kg" oninput="liveCalcFromWarmup(this,'${ex.name}','${day}',${i})"/>
+        <input class="si" type="number" inputmode="decimal" ${warmupHint?`placeholder="${warmupHint}"`:'placeholder="kg"'}  oninput="liveCalcFromWarmup(this,'${ex.name}','${day}',${i})"/>
         <input class="si" type="number" inputmode="numeric" placeholder="reps" oninput="liveCalcFromWarmup(this,'${ex.name}','${day}',${i})"/>
         <div class="set-done" onclick="markDone(this)"><i class="ti ti-check"></i></div>
       </div>`).join('');
     const workingRows=Array.from({length:ex.sets},(_,si)=>`
       <div class="set-cols">
         <div class="set-num">${si+1}</div>
-        <input class="si" type="number" inputmode="decimal" ${hist?.length?`value="${calcTargetWeight(ex.name)}"`:'placeholder="kg"'}/>
+        <input class="si" type="number" inputmode="decimal" ${targetW?`value="${targetW}"`:'placeholder="kg"'} />
         <input class="si" type="number" inputmode="numeric" placeholder="${ex.reps}" onchange="onRepEntered(this,'${ex.name}','${day}',${i})"/>
         <div class="set-done" onclick="markDoneEx(this,'${ex.name}','${day}',${i})"><i class="ti ti-check"></i></div>
       </div>`).join('');
@@ -3347,17 +3354,6 @@ function getCardioReminder(){
 }
 
 // ── STRENGTH TEST TIP ─────────────────────────────────────────
-// Show once on first workout session
-function checkShowStrengthTestTip(){
-  const allHistory=Object.values(planState.history||{});
-  const totalSets=allHistory.reduce((a,h)=>a+h.length,0);
-  if(totalSets===0&&!state.hasSeenStrengthTest){
-    state.hasSeenStrengthTest=true;
-    saveData();
-    setTimeout(()=>document.getElementById('strength-test-modal').classList.add('open'),600);
-  }
-}
-
 // Live calculate working weight from warmup set
 function liveCalcFromWarmup(inputEl,exName,day,idx){
   const row=inputEl.closest('.set-cols');
@@ -3365,22 +3361,43 @@ function liveCalcFromWarmup(inputEl,exName,day,idx){
   const warmupW=parseFloat(inputs[0]?.value);
   const warmupR=parseInt(inputs[1]?.value);
   if(!warmupW||!warmupR||warmupR<1)return;
-  // Estimate working weight from warmup
-  // Warmup is typically 50-60% of working weight
-  // Using Epley to get estimated 1RM, then apply goal-based % 
-  const orm=epley(warmupW,warmupR);
+
   const goal=planState.goal||'mass';
+  // Warmup sets are typically done at 40-60% of working weight
+  // Reverse-calculate: if warmup weight is ~50% of working weight, workingW = warmupW / 0.5
+  // But adjust intensity factor based on reps (more reps = lighter relative weight)
+  // reps 5-8 = warmup at ~60%, reps 10-15 = ~50%, reps 15+ = ~40%
+  let intensityFactor=0.50;
+  if(warmupR<=8)intensityFactor=0.60;
+  else if(warmupR<=12)intensityFactor=0.52;
+  else if(warmupR<=15)intensityFactor=0.46;
+  else intensityFactor=0.40;
+
+  const rawWorkingW=warmupW/intensityFactor;
+  // Also use Epley as a cross-check — take the higher of the two
+  const ormEpley=epley(warmupW,warmupR);
   const pcts={mass:.70,strength:.80,fatloss:.65,recomp:.70,maintenance:.70,endurance:.60};
-  const pct=pcts[goal]||.70;
-  const workingW=Math.round(orm*pct/2.5)*2.5;
-  if(!workingW||workingW<=warmupW)return;// don't suggest if working weight <= warmup weight
-  // Find working set inputs for this exercise and pre-fill if empty
+  const epleyWorkingW=ormEpley*(pcts[goal]||.70);
+  const workingW=Math.round(Math.max(rawWorkingW,epleyWorkingW)/2.5)*2.5;
+
+  if(!workingW||workingW<=warmupW)return;
+
+  // Get target reps for this exercise from the plan
   const setsArea=row.closest('.sets-area');
   if(!setsArea)return;
-  const workingRows=[...setsArea.querySelectorAll('.set-cols')].filter(r=>!r.classList.contains('warmup-row'));
-  workingRows.forEach(wr=>{
-    const wi=wr.querySelectorAll('.si')[0];
-    if(wi&&!wi.value)wi.value=workingW;
+  const exBlock=row.closest('.ex-block');
+  let targetReps=null;
+  if(exBlock){
+    const dayPlan=planState.plan?.[day];
+    if(dayPlan)targetReps=dayPlan.exercises[idx]?.reps||null;
+  }
+
+  // Pre-fill ALL working set weight and reps inputs if empty
+  const workingSetRows=[...setsArea.querySelectorAll('.set-cols')].filter(r=>!r.classList.contains('warmup-row'));
+  workingSetRows.forEach(wr=>{
+    const wInputs=wr.querySelectorAll('.si');
+    if(wInputs[0]&&!wInputs[0].value)wInputs[0].value=workingW;
+    if(wInputs[1]&&!wInputs[1].value&&targetReps)wInputs[1].placeholder=targetReps;
   });
 }
 function calcWorkingWeightsFromFirstSet(exName,weight,reps){
