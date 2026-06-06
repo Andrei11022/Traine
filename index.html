@@ -2539,7 +2539,9 @@ function buildPlanStructure(){
 
 function generatePlan(){
   planState.plan=buildPlanStructure();
-  planState.currentDay=getTodayDay();
+  // New users always start on the first training day, not whatever today is
+  const isNewUser=!planState.hasSeenWorkoutGuide&&!state.hasSeenWorkoutGuide;
+  planState.currentDay=isNewUser?getFirstTrainingDay(planState.plan):getTodayDay();
   saveData();
   showActivePlan();
   const showGuide=!planState.hasSeenWorkoutGuide&&!state.hasSeenWorkoutGuide;
@@ -2587,9 +2589,56 @@ function calcWeeklyVolume(){
   return vol;
 }
 
+// Instantly update the next unchecked working set's weight based on current reps
+function updateNextSet(currentRow,exName,w,r){
+  const setsArea=currentRow.closest('.sets-area');
+  if(!setsArea)return;
+  // Find all working set rows
+  const allWorkingRows=[...setsArea.querySelectorAll('.set-cols:not(.warmup-row)')];
+  const currentIdx=allWorkingRows.indexOf(currentRow);
+  if(currentIdx===-1)return;
+  // Calculate next set weight based on reps just done
+  let nextW=w;
+  if(r>=8)nextW=Math.round((w+2.5)*10)/10;      // hit 8+ reps → go up 2.5kg
+  else if(r>=6)nextW=w;                           // 6-7 reps → same weight
+  else nextW=Math.max(0,Math.round((w-2.5)*10)/10); // <6 reps → drop 2.5kg
+  // Fill all subsequent unchecked sets
+  for(let i=currentIdx+1;i<allWorkingRows.length;i++){
+    const row=allWorkingRows[i];
+    const done=row.querySelector('.set-done');
+    if(done&&done.classList.contains('checked'))continue;// skip already done sets
+    const inputs=row.querySelectorAll('.si');
+    if(inputs[0]){inputs[0].value=nextW;inputs[0].style.borderColor='var(--gold)';}// highlight
+    // Flash gold to signal it was auto-updated
+    setTimeout(()=>{if(inputs[0])inputs[0].style.borderColor='';},1500);
+  }
+}
+
 function getTodayDay(){
   const days=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-  return days[new Date().getDay()];
+  const todayName=days[new Date().getDay()];
+  // If we have a plan, make sure we don't land on a rest day
+  if(planState.plan){
+    const todaySession=planState.plan[todayName];
+    if(todaySession&&!todaySession.isRest)return todayName;
+    // Find the next training day from today
+    const order=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+    const todayIdx=order.indexOf(todayName);
+    for(let i=1;i<=7;i++){
+      const candidate=order[(todayIdx+i)%7];
+      if(planState.plan[candidate]&&!planState.plan[candidate].isRest)return candidate;
+    }
+  }
+  return todayName;
+}
+
+// Also fix initialisation — when plan is first built, set currentDay to first training day
+function getFirstTrainingDay(plan){
+  const order=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  for(const d of order){
+    if(plan[d]&&!plan[d].isRest)return d;
+  }
+  return 'Mon';
 }
 
 function showActivePlan(){
@@ -2754,6 +2803,8 @@ function markDoneEx(el,exName,day,idx){
         toast('🏆 New PR: '+exName+' — '+w+'kg × '+r+' (e1RM '+est+'kg)');
       }
       saveData();
+      // Instantly update the NEXT unchecked set's weight field
+      updateNextSet(row,exName,w,r);
     }
     // Always start the rest timer when a working set is completed
     startRestTimer(exName,r||10);
