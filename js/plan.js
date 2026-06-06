@@ -15,24 +15,152 @@ function coachVolConfig(){
 }
 
 // Stall detection — same weight 3+ sessions on same exercise
-function detectStall(exName){
-  const h=planState.history[exName];
-  if(!h||h.length<3)return false;
-  const last3=h.slice(-3);
-  return last3.every(s=>s.weight===last3[0].weight);
+// ── EXERCISE CLASSIFICATION DATABASE ─────────────────────────────
+const EX_PROFILE={
+  'Squat':                {cat:'lower_compound',loadClass:'heavy', weeklyGain:2.5,sessionGain:5,  isolMulti:1},
+  'Deadlift':             {cat:'lower_compound',loadClass:'heavy', weeklyGain:2.5,sessionGain:5,  isolMulti:1},
+  'Romanian Deadlift':    {cat:'lower_compound',loadClass:'heavy', weeklyGain:2.5,sessionGain:2.5,isolMulti:1},
+  'Stiff-Leg Deadlift':   {cat:'lower_compound',loadClass:'heavy', weeklyGain:2.5,sessionGain:2.5,isolMulti:1},
+  'Front Squat':          {cat:'lower_compound',loadClass:'heavy', weeklyGain:2.5,sessionGain:2.5,isolMulti:1},
+  'Hack Squat':           {cat:'lower_compound',loadClass:'heavy', weeklyGain:2.5,sessionGain:5,  isolMulti:1},
+  'Leg Press':            {cat:'lower_compound',loadClass:'heavy', weeklyGain:5,  sessionGain:5,  isolMulti:1},
+  'Bulgarian Split Squat':{cat:'lower_compound',loadClass:'medium',weeklyGain:2.5,sessionGain:2.5,isolMulti:1},
+  'Hip Thrust':           {cat:'lower_compound',loadClass:'heavy', weeklyGain:2.5,sessionGain:2.5,isolMulti:1},
+  'Lunges':               {cat:'lower_compound',loadClass:'medium',weeklyGain:2.5,sessionGain:2.5,isolMulti:1},
+  'Bench Press':          {cat:'upper_compound',loadClass:'heavy', weeklyGain:2.5,sessionGain:2.5,isolMulti:1},
+  'Incline Bench Press':  {cat:'upper_compound',loadClass:'heavy', weeklyGain:2.5,sessionGain:2.5,isolMulti:1},
+  'Decline Bench Press':  {cat:'upper_compound',loadClass:'heavy', weeklyGain:2.5,sessionGain:2.5,isolMulti:1},
+  'Close Grip Bench':     {cat:'upper_compound',loadClass:'medium',weeklyGain:2.5,sessionGain:2.5,isolMulti:1},
+  'Barbell Row':          {cat:'upper_compound',loadClass:'heavy', weeklyGain:2.5,sessionGain:2.5,isolMulti:1},
+  'T-Bar Row':            {cat:'upper_compound',loadClass:'heavy', weeklyGain:2.5,sessionGain:2.5,isolMulti:1},
+  'Pendlay Row':          {cat:'upper_compound',loadClass:'heavy', weeklyGain:2.5,sessionGain:2.5,isolMulti:1},
+  'Overhead Press':       {cat:'upper_compound',loadClass:'medium',weeklyGain:1.25,sessionGain:1.25,isolMulti:1},
+  'Push Press':           {cat:'upper_compound',loadClass:'medium',weeklyGain:2.5,sessionGain:2.5,isolMulti:1},
+  'Pull-Ups':             {cat:'upper_compound',loadClass:'bw',    weeklyGain:1.25,sessionGain:1.25,isolMulti:1},
+  'Chin-Ups':             {cat:'upper_compound',loadClass:'bw',    weeklyGain:1.25,sessionGain:1.25,isolMulti:1},
+  'Lat Pulldown':         {cat:'upper_compound',loadClass:'medium',weeklyGain:2.5,sessionGain:2.5,isolMulti:1},
+  'Cable Row':            {cat:'upper_compound',loadClass:'medium',weeklyGain:2.5,sessionGain:2.5,isolMulti:1},
+  'Dumbbell Row':         {cat:'upper_compound',loadClass:'medium',weeklyGain:2,  sessionGain:2,  isolMulti:1},
+  'Lateral Raises':       {cat:'isolation',loadClass:'light', weeklyGain:0.5,sessionGain:0.5,isolMulti:0.5},
+  'Rear Delt Flyes':      {cat:'isolation',loadClass:'light', weeklyGain:0.5,sessionGain:0.5,isolMulti:0.5},
+  'Front Raises':         {cat:'isolation',loadClass:'light', weeklyGain:0.5,sessionGain:0.5,isolMulti:0.5},
+  'Face Pulls':           {cat:'isolation',loadClass:'light', weeklyGain:1,  sessionGain:2.5,isolMulti:0.5},
+  'Arnold Press':         {cat:'isolation',loadClass:'medium',weeklyGain:1,  sessionGain:1,  isolMulti:0.5},
+  'Dumbbell Shoulder Press':{cat:'isolation',loadClass:'medium',weeklyGain:1,sessionGain:1, isolMulti:0.5},
+  'Dumbbell Flyes':       {cat:'isolation',loadClass:'light', weeklyGain:1,  sessionGain:1,  isolMulti:0.5},
+  'Cable Crossover':      {cat:'isolation',loadClass:'light', weeklyGain:1,  sessionGain:1,  isolMulti:0.5},
+  'Pec Deck':             {cat:'isolation',loadClass:'light', weeklyGain:1,  sessionGain:2.5,isolMulti:0.5},
+  'Barbell Curl':         {cat:'isolation',loadClass:'medium',weeklyGain:1,  sessionGain:1.25,isolMulti:0.5},
+  'Dumbbell Curl':        {cat:'isolation',loadClass:'light', weeklyGain:1,  sessionGain:1,  isolMulti:0.5},
+  'Hammer Curl':          {cat:'isolation',loadClass:'light', weeklyGain:1,  sessionGain:1,  isolMulti:0.5},
+  'Cable Curl':           {cat:'isolation',loadClass:'light', weeklyGain:1,  sessionGain:2.5,isolMulti:0.5},
+  'Preacher Curl':        {cat:'isolation',loadClass:'light', weeklyGain:1,  sessionGain:1.25,isolMulti:0.5},
+  'Concentration Curl':   {cat:'isolation',loadClass:'light', weeklyGain:0.5,sessionGain:0.5,isolMulti:0.5},
+  'Incline Dumbbell Curl':{cat:'isolation',loadClass:'light', weeklyGain:1,  sessionGain:1,  isolMulti:0.5},
+  'Cross-Body Hammer Curl':{cat:'isolation',loadClass:'light',weeklyGain:1,  sessionGain:1,  isolMulti:0.5},
+  'Skull Crushers':       {cat:'isolation',loadClass:'medium',weeklyGain:1,  sessionGain:1.25,isolMulti:0.5},
+  'Tricep Pushdown':      {cat:'isolation',loadClass:'light', weeklyGain:1,  sessionGain:2.5,isolMulti:0.5},
+  'Overhead Tricep Extension':{cat:'isolation',loadClass:'light',weeklyGain:1,sessionGain:1.25,isolMulti:0.5},
+  'Dips':                 {cat:'isolation',loadClass:'bw',    weeklyGain:1,  sessionGain:1.25,isolMulti:0.5},
+  'Leg Curl':             {cat:'isolation',loadClass:'medium',weeklyGain:2.5,sessionGain:2.5,isolMulti:0.5},
+  'Leg Extension':        {cat:'isolation',loadClass:'medium',weeklyGain:2.5,sessionGain:2.5,isolMulti:0.5},
+  'Calf Raises':          {cat:'isolation',loadClass:'medium',weeklyGain:2.5,sessionGain:2.5,isolMulti:0.5},
+  'Seated Calf Raise':    {cat:'isolation',loadClass:'light', weeklyGain:2.5,sessionGain:2.5,isolMulti:0.5},
+  'Glute Kickback':       {cat:'isolation',loadClass:'light', weeklyGain:1,  sessionGain:1,  isolMulti:0.5},
+  'Adductor Machine':     {cat:'isolation',loadClass:'medium',weeklyGain:2.5,sessionGain:2.5,isolMulti:0.5},
+};
+
+// ── GOAL PROGRESSION RULES ────────────────────────────────────────
+const GOAL_RULES={
+  strength:   {repRange:[3,5],  increaseAt:5,  dropBelow:3,  dropPct:0.10},
+  mass:       {repRange:[6,12], increaseAt:12, dropBelow:6,  dropPct:0.10},
+  recomp:     {repRange:[8,12], increaseAt:12, dropBelow:7,  dropPct:0.10},
+  fatloss:    {repRange:[12,20],increaseAt:18, dropBelow:10, dropPct:0.10},
+  endurance:  {repRange:[15,25],increaseAt:22, dropBelow:12, dropPct:0.08},
+  maintenance:{repRange:[8,15], increaseAt:999,dropBelow:6,  dropPct:0.08},
+};
+
+function getExProfile(name){
+  if(EX_PROFILE[name])return EX_PROFILE[name];
+  const l=name.toLowerCase();
+  if(/curl|raise|fly|flye|extension|pushdown|kickback|adduct|pec|crossover/.test(l))
+    return{cat:'isolation',    loadClass:'light', weeklyGain:1,  sessionGain:1,  isolMulti:0.5};
+  if(/squat|deadlift|leg press|lunge|hip|glute/.test(l))
+    return{cat:'lower_compound',loadClass:'heavy',weeklyGain:2.5,sessionGain:5,  isolMulti:1};
+  return{cat:'upper_compound',loadClass:'medium',weeklyGain:2.5,sessionGain:2.5,isolMulti:1};
 }
 
-// Get coach's signature stall-buster technique
+function getTrainingAge(){
+  const hist=planState.history||{};
+  let total=0;
+  for(const ex in hist)total+=hist[ex].length;
+  if(total<30) return'beginner';
+  if(total<150)return'intermediate';
+  return'advanced';
+}
+
+function getIncrement(exName,goal,direction){
+  const prof=getExProfile(exName);
+  const age=getTrainingAge();
+  const isLower=prof.cat==='lower_compound';
+  const isIso=prof.cat==='isolation';
+  const rules=GOAL_RULES[goal]||GOAL_RULES.mass;
+  let step=prof.sessionGain;
+  if(age==='beginner'&&isLower)step=Math.max(step,5);
+  if(age==='advanced')step=Math.max(step*0.5,1.25);
+  if(goal==='fatloss'||goal==='endurance')step=Math.max(step*0.5,1.25);
+  if(goal==='maintenance')step=0;
+  if(isIso)step=Math.min(step,2.5);
+  if(direction==='drop'){
+    const h=planState.history[exName];
+    const lastW=h&&h.length?h[h.length-1].weight:null;
+    if(lastW)return Math.round(lastW*(rules.dropPct||0.10)/1.25)*1.25;
+    return step;
+  }
+  return Math.round(step/1.25)*1.25;
+}
+
+// ── STALL DETECTION — smarter (4 sessions, checks reps too) ──────
+function detectStall(exName){
+  const h=planState.history[exName];
+  if(!h||h.length<4)return false;
+  const last4=h.slice(-4);
+  const weightStuck=last4.every(s=>s.weight===last4[0].weight);
+  const maxReps=Math.max(...last4.map(s=>s.reps));
+  const minReps=Math.min(...last4.map(s=>s.reps));
+  return weightStuck&&(maxReps-minReps)<=1;
+}
+
+// ── STALL BUSTERS — exercise-specific + coach personality ─────────
 function stallBuster(exName){
   const id=activeCoach.id;
-  if(id==='ivan')return`${exName} stalled. Apply rest-pause: hit failure, rest 15 seconds, grind 3-5 more reps. This extends the one set beyond normal failure.`;
-  if(id==='caesar')return`${exName} stalled. Add a triple drop set after your working sets — drop weight 20% three times with no rest. The pump will break the plateau.`;
-  if(id==='blaze')return`${exName} stalled. Superset with an isolation movement and add a drop set. Volume is your solution — attack it harder.`;
-  if(id==='zen')return`${exName} stalled. Slow the tempo to 4-2-4. The weight doesn't need to go up — the connection needs to deepen. Master the movement first.`;
-  if(id==='rex'||id==='thor')return`${exName} stalled. Deload 20% for one session, then come back fresh and aim for a new rep PR. Strength responds to reset.`;
-  if(id==='ford')return`${exName} stalled. Introduce a micro-load (1.25kg plates). If unavailable, target +1 rep per session instead of weight increase.`;
-  if(id==='marcus')return`${exName} stalled. Show up anyway. Perform the same weight with stricter form. Discipline through the plateau.`;
-  return`${exName} stalled at the same weight for 3 sessions. Try adding 1 rep rather than weight, or deload 15% and rebuild.`;
+  const prof=getExProfile(exName);
+  const isIso=prof.cat==='isolation';
+  const age=getTrainingAge();
+  const exBusters={
+    'Bench Press':   'Try paused reps (2s pause at chest) — eliminates the stretch reflex and builds real strength off the chest.',
+    'Squat':         'Add a tempo: 3s down, 1s pause in the hole. Exposes weaknesses and drives adaptation without adding weight.',
+    'Deadlift':      'Switch to deficit deadlifts (stand on 2-5cm plate) for 3 weeks — strengthens the hardest part of the pull.',
+    'Overhead Press':'OHP stalls fastest. Add 1.25kg micro-plates — the jump from 2.5kg is often too large for OHP.',
+    'Pull-Ups':      'Add band-assisted volume sets or try negatives (jump up, lower in 5s). More volume before adding load.',
+    'Barbell Row':   'Reset to 80% of current weight, focus on a 1s pause at the top. Row strength needs technique as much as load.',
+    'Lateral Raises':'Slow the eccentric to 3s. You don\'t need heavier — you need more tension. Cheat raises kill delts.',
+    'Leg Press':     'Add half-reps at the top after each full rep — this burns out the quads when full ROM stalls.',
+    'Hip Thrust':    'Add a 2s pause at the top of each rep — forces full glute contraction and breaks mechanical stalls.',
+  };
+  if(exBusters[exName])return`${exName} plateaued. ${exBusters[exName]}`;
+  if(isIso){
+    if(id==='ivan')  return`${exName} stalled. Rest-pause: failure, 15s rest, grind 3-4 more. One brutal set beats three lazy ones.`;
+    if(id==='caesar')return`${exName} stalled. Drop set: current weight to failure, drop 20%, failure again, drop 20%, finish. That's the pump that breaks it.`;
+    return`${exName} stalled. Switch to a cable variation for 3 weeks — constant tension is a new stimulus. Come back stronger.`;
+  }
+  if(age==='beginner')return`${exName} stalled — unusual for a beginner. Check sleep (7-9h), protein (${Math.round((state.weight||80)*2)}g/day), and training frequency. These fix 90% of beginner plateaus.`;
+  if(age==='advanced')return`${exName} plateau expected at your level. Options: (1) Deload 15% for 1 week, (2) Switch rep range for 4 weeks, (3) Add a slow-tempo technique set before working sets.`;
+  if(id==='ivan')  return`${exName} stalled. One top set to absolute failure with a training partner. The mind gives up before the muscle.`;
+  if(id==='ford')  return`${exName} stalled. Micro-load: add 1.25kg. If plates unavailable, add 1 rep per session. Precision beats aggression.`;
+  if(id==='marcus')return`${exName} stalled. Show up. Same weight. Stricter form. Discipline through the plateau.`;
+  if(id==='zen')   return`${exName} stalled. Slow the tempo: 4s eccentric, 1s pause, 2s concentric. Master the movement before chasing the load.`;
+  return`${exName} plateaued for 4 sessions. Deload 10%, hit +1 rep per set for 2 sessions, then reload. Volume beats stubbornness.`;
 }
 
 // Auto-adjust today's session based on recovery
@@ -222,9 +350,15 @@ function getLatestProgressionTip(){
     }
   }
   if(!latest)return null;
-  if(latest.reps>=10)return `${latestName}: last set ${latest.weight}kg × ${latest.reps}. Increase to ${(latest.weight+2.5).toFixed(1)}kg next session.`;
-  if(latest.reps>=6)return `${latestName}: ${latest.weight}kg × ${latest.reps} is solid. Aim for ${latest.reps+1}+ reps before adding weight.`;
-  return `${latestName}: ${latest.reps} reps is below target. Hold ${latest.weight}kg and build reps, or drop 2.5kg.`;
+  const goal=planState.goal||'mass';
+  const rules=GOAL_RULES[goal]||GOAL_RULES.mass;
+  const step=getIncrement(latestName,goal,'up');
+  const{increaseAt,repRange}=rules;
+  if(latest.reps>=increaseAt){
+    return`${latestName}: ${latest.weight}kg × ${latest.reps} reps — time to go up. Add ${step}kg next session → ${(latest.weight+step).toFixed(1)}kg.`;
+  }
+  const needed=increaseAt-latest.reps;
+  return`${latestName}: ${latest.weight}kg × ${latest.reps} reps. Need ${needed} more rep${needed>1?'s':''} to earn the weight increase. Stay in the range.`;
 }
 
 function startOnboarding(){
