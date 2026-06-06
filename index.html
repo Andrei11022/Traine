@@ -2645,12 +2645,29 @@ function showActivePlan(){
   document.getElementById('wo-onboarding').style.display='none';
   document.getElementById('wo-active').style.display='block';
   renderDayRow();
-  // Always resolve to a training day — never show rest day on load
-  const savedDay=planState.currentDay||getTodayDay();
-  const session=planState.plan?.[savedDay];
-  const startDay=(!session||session.isRest)?getFirstTrainingDay(planState.plan):savedDay;
+  const days=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const todayName=days[new Date().getDay()];
+  const todaySession=planState.plan?.[todayName];
+  let startDay;
+  if(todaySession&&!todaySession.isRest){
+    // Today is a training day — show it
+    startDay=todayName;
+  } else {
+    // Today is rest — find next upcoming training day
+    startDay=getNextTrainingDay(todayName)||getFirstTrainingDay(planState.plan);
+  }
   planState.currentDay=startDay;
   renderDayWorkout(startDay);
+}
+
+function getNextTrainingDay(fromDay){
+  const order=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  const idx=order.indexOf(fromDay);
+  for(let i=1;i<=7;i++){
+    const candidate=order[(idx+i)%7];
+    if(planState.plan[candidate]&&!planState.plan[candidate].isRest)return candidate;
+  }
+  return null;
 }
 
 function renderDayRow(){
@@ -2782,18 +2799,9 @@ function markDoneEx(el,exName,day,idx){
     const inputs=row.querySelectorAll('.si');
     const w=parseFloat(inputs[0]?.value);
     const r=parseInt(inputs[1]?.value);
-    // Only fire on working sets — warmup rows have class 'warmup-row' or set-num starts with W
     const setNum=row.querySelector('.set-num');
     const isWarmup=setNum&&(setNum.textContent.trim().startsWith('W')||row.classList.contains('warmup-row'));
-    if(!isWarmup){
-      // 20+ rep detection — only on working sets, only on first ever session for this exercise
-      if(w&&r>=20&&(!planState.history[exName]||planState.history[exName].length===0)){
-        const calc=calcWorkingWeightsFromFirstSet(exName,w,r);
-        if(calc){
-          toast(`${exName}: 20+ reps — your working weight is ~${calc.workingW}kg (${calc.pct}% of est. 1RM ${calc.orm}kg)`);
-        }
-      }
-    }
+    // (warmup-based working weight calc is handled by liveCalcFromWarmup on input)
     // Save to history only if we have real numbers
     if(w&&r){
       if(!planState.history[exName])planState.history[exName]=[];
