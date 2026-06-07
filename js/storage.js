@@ -159,6 +159,7 @@ function _loadLocal(){
     if(s.nutritionDisclaimerAcknowledged)state.nutritionDisclaimerAcknowledged=s.nutritionDisclaimerAcknowledged;
     if(s.hasSeenStrengthTest)state.hasSeenStrengthTest=s.hasSeenStrengthTest;
     _restoreDOM(s);
+    if(state.avatarData)setTimeout(()=>restoreAvatar(),100);
   }catch(e){console.log('Local load error',e);}
 }
 
