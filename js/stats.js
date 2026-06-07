@@ -185,6 +185,7 @@ function calcFat(){
   document.getElementById('fat-ffmi').innerHTML=ffmi.toFixed(1);
   document.getElementById('fat-ffmi-lbl').textContent=ffmiLbl;
   document.getElementById('prof-bf').value=bf.toFixed(1);
+  saveData();
   logEntry(state.bfLog,parseFloat(bf.toFixed(1)));
   const ins=document.getElementById('fat-insight');
   ins.style.display='block';
