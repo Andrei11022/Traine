@@ -296,13 +296,26 @@ function handleAvatarUpload(input){
   if(!file)return;
   const reader=new FileReader();
   reader.onload=e=>{
-    state.avatarData=e.target.result;
-    const img=document.getElementById('p-av-img');
-    const letter=document.getElementById('p-av-letter');
-    if(img){img.src=e.target.result;img.style.display='block';}
-    if(letter)letter.style.display='none';
-    saveData();
-    toast('Profile photo updated');
+    // Resize to max 200x200 before storing — keeps it small for Supabase
+    const imgEl=new Image();
+    imgEl.onload=()=>{
+      const canvas=document.createElement('canvas');
+      const MAX=200;
+      let w=imgEl.width,h=imgEl.height;
+      if(w>h){if(w>MAX){h=Math.round(h*MAX/w);w=MAX;}}
+      else{if(h>MAX){w=Math.round(w*MAX/h);h=MAX;}}
+      canvas.width=w;canvas.height=h;
+      canvas.getContext('2d').drawImage(imgEl,0,0,w,h);
+      const resized=canvas.toDataURL('image/jpeg',0.8);
+      state.avatarData=resized;
+      const img=document.getElementById('p-av-img');
+      const letter=document.getElementById('p-av-letter');
+      if(img){img.src=resized;img.style.display='block';}
+      if(letter)letter.style.display='none';
+      saveData();
+      toast('Profile photo updated');
+    };
+    imgEl.src=e.target.result;
   };
   reader.readAsDataURL(file);
 }

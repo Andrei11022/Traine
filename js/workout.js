@@ -326,11 +326,16 @@ function getTodayDay(){
 
 // Also fix initialisation — when plan is first built, set currentDay to first training day
 function getFirstTrainingDay(plan){
-  const order=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  // Start from TODAY and find the next training day — not always Monday
+  const allDays=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const todayIdx=new Date().getDay();
+  // Build order starting from today
+  const order=[];
+  for(let i=0;i<7;i++)order.push(allDays[(todayIdx+i)%7]);
   for(const d of order){
     if(plan[d]&&!plan[d].isRest)return d;
   }
-  return 'Mon';
+  return allDays[todayIdx];
 }
 
 function showActivePlan(){
@@ -456,41 +461,39 @@ function renderDayWorkout(day,el){
 
 function calcTargetWeight(name){
   const hist=planState.history[name];
-  if(!hist?.length)return '';
+  if(!hist?.length)return'';
   const last=hist[hist.length-1];
   const goal=planState.goal||'mass';
-  const isCompound=['Bench Press','Squat','Deadlift','Overhead Press','Barbell Row',
-    'Romanian Deadlift','Incline Bench Press','Hack Squat','Leg Press','Pull-Ups',
-    'T-Bar Row','Bulgarian Split Squat','Front Squat','Hip Thrust'].includes(name);
-  const step=isCompound?2.5:1.25;
-
-  if(goal==='strength'){
-    if(last.reps>=5)return(last.weight+step).toFixed(1);
-    if(last.reps>=3)return last.weight.toFixed(1);
-    return Math.max(0,last.weight-step).toFixed(1);
-  } else if(goal==='mass'||goal==='recomp'){
-    if(last.reps>=12)return(last.weight+step).toFixed(1);
-    if(last.reps>=6)return last.weight.toFixed(1);
-    return Math.max(0,last.weight-step).toFixed(1);
-  } else if(goal==='fatloss'){
-    if(last.reps>=15)return(last.weight+step).toFixed(1);
-    if(last.reps>=10)return last.weight.toFixed(1);
-    return Math.max(0,last.weight-step).toFixed(1);
-  } else if(goal==='endurance'){
-    if(last.reps>=20)return(last.weight+1.25).toFixed(1);
-    if(last.reps>=12)return last.weight.toFixed(1);
-    return Math.max(0,last.weight-1.25).toFixed(1);
+  const rules=GOAL_RULES[goal]||GOAL_RULES.mass;
+  const{increaseAt,dropBelow}=rules;
+  if(last.reps>=increaseAt){
+    const s=getIncrement(name,goal,'up');
+    return(last.weight+s).toFixed(1);
   }
-  // maintenance — stay same
+  if(last.reps<dropBelow){
+    const d=getIncrement(name,goal,'drop');
+    return Math.max(0,last.weight-d).toFixed(1);
+  }
   return last.weight.toFixed(1);
 }
+
 function calcTarget(name){
   const hist=planState.history[name];
-  if(!hist?.length)return 'NEW';
+  if(!hist?.length)return'NEW';
   const last=hist[hist.length-1];
-  if(last.reps>=8)return`TARGET ${(last.weight+2.5).toFixed(1)}kg`;
-  if(last.reps>=6)return`TARGET ${last.weight.toFixed(1)}kg`;
-  return`DROP TO ${Math.max(0,last.weight-2.5).toFixed(1)}kg`;
+  const goal=planState.goal||'mass';
+  const rules=GOAL_RULES[goal]||GOAL_RULES.mass;
+  const{increaseAt,dropBelow}=rules;
+  if(last.reps>=increaseAt){
+    const s=getIncrement(name,goal,'up');
+    return`ADD ${s}kg → ${(last.weight+s).toFixed(1)}kg`;
+  }
+  if(last.reps<dropBelow){
+    const d=getIncrement(name,goal,'drop');
+    return`DROP → ${Math.max(0,last.weight-d).toFixed(1)}kg`;
+  }
+  const needed=increaseAt-last.reps;
+  return`+${needed} REPS TO PROGRESS`;
 }
 
 function onRepEntered(el,exName,day,idx){
@@ -501,36 +504,34 @@ function onRepEntered(el,exName,day,idx){
   if(!tipEl||!w)return;
   const goal=planState.goal||'mass';
   const coach=activeCoach.id;
+  const rules=GOAL_RULES[goal]||GOAL_RULES.mass;
+  const{increaseAt,dropBelow,repRange}=rules;
   const setsArea=row.closest('.sets-area');
-  const allWorking=setsArea?[...setsArea.querySelectorAll('.set-cols:not(.warmup-row)')]:[];
+  const allWorking=setsArea?[...setsArea.querySelectorAll('.set-cols:not(.warmup-row)')]:[]; 
   const isLastSet=allWorking.indexOf(row)===allWorking.length-1;
-  const sessionWord=isLastSet?'next session':'next set';
+  const word=isLastSet?'next session':'next set';
+  const step=getIncrement(exName,goal,'up');
+  const drop=getIncrement(exName,goal,'drop');
 
   let msg='';
   if(coach==='ivan'){
-    if(reps>=10)msg=`${reps} reps — above target. Add ${w+2.5}kg ${sessionWord}. HIT demands maximum intensity every set.`;
-    else if(reps>=6)msg=`${reps} reps — within range. Hold ${w}kg and go to absolute failure.`;
-    else msg=`Only ${reps} reps. Reduce to ${Math.max(0,w-2.5)}kg ${sessionWord} and ensure full recovery before this session.`;
-  } else if(goal==='strength'){
-    if(reps>=5)msg=`${reps} reps at ${w}kg — strength progression. Add weight ${sessionWord}.`;
-    else if(reps>=3)msg=`${reps} reps — in the strength zone. Hold ${w}kg and grind it next time.`;
-    else msg=`${reps} reps is too heavy. Drop to ${Math.max(0,w-2.5)}kg ${sessionWord}.`;
-  } else if(goal==='mass'||goal==='recomp'){
-    if(reps>=12)msg=`${reps} reps — above hypertrophy range. Add weight ${sessionWord}.`;
-    else if(reps>=6)msg=`${reps} reps at ${w}kg — perfect hypertrophy range. Stay here.`;
-    else msg=`${reps} reps — too heavy for hypertrophy. Drop to ${Math.max(0,w-2.5)}kg ${sessionWord}.`;
-  } else if(goal==='fatloss'){
-    if(reps>=15)msg=`${reps} reps — great endurance. Slight weight increase ${sessionWord}.`;
-    else if(reps>=10)msg=`${reps} reps — good range for fat loss. Keep the intensity high.`;
-    else msg=`${reps} reps — too heavy. For fat loss, aim for 12-15 reps. Drop weight ${sessionWord}.`;
-  } else if(goal==='endurance'){
-    if(reps>=20)msg=`${reps} reps — excellent endurance work. Slight increase ${sessionWord}.`;
-    else if(reps>=12)msg=`${reps} reps — building endurance base. Push for more reps next set.`;
-    else msg=`${reps} reps — too heavy for endurance training. Drop weight and aim for 15-20 reps.`;
+    const ex=planState.plan?.[planState.currentDay]?.exercises.find(e=>e.name===exName);
+    const target=ex?.reps||8;
+    if(reps>=target)msg=`${reps} reps — HIT target. Add ${step}kg ${word} (→${(w+step).toFixed(1)}kg). Maximum Overload.`;
+    else if(reps>=target-2)msg=`${reps} reps — close to failure. Hold ${w}kg and go harder ${word}.`;
+    else msg=`Only ${reps} reps. Too heavy. Reduce to ${Math.max(0,w-drop).toFixed(1)}kg ${word} — full recovery required.`;
+  } else if(reps>=increaseAt){
+    msg=`${reps} reps — top of range! ${isLastSet?`Add ${step}kg next session → ${(w+step).toFixed(1)}kg.`:`Loading ${(w+step).toFixed(1)}kg for ${word}.`}`;
+  } else if(reps>=repRange[0]){
+    const needed=increaseAt-reps;
+    msg=`${reps} reps — in the zone. Need ${needed} more rep${needed>1?'s':''} before earning a weight increase. Hold ${w}kg.`;
+  } else if(reps<dropBelow){
+    msg=`${reps} reps — too heavy. Drop to ~${Math.max(0,w-drop).toFixed(1)}kg ${word}. Can't build muscle you can't control.`;
   } else {
-    if(reps>=10)msg=`${reps} reps at ${w}kg — solid work.`;
-    else msg=`${reps} reps — keep it consistent ${sessionWord}.`;
+    msg=`${reps} reps — just under the zone. Hold ${w}kg and push harder ${word}.`;
   }
+  if(coach==='zen'&&reps<dropBelow)msg=`${reps} reps — the weight is beyond you today. Reduce with no ego. Mastery before load.`;
+  if(coach==='marcus'&&reps<dropBelow)msg=`${reps} reps. Reduce. Discipline means knowing when to retreat and reload.`;
   tipEl.textContent=msg;
 }
 
@@ -573,53 +574,25 @@ function updateNextSet(currentRow,exName,w,r){
 
   const goal=planState.goal||'mass';
   const coach=activeCoach.id;
+  const rules=GOAL_RULES[goal]||GOAL_RULES.mass;
+  const{increaseAt,dropBelow}=rules;
   const ex=planState.plan?.[planState.currentDay]?.exercises.find(e=>e.name===exName);
-  const targetReps=ex?.reps||8;
-  const isCompound=['Bench Press','Squat','Deadlift','Overhead Press','Barbell Row',
-    'Romanian Deadlift','Incline Bench Press','Hack Squat','Leg Press','Pull-Ups',
-    'T-Bar Row','Close Grip Bench','Bulgarian Split Squat','Lunges','Front Squat','Hip Thrust'].includes(exName);
-
-  // ── GOAL-AWARE PROGRESSIVE OVERLOAD RULES ────────────────────
-  // STRENGTH (3-5 rep range): linear progression — hit top of range → add weight
-  // MASS (6-12): double progression — hit top of range for ALL sets → add weight
-  // FAT LOSS (12-15): high rep, lighter — only increase if well above range
-  // RECOMP (8-12): similar to mass but slower increases
-  // ENDURANCE (15-20): very high rep, tiny increases
-  // IVAN HIT: 1 set to failure — always increase if hit target reps
+  const targetReps=ex?.reps||rules.repRange[1];
 
   let nextW=w;
-  let increaseStep=isCompound?2.5:1.25;// isolation = smaller jumps
 
   if(coach==='ivan'){
-    // HIT: if you hit target reps → go up. Period.
-    if(r>=targetReps)nextW=Math.round((w+increaseStep)*10)/10;
-    else if(r<targetReps-2)nextW=Math.max(0,Math.round((w-increaseStep)*10)/10);
-
-  } else if(goal==='strength'){
-    // Strength: 3-5 rep range. Hit 5 → add weight next set
-    if(r>=5)nextW=Math.round((w+increaseStep)*10)/10;
-    else if(r<=2)nextW=Math.max(0,Math.round((w-increaseStep)*10)/10);
-    // 3-4 reps = stay same
-
-  } else if(goal==='mass'||goal==='recomp'){
-    // Mass/Recomp: 6-12 rep range. Hit 12+ → add weight. Under 6 → drop.
-    if(r>=12)nextW=Math.round((w+increaseStep)*10)/10;
-    else if(r<6)nextW=Math.max(0,Math.round((w-increaseStep)*10)/10);
-    // 6-11 reps = stay same (weight is right, keep working in the range)
-
-  } else if(goal==='fatloss'){
-    // Fat loss: 12-15 reps. Only increase if at very top (15+). Drop if under 10.
-    if(r>=15)nextW=Math.round((w+increaseStep)*10)/10;
-    else if(r<10)nextW=Math.max(0,Math.round((w-increaseStep)*10)/10);
-
-  } else if(goal==='endurance'){
-    // Endurance: 15-20 reps. Increase only at 20+. Drop if under 12.
-    if(r>=20)nextW=Math.round((w+1.25)*10)/10;// small step for endurance
-    else if(r<12)nextW=Math.max(0,Math.round((w-1.25)*10)/10);
-
-  } else if(goal==='maintenance'){
-    // Maintenance: just keep weight consistent, no pressure to increase
-    nextW=w;
+    const step=getIncrement(exName,goal,'up');
+    const drop=getIncrement(exName,goal,'drop');
+    if(r>=targetReps)nextW=Math.round((w+step)*100)/100;
+    else if(r<targetReps-3)nextW=Math.max(0,Math.round((w-drop)*100)/100);
+  } else {
+    if(r>=increaseAt){
+      nextW=Math.round((w+getIncrement(exName,goal,'up'))*100)/100;
+    } else if(r<dropBelow){
+      nextW=Math.max(0,Math.round((w-getIncrement(exName,goal,'drop'))*100)/100);
+    }
+    // within range — hold weight, build reps (double progression)
   }
 
   // Apply to all following unchecked sets
