@@ -470,7 +470,8 @@
     <div style="display:flex;align-items:center;gap:16px;margin-bottom:16px">
       <!-- Avatar with tap-to-change photo -->
       <div style="position:relative;flex-shrink:0">
-        <div class="p-av" id="p-av" onclick="document.getElementById('av-upload').click()" style="cursor:pointer;position:relative;overflow:hidden">
+        <div style="font-size:9px;color:var(--gold);letter-spacing:1px;text-align:center;margin-bottom:4px;cursor:pointer" onclick="document.getElementById('av-upload').click()">TAP TO SET PHOTO</div>
+        <div class="p-av" id="p-av" onclick="document.getElementById('av-upload').click()" style="cursor:pointer;position:relative;overflow:hidden;border:2px solid var(--gold)">
           <span id="p-av-letter">?</span>
           <img id="p-av-img" src="" alt="" style="display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:50%"/>
         </div>
@@ -482,7 +483,7 @@
       <div style="flex:1;min-width:0">
         <!-- Inline name edit -->
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
-          <input id="inline-name" class="inp" placeholder="Tap to set your name" style="font-family:var(--ff);font-size:22px;padding:6px 10px;border:1px solid var(--gold);background:rgba(201,168,76,0.07);width:100%;color:var(--gold)" onfocus="this.style.borderColor='var(--gold)';this.style.background='rgba(201,168,76,0.12)'" onblur="this.style.background='rgba(201,168,76,0.07)';saveInlineName(this)" onkeydown="if(event.key==='Enter')this.blur()"/>
+          <input id="inline-name" class="inp" placeholder="✏ SET YOUR NAME" style="font-family:var(--ff);font-size:20px;padding:10px 14px;border:2px solid var(--gold);background:rgba(201,168,76,0.1);width:100%;color:var(--text);letter-spacing:1px;box-sizing:border-box" onfocus="this.style.background='rgba(201,168,76,0.18)'" onblur="this.style.background='rgba(201,168,76,0.1)';saveInlineName(this)" onkeydown="if(event.key==='Enter')this.blur()"/>
         </div>
         <div class="p-since" id="p-since">Set up your profile</div>
         <div class="p-streak" id="p-streak"><i class="ti ti-flame" style="font-size:14px"></i> 0 Day Streak</div>
