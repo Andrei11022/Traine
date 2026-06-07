@@ -530,27 +530,27 @@
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px">
       <div>
         <div style="font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:5px">Gender</div>
-        <select class="sel" id="prof-gender" onchange="updateGender();updateGoalCalPreview()">
+        <select class="sel" id="prof-gender" onchange="updateGender();updateGoalCalPreview();saveData()">
           <option value="m">Male</option>
           <option value="f">Female</option>
         </select>
       </div>
       <div>
         <div style="font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:5px">Age</div>
-        <input class="inp" id="prof-age" type="number" inputmode="numeric" placeholder="23" onchange="updateGoalCalPreview()"/>
+        <input class="inp" id="prof-age" type="number" inputmode="numeric" placeholder="23" onchange="updateGoalCalPreview();saveData()"/>
       </div>
       <div>
         <div style="font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:5px" id="prof-height-lbl">Height (cm)</div>
-        <input class="inp" id="prof-height" type="number" inputmode="decimal" placeholder="180" onchange="updateGoalCalPreview()"/>
+        <input class="inp" id="prof-height" type="number" inputmode="decimal" placeholder="180" onchange="updateGoalCalPreview();saveData()"/>
       </div>
       <div>
         <div style="font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:5px" id="prof-weight-lbl">Weight (kg)</div>
-        <input class="inp" id="prof-weight" type="number" inputmode="decimal" step="0.1" placeholder="80" onchange="updateGoalCalPreview()"/>
+        <input class="inp" id="prof-weight" type="number" inputmode="decimal" step="0.1" placeholder="80" onchange="updateGoalCalPreview();saveData()"/>
       </div>
     </div>
     <div style="margin-top:8px">
       <div style="font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:5px">Body Fat % <span style="font-weight:400;color:var(--muted)">(optional — use Body Fat tab)</span></div>
-      <input class="inp" id="prof-bf" type="number" inputmode="decimal" step="0.1" placeholder="Calculate in Stats → Body Fat" onchange="updateGoalCalPreview()"/>
+      <input class="inp" id="prof-bf" type="number" inputmode="decimal" step="0.1" placeholder="Calculate in Stats → Body Fat" onchange="updateGoalCalPreview();saveData()"/>
     </div>
   </div>
   <div class="slbl">Health Log</div>
@@ -562,10 +562,10 @@
   </div>
   <div style="padding:0 18px 4px;font-size:11px;color:var(--muted2);line-height:1.6;margin-bottom:6px">RHR and HRV are optional. Recovery will be calculated from sleep + energy if not provided. HRV requires a chest strap (e.g. Polar H10) or WHOOP.</div>
   <div style="padding:0 18px 12px">
-    <div class="inp-row"><span class="inp-lbl">Sleep (hrs)</span><input class="inp" id="inp-sleep" type="number" inputmode="decimal" step="0.5" placeholder="7.5"/></div>
-    <div class="inp-row"><span class="inp-lbl">Energy (1–10)</span><input class="inp" id="inp-energy" type="number" inputmode="numeric" min="1" max="10" placeholder="7"/></div>
-    <div class="inp-row"><span class="inp-lbl">RHR (bpm)</span><input class="inp" id="inp-rhr" type="number" inputmode="numeric" placeholder="Optional"/></div>
-    <div class="inp-row"><span class="inp-lbl">HRV (ms)</span><input class="inp" id="inp-hrv" type="number" inputmode="numeric" placeholder="Optional"/></div>
+    <div class="inp-row"><span class="inp-lbl">Sleep (hrs)</span><input class="inp" id="inp-sleep" type="number" inputmode="decimal" step="0.5" placeholder="7.5" onchange="saveData()"/></div>
+    <div class="inp-row"><span class="inp-lbl">Energy (1–10)</span><input class="inp" id="inp-energy" type="number" inputmode="numeric" min="1" max="10" placeholder="7" onchange="saveData()"/></div>
+    <div class="inp-row"><span class="inp-lbl">RHR (bpm)</span><input class="inp" id="inp-rhr" type="number" inputmode="numeric" placeholder="Optional" onchange="saveData()"/></div>
+    <div class="inp-row"><span class="inp-lbl">HRV (ms)</span><input class="inp" id="inp-hrv" type="number" inputmode="numeric" placeholder="Optional" onchange="saveData()"/></div>
     <div style="display:flex;justify-content:flex-end;margin-top:6px"><button class="btn-gold" onclick="calcRecovery()">CALCULATE RECOVERY</button></div>
   </div>
   <div class="slbl">Goals</div>
