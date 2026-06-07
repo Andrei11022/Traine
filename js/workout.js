@@ -208,6 +208,9 @@ function pickForGroup(group,count){
 
 function buildPlanStructure(){
   const{goal,days}=planState;
+  const ALL_DAYS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  // Start plan from TODAY, not always Monday
+  const todayIdx=new Date().getDay();
   const makeDay=(name,groups,counts)=>{
     let exercises=[];
     groups.forEach((g,i)=>{
@@ -217,37 +220,61 @@ function buildPlanStructure(){
         exercises.push({name:ex.name,muscle:g,region:ex.region,type:ex.type,cue:ex.cue,sets:sch.sets,warmups:sch.warmups,reps:repsForExercise(ex,goal)});
       });
     });
-    // compounds first across the whole day
     exercises.sort((a,b)=>(a.type==='compound'?0:1)-(b.type==='compound'?0:1));
     return{name,muscles:groups,exercises};
   };
-  let plan={},restDays=[];
+  // Build training slots starting from today
+  const plan={};
+  ALL_DAYS.forEach(d=>plan[d]={name:'Rest',muscles:[],exercises:[],isRest:true});
+
+  let sessionDefs=[];
   if(days===3){
-    ['Mon','Wed','Fri'].forEach(d=>{plan[d]=makeDay('Full Body',['legs','chest','back','shoulders','arms'],[2,1,1,1,1]);});
-    restDays=['Tue','Thu','Sat','Sun'];
+    sessionDefs=[
+      ['Full Body',['legs','chest','back','shoulders','arms'],[2,1,1,1,1]],
+      ['Full Body',['legs','chest','back','shoulders','arms'],[2,1,1,1,1]],
+      ['Full Body',['legs','chest','back','shoulders','arms'],[2,1,1,1,1]],
+    ];
   } else if(days===4){
-    plan['Mon']=makeDay('Upper Body',['chest','back','shoulders','arms'],[2,2,1,2]);
-    plan['Tue']=makeDay('Lower Body',['legs','core'],[5,1]);
-    plan['Thu']=makeDay('Upper Body',['back','chest','shoulders','arms'],[2,2,1,2]);
-    plan['Fri']=makeDay('Lower Body',['legs','core'],[5,1]);
-    restDays=['Wed','Sat','Sun'];
+    sessionDefs=[
+      ['Upper Body',['chest','back','shoulders','arms'],[2,2,1,2]],
+      ['Lower Body',['legs','core'],[5,1]],
+      ['Upper Body',['back','chest','shoulders','arms'],[2,2,1,2]],
+      ['Lower Body',['legs','core'],[5,1]],
+    ];
   } else if(days===5){
-    plan['Mon']=makeDay('Push',['chest','shoulders','arms'],[3,2,1]);
-    plan['Tue']=makeDay('Pull',['back','arms'],[3,2]);
-    plan['Wed']=makeDay('Legs',['legs','core'],[5,1]);
-    plan['Thu']=makeDay('Upper',['chest','back','shoulders'],[2,2,2]);
-    plan['Sat']=makeDay('Legs',['legs','core'],[5,1]);
-    restDays=['Fri','Sun'];
+    sessionDefs=[
+      ['Push',['chest','shoulders','arms'],[3,2,1]],
+      ['Pull',['back','arms'],[3,2]],
+      ['Legs',['legs','core'],[5,1]],
+      ['Upper',['chest','back','shoulders'],[2,2,2]],
+      ['Legs',['legs','core'],[5,1]],
+    ];
   } else {
-    plan['Mon']=makeDay('Push',['chest','shoulders','arms'],[3,2,1]);
-    plan['Tue']=makeDay('Pull',['back','arms'],[3,2]);
-    plan['Wed']=makeDay('Legs',['legs','core'],[5,1]);
-    plan['Thu']=makeDay('Push',['chest','shoulders','arms'],[3,2,1]);
-    plan['Fri']=makeDay('Pull',['back','arms'],[3,2]);
-    plan['Sat']=makeDay('Legs',['legs','core'],[5,1]);
-    restDays=['Sun'];
+    sessionDefs=[
+      ['Push',['chest','shoulders','arms'],[3,2,1]],
+      ['Pull',['back','arms'],[3,2]],
+      ['Legs',['legs','core'],[5,1]],
+      ['Push',['chest','shoulders','arms'],[3,2,1]],
+      ['Pull',['back','arms'],[3,2]],
+      ['Legs',['legs','core'],[5,1]],
+    ];
   }
-  restDays.forEach(d=>{plan[d]={name:'Rest',muscles:[],exercises:[],isRest:true};});
+
+  // Distribute sessions across the week starting from today
+  // Space them out: for 3 days use every-other-day, for 6 consecutive
+  const gap = days<=3 ? 2 : days<=4 ? 2 : 1;
+  let assigned=0, dayOffset=0;
+  while(assigned<sessionDefs.length && dayOffset<14){
+    const d=ALL_DAYS[(todayIdx+dayOffset)%7];
+    if(!plan[d]||plan[d].isRest){
+      const[name,groups,counts]=sessionDefs[assigned];
+      plan[d]=makeDay(name,groups,counts);
+      assigned++;
+      dayOffset+=gap;
+    } else {
+      dayOffset++;
+    }
+  }
   return plan;
 }
 

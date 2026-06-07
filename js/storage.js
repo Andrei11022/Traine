@@ -253,6 +253,8 @@ async function _loadSupabase(){
     if(prof.nutrition_disclaimer_acknowledged)state.nutritionDisclaimerAcknowledged=prof.nutrition_disclaimer_acknowledged;
     if(prof.avatar_data)state.avatarData=prof.avatar_data;
   }
+  // Restore avatar immediately after loading
+  if(state.avatarData)restoreAvatar();
 
   if(plan?.data){
     const d=plan.data;
