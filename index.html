@@ -482,7 +482,7 @@
       <div style="flex:1;min-width:0">
         <!-- Inline name edit -->
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
-          <input id="inline-name" class="inp" placeholder="Your name" style="font-family:var(--ff);font-size:22px;padding:4px 8px;border:1px solid transparent;background:transparent;width:100%" onfocus="this.style.borderColor='var(--gold)'" onblur="saveInlineName(this)" onkeydown="if(event.key==='Enter')this.blur()"/>
+          <input id="inline-name" class="inp" placeholder="Tap to set your name" style="font-family:var(--ff);font-size:22px;padding:6px 10px;border:1px solid var(--gold);background:rgba(201,168,76,0.07);width:100%;color:var(--gold)" onfocus="this.style.borderColor='var(--gold)';this.style.background='rgba(201,168,76,0.12)'" onblur="this.style.background='rgba(201,168,76,0.07)';saveInlineName(this)" onkeydown="if(event.key==='Enter')this.blur()"/>
         </div>
         <div class="p-since" id="p-since">Set up your profile</div>
         <div class="p-streak" id="p-streak"><i class="ti ti-flame" style="font-size:14px"></i> 0 Day Streak</div>
