@@ -89,7 +89,7 @@ function _restoreDOM(s){
   }
   if(s.settings?.name){
     const el=g('p-name');if(el)el.textContent=s.settings.name.toUpperCase();
-    const av=g('p-av');if(av)av.textContent=s.settings.name[0].toUpperCase();
+    const avLetter=g('p-av-letter');if(avLetter)avLetter.textContent=s.settings.name[0]?.toUpperCase()||'?';
     const il=g('inline-name');if(il)il.value=s.settings.name;
   }
   if(s.streak){
