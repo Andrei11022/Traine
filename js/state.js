@@ -48,7 +48,7 @@ function goPage(id){
   if(id==='coach')renderCoachList();
   if(id==='workout')initWorkoutPage();
   if(id==='stats'&&document.querySelector('.tbt.on')?.textContent==='Symmetry')calcSymmetry();
-  if(id==='profile'){renderAchievements();initComparisonDates();renderProfileGoalSelector();initUnitUI();}
+  if(id==='profile'){renderAchievements();initComparisonDates();renderProfileGoalSelector();initUnitUI();setTimeout(()=>restoreAvatar(),50);}
 }
 
 // ── TOAST ─────────────────────────────────────────────────────
