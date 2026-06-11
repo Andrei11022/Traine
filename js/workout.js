@@ -51,6 +51,13 @@ function showDaysRecommendation(goal){
   checkNextReady();
 }
 
+function toggleEquip(el,eq){
+  planState.equipment=eq;
+  el.parentElement.querySelectorAll('.eq-btn').forEach(b=>b.classList.remove('on'));
+  el.classList.add('on');
+  saveData();
+}
+
 function selectDays(n){
   document.querySelectorAll('.day-num-btn').forEach(b=>b.classList.remove('on','recommended'));
   const btn=document.getElementById('days-'+n);
@@ -465,14 +472,14 @@ function renderDayWorkout(day,el){
     const warmupRows=Array.from({length:ex.warmups||1},(_,wi)=>`
       <div class="set-cols warmup-row">
         <div class="set-num" style="font-size:9px;line-height:1.1;text-align:center;color:var(--muted)">WARM<br>UP ${wi+1}</div>
-        <input class="si" type="number" inputmode="decimal" ${warmupHint?`placeholder="${warmupHint}"`:'placeholder="kg"'}  oninput="liveCalcFromWarmup(this,'${ex.name}','${day}',${i})"/>
-        <input class="si" type="number" inputmode="numeric" placeholder="reps" oninput="liveCalcFromWarmup(this,'${ex.name}','${day}',${i})"/>
+        <input class="si" type="number" inputmode="decimal" ${warmupHint?`placeholder="${warmupHint}"`:'placeholder="kg"'}  onchange="liveCalcFromWarmup(this,'${ex.name}','${day}',${i})"/>
+        <input class="si" type="number" inputmode="numeric" placeholder="reps" onchange="liveCalcFromWarmup(this,'${ex.name}','${day}',${i})"/>
         <div class="set-done" onclick="markDone(this)"><i class="ti ti-check"></i></div>
       </div>`).join('');
     const workingRows=Array.from({length:ex.sets},(_,si)=>`
       <div class="set-cols">
         <div class="set-num">${si+1}</div>
-        <input class="si" type="number" inputmode="decimal" ${targetW?`value="${targetW}"`:'placeholder="kg"'} />
+        <input class="si" type="number" inputmode="decimal" ${targetW?`value="${targetW}"`:'placeholder="kg"'} oninput="this.dataset.auto=''"/>
         <input class="si" type="number" inputmode="numeric" placeholder="${ex.reps}" onchange="onRepEntered(this,'${ex.name}','${day}',${i})"/>
         <div class="set-done" onclick="markDoneEx(this,'${ex.name}','${day}',${i})"><i class="ti ti-check"></i></div>
       </div>`).join('');

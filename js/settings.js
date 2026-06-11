@@ -431,6 +431,14 @@ function updateGoalCalPreview(){
 
 // ── HOME ──────────────────────────────────────────────────────
 function initHome(){
+  const g=document.getElementById('home-greet');
+  if(g){
+    const hr=new Date().getHours();
+    const part=hr<5?'Late night':hr<12?'Good morning':hr<18?'Good afternoon':'Good evening';
+    const nm=state.settings?.name;
+    g.innerHTML=nm?`${part}, <b>${nm}</b> — ready to train?`:`${part} — ready to train?`;
+  }
+
   const d=new Date();
   const days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
   const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];

@@ -75,10 +75,10 @@ function setCaliper(n){
 }
 
 function calcOverview(){
-  const w=parseWt(document.getElementById('prof-weight').value);
-  const hRaw=parseFloat(document.getElementById('prof-height').value);
+  const w=parseWt((document.getElementById('ovp-weight')?.value)||document.getElementById('prof-weight').value);
+  const hRaw=parseFloat((document.getElementById('ovp-height')?.value)||document.getElementById('prof-height').value);
   const h=isImperial()?hRaw*IN_TO_CM:hRaw;// height in cm
-  const bf=parseFloat(document.getElementById('prof-bf').value);
+  const bf=parseFloat((document.getElementById('ovp-bf')?.value)||document.getElementById('prof-bf').value);
   if(!w||!h){toast('Enter weight and height first');return;}
   const bmi=w/((h/100)**2);
   const bmiLbl=bmi<18.5?'Underweight':bmi<25?'Normal':bmi<30?'Overweight':'Obese';
@@ -103,7 +103,7 @@ function logWeight(){
   if(!v){toast('Enter a weight first');return;}
   state.weight=v;
   logEntry(state.weightLog,v);
-  document.getElementById('prof-weight').value=v;
+  document.getElementById('prof-weight').value=v;const _ow=document.getElementById('ovp-weight');if(_ow)_ow.value=v;
   document.getElementById('home-weight').innerHTML=dispWt(v)+'<span class="scard-unit">'+wtUnit()+'</span>';
   document.getElementById('home-weight-sub').textContent='Logged today';
   document.getElementById('home-weight-sub').style.color='var(--green)';
@@ -184,7 +184,7 @@ function calcFat(){
   document.getElementById('fat-lean').innerHTML=lm.toFixed(1)+'<span class="mc-unit">kg</span>';
   document.getElementById('fat-ffmi').innerHTML=ffmi.toFixed(1);
   document.getElementById('fat-ffmi-lbl').textContent=ffmiLbl;
-  document.getElementById('prof-bf').value=bf.toFixed(1);
+  document.getElementById('prof-bf').value=bf.toFixed(1);const _ob=document.getElementById('ovp-bf');if(_ob)_ob.value=bf.toFixed(1);
   saveData();
   logEntry(state.bfLog,parseFloat(bf.toFixed(1)));
   const ins=document.getElementById('fat-insight');
@@ -505,50 +505,75 @@ function getCardioReminder(){
 
 // ── STRENGTH TEST TIP ─────────────────────────────────────────
 // Live calculate working weight from warmup set
+// Fires onchange (commit), not per-keystroke. Auto-filled values are marked
+// and get UPDATED when the warmup is corrected — user-typed values are never touched.
 function liveCalcFromWarmup(inputEl,exName,day,idx){
   const row=inputEl.closest('.set-cols');
   const inputs=row.querySelectorAll('.si');
   const warmupW=parseFloat(inputs[0]?.value);
   const warmupR=parseInt(inputs[1]?.value);
-  if(!warmupW||!warmupR||warmupR<1)return;
+  if(isNaN(warmupW)||!warmupR||warmupR<1)return;
 
   const goal=planState.goal||'mass';
-
-  // Use Epley to estimate 1RM from warmup set
-  // Then apply goal-appropriate working % of that 1RM
-  const orm=epley(warmupW,warmupR);
-
-  // Working weight % by goal
-  const pcts={mass:.72,strength:.82,fatloss:.65,recomp:.70,maintenance:.68,endurance:.60};
-  const workPct=pcts[goal]||.70;
-  let workingW=Math.round(orm*workPct/2.5)*2.5;
-
-  // Safety cap: working weight can never exceed estimated 1RM
-  // And should always be >= warmup weight (otherwise it's not a warmup)
-  if(workingW<warmupW)workingW=warmupW;
-  if(workingW>orm)workingW=Math.round(orm*0.95/2.5)*2.5;
-
-  // Get target reps for this exercise
-  const setsArea=row.closest('.sets-area');
-  if(!setsArea)return;
+  const rules=(typeof GOAL_RULES!=='undefined'&&GOAL_RULES[goal])||{repRange:[6,12]};
+  const[repLo,repHi]=rules.repRange;
   const dayPlan=planState.plan?.[day];
-  const targetReps=dayPlan?.exercises[idx]?.reps||8;
+  const targetReps=dayPlan?.exercises[idx]?.reps||repHi;
 
-  // Show what we calculated
-  const isNearMax=warmupR>=10;// high rep warmup = close to working weight already
-  if(isNearMax){
-    toast(`Warmup at ${warmupW}kg×${warmupR} → est. 1RM ${orm}kg → working weight: ${workingW}kg`);
+  // ── Best estimate of working weight ─────────────────────────
+  // 1) History is gold: if we have a logged working weight, use the
+  //    progression engine's target for next session.
+  // 2) No history: Epley 1RM from the warmup × goal-specific %.
+  let workingW=null,source='';
+  const hist=planState.history?.[exName];
+  if(hist&&hist.length){
+    const t=parseFloat(calcTargetWeight(exName));
+    if(!isNaN(t)&&t>0){workingW=t;source='history';}
+  }
+  if(workingW==null){
+    if(warmupW===0){
+      // Bodyweight movement — nothing to load, just coach the rep target
+      workingW=0;source='bw';
+    }else{
+      const orm=epley(warmupW,warmupR);
+      const pcts={mass:.72,strength:.84,fatloss:.65,recomp:.70,maintenance:.68,endurance:.60};
+      workingW=Math.round(orm*(pcts[goal]||.70)/2.5)*2.5;
+      if(workingW<warmupW)workingW=warmupW;
+      source='warmup';
+    }
   }
 
-  // Pre-fill all unchecked working set weight inputs
+  // ── Fill working sets: empty fields OR fields we auto-filled before ──
+  const setsArea=row.closest('.sets-area');
+  if(!setsArea)return;
   const workingSetRows=[...setsArea.querySelectorAll('.set-cols:not(.warmup-row)')];
   workingSetRows.forEach(wr=>{
     const wInputs=wr.querySelectorAll('.si');
     const done=wr.querySelector('.set-done');
-    if(done&&done.classList.contains('checked'))return;// skip done sets
-    if(wInputs[0]&&!wInputs[0].value)wInputs[0].value=workingW;
+    if(done&&done.classList.contains('checked'))return;
+    if(wInputs[0]&&(!wInputs[0].value||wInputs[0].dataset.auto==='1')){
+      if(workingW>0){
+        wInputs[0].value=workingW;
+        wInputs[0].dataset.auto='1';
+        wInputs[0].style.borderColor='var(--gold)';
+        setTimeout(()=>{if(wInputs[0])wInputs[0].style.borderColor='';},1200);
+      }
+    }
     if(wInputs[1]&&!wInputs[1].value)wInputs[1].placeholder=targetReps;
   });
+
+  // ── Coaching line in the exercise tip box ─────────────────────
+  const tipEl=document.getElementById(`tip-${day}-${idx}`);
+  if(tipEl){
+    if(source==='history'){
+      tipEl.textContent=`Warmed up. Based on your history: ${workingW}kg working weight, target ${repLo}-${repHi} reps (${goal}).`;
+    }else if(source==='bw'){
+      tipEl.textContent=`Bodyweight movement — aim for ${repLo}-${repHi} quality reps per set.`;
+    }else{
+      const orm=epley(warmupW,warmupR);
+      tipEl.textContent=`Warmup ${warmupW}kg×${warmupR} → est. 1RM ~${Math.round(orm)}kg. Suggested working weight: ${workingW}kg for ${repLo}-${repHi} reps (${goal}). Adjust if the first set feels off.`;
+    }
+  }
 }
 function calcWorkingWeightsFromFirstSet(exName,weight,reps){
   if(reps<20||!weight)return null;
@@ -562,3 +587,21 @@ function calcWorkingWeightsFromFirstSet(exName,weight,reps){
   return{orm,workingW,pct:Math.round(pct*100)};
 }
 
+
+// ── OVERVIEW ⇄ PROFILE input sync (duplicate-ID fix) ─────────────
+// The Stats Overview tab mirrors the Profile inputs. prof-* IDs are
+// now unique (Profile page); the Overview copies are ovp-*.
+function prefillOvp(){
+  ['gender','age','height','weight','bf'].forEach(k=>{
+    const src=document.getElementById('prof-'+k);
+    const dst=document.getElementById('ovp-'+k);
+    if(src&&dst&&src.value)dst.value=src.value;
+  });
+}
+function syncOvpToProf(el){
+  const k=el.id.replace('ovp-','');
+  const dst=document.getElementById('prof-'+k);
+  if(dst){dst.value=el.value;}
+  if(k==='gender'){state.gender=el.value;updateGender();}
+  saveData();
+}
