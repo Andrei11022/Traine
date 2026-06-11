@@ -22,7 +22,6 @@
       <div class="hdr-sub" id="home-date"></div>
     </div>
     <div style="display:flex;align-items:center;gap:14px;margin-top:6px">
-      <i class="ti ti-bell" style="font-size:22px;color:var(--muted);cursor:pointer"></i>
       <i class="ti ti-settings" style="font-size:22px;color:var(--muted);cursor:pointer" onclick="openSettings()"></i>
     </div>
   </div>
@@ -83,13 +82,6 @@
           <div class="day-num-btn" onclick="selectDays(4)" id="days-4">4</div>
           <div class="day-num-btn" onclick="selectDays(5)" id="days-5">5</div>
           <div class="day-num-btn" onclick="selectDays(6)" id="days-6">6</div>
-        </div>
-        <div id="days-confirm-box" style="display:none;background:var(--bg3);padding:12px 14px;border:1px solid rgba(255,255,255,0.07)">
-          <div style="font-size:13px;color:var(--text);margin-bottom:10px" id="days-confirm-msg"></div>
-          <div style="display:flex;gap:8px">
-            <button onclick="confirmDays(true)" style="flex:1;background:var(--gold);border:none;padding:10px;font-family:var(--ff);font-size:16px;font-weight:700;color:var(--bg);cursor:pointer">YES, WORKS FOR ME</button>
-            <button onclick="confirmDays(false)" style="flex:1;background:var(--bg2);border:1px solid rgba(255,255,255,0.1);padding:10px;font-family:var(--ff);font-size:14px;color:var(--muted2);cursor:pointer">No, let me adjust</button>
-          </div>
         </div>
       </div>
       <div style="padding:0 18px 18px">
@@ -193,9 +185,7 @@
   <div class="tab-bar">
     <button class="tbt on" onclick="switchStatsTab('overview')">Overview</button>
     <button class="tbt" onclick="switchStatsTab('measure')">Measure</button>
-    <button class="tbt" onclick="switchStatsTab('fat')">Body Fat</button>
     <button class="tbt" onclick="switchStatsTab('symmetry')">Symmetry</button>
-    <button class="tbt" onclick="switchStatsTab('trends')">Trends</button>
     <button class="tbt" onclick="switchStatsTab('strength')">Strength</button>
   </div>
   <!-- OVERVIEW -->
@@ -253,11 +243,27 @@
         <div id="progress-no-target" style="font-size:11px;color:var(--muted);margin-top:8px;display:none">Tap <strong style="color:var(--gold)">Set Target</strong> to define your goal weight and body fat targets.</div>
       </div>
     </div>
+    <div class="slbl" style="margin-top:8px;border-top:1px solid rgba(255,255,255,0.06);padding-top:14px">Trends</div>
+    <div class="slbl">Body Weight</div>
+    <div id="chart-weight" style="padding:0 18px 12px"></div>
+    <div class="slbl">Body Fat %</div>
+    <div id="chart-bf" style="padding:0 18px 12px"></div>
+    <div class="slbl">Recovery Score</div>
+    <div id="chart-rec" style="padding:0 18px 12px"></div>
+    <div class="slbl">Measurement Trend</div>
+    <div style="padding:0 18px 8px">
+      <select class="sel" id="measure-trend-sel" onchange="renderMeasureTrend()">
+        <option value="chest">Chest</option><option value="waist">Waist</option>
+        <option value="lbicep-f">L Bicep (flexed)</option><option value="rbicep-f">R Bicep (flexed)</option>
+        <option value="lquad">L Quad</option><option value="rquad">R Quad</option>
+        <option value="shoulders">Shoulders</option><option value="hips">Hips</option>
+      </select>
+    </div>
+    <div id="chart-measure" style="padding:0 18px 16px"></div>
   </div>
   <!-- MEASUREMENTS -->
   <div class="panel" id="pan-measure">
     <div class="slbl">Upper Body</div>
-    <div style="padding:0 18px 8px;font-size:11px;color:var(--muted2)">💡 Tip: You can switch between metric (cm/kg) and imperial (in/lbs) in the <strong style="color:var(--gold)">Profile tab</strong> under Unit System.</div>
     <div style="padding:0 18px 4px">
       <div class="inp-row"><span class="inp-lbl" data-m="Neck">Neck (cm)</span><input class="inp" id="m-neck" type="number" inputmode="decimal" step="0.1" placeholder="38"/></div>
       <div class="inp-row"><span class="inp-lbl" data-m="Shoulders">Shoulders (cm)</span><input class="inp" id="m-shoulders" type="number" inputmode="decimal" step="0.1" placeholder="120"/></div>
@@ -304,9 +310,7 @@
       <div class="mc"><div class="mc-lbl">L Calf</div><div class="mc-val" id="disp-lcalf">—<span class="mc-unit">cm</span></div></div>
       <div class="mc"><div class="mc-lbl">R Calf</div><div class="mc-val" id="disp-rcalf">—<span class="mc-unit">cm</span></div></div>
     </div>
-  </div>
-  <!-- BODY FAT -->
-  <div class="panel" id="pan-fat">
+    <div class="slbl" style="margin-top:8px;border-top:1px solid rgba(255,255,255,0.06);padding-top:14px">Body Fat Calculator</div>
     <div class="slbl">Measurement Method</div>
     <div style="display:flex;gap:8px;padding:0 18px 12px">
       <div class="cm-btn on" id="method-caliper" onclick="setFatMethod('caliper')" style="flex:1"><span>Caliper</span><small>3 or 7 site</small></div>
@@ -424,26 +428,6 @@
     <div style="padding:0 18px 16px;display:flex;justify-content:flex-end">
       <button class="btn-gold" onclick="calcSymmetry()">ANALYSE PHYSIQUE</button>
     </div>
-  </div>
-
-  <!-- TRENDS -->
-  <div class="panel" id="pan-trends">
-    <div class="slbl">Body Weight</div>
-    <div id="chart-weight" style="padding:0 18px 12px"></div>
-    <div class="slbl">Body Fat %</div>
-    <div id="chart-bf" style="padding:0 18px 12px"></div>
-    <div class="slbl">Recovery Score</div>
-    <div id="chart-rec" style="padding:0 18px 12px"></div>
-    <div class="slbl">Measurement Trend</div>
-    <div style="padding:0 18px 8px">
-      <select class="sel" id="measure-trend-sel" onchange="renderMeasureTrend()">
-        <option value="chest">Chest</option><option value="waist">Waist</option>
-        <option value="lbicep-f">L Bicep (flexed)</option><option value="rbicep-f">R Bicep (flexed)</option>
-        <option value="lquad">L Quad</option><option value="rquad">R Quad</option>
-        <option value="shoulders">Shoulders</option><option value="hips">Hips</option>
-      </select>
-    </div>
-    <div id="chart-measure" style="padding:0 18px 16px"></div>
   </div>
 
   <!-- STRENGTH -->
