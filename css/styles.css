@@ -221,3 +221,28 @@ html,body{background:var(--bg);color:var(--text);font-family:var(--fb);max-width
 /* TOAST */
 .toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--bg2);border:1px solid var(--gold-bdr);color:var(--gold);padding:10px 20px;font-size:13px;font-weight:600;opacity:0;transition:opacity .3s;pointer-events:none;z-index:300;white-space:nowrap}
 .toast.show{opacity:1}
+
+/* ── v2 polish ─────────────────────────────────────────────── */
+.page{animation:pageIn .22s ease}
+@keyframes pageIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.greet-row{padding:2px 18px 0;font-size:13px;color:var(--muted)}
+.greet-row b{color:var(--gold)}
+.today-strip{display:flex;align-items:center;justify-content:space-between;cursor:pointer;
+  background:linear-gradient(135deg,var(--bg2) 0%,rgba(201,168,76,0.08) 100%);
+  border:1px solid rgba(201,168,76,0.25);border-left:3px solid var(--gold);
+  transition:transform .12s ease,box-shadow .12s ease}
+.today-strip:active{transform:scale(.985)}
+.today-strip:hover{box-shadow:0 4px 24px rgba(201,168,76,0.12)}
+.start-cta{display:flex;flex-direction:column;align-items:center;gap:2px;color:var(--gold);
+  border:1px solid var(--gold);padding:10px 16px;font-family:var(--ff);font-size:15px;letter-spacing:2px}
+.start-cta i{font-size:18px}
+.scard{border-top:2px solid rgba(201,168,76,0.35);transition:transform .12s ease,border-color .12s ease;border-radius:2px}
+.scard:hover{transform:translateY(-2px);border-top-color:var(--gold)}
+.qa-btn{border-radius:2px}
+.qa-btn:active{transform:scale(.97)}
+.insight-box{border-radius:2px;background:linear-gradient(180deg,var(--bg2),rgba(201,168,76,0.04))}
+.dpill{transition:background .12s ease,color .12s ease}
+.set-done{transition:background .1s ease,transform .1s ease}
+.set-done:active{transform:scale(.9)}
+.btn-gold{transition:filter .12s ease}
+.btn-gold:hover{filter:brightness(1.12)}
