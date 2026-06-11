@@ -24,7 +24,8 @@ function addExerciseToDay(name,cat){
   const ex=EX_DB.find(e=>e.name===name);
   const sch=getSetScheme(planState.goal);
   if(ex){
-    planState.plan[day].exercises.push({name:ex.name,muscle:ex.group,region:ex.region,type:ex.type,cue:ex.cue,sets:sch.sets,warmups:sch.warmups,reps:repsForExercise(ex,planState.goal)});
+    const repR=repsForExercise(ex,planState.goal);
+    planState.plan[day].exercises.push({name:ex.name,muscle:ex.group,region:ex.region,type:ex.type,cue:ex.cue,sets:sch.sets,warmups:sch.warmups,reps:repR.mid,repLo:repR.lo,repHi:repR.hi});
   } else {
     planState.plan[day].exercises.push({name,muscle:cat,sets:3,reps:10,warmups:1});
   }
@@ -50,12 +51,12 @@ function finishWorkout(){
 
 // ── STATS ─────────────────────────────────────────────────────
 function switchStatsTab(id){
-  const ids=['overview','measure','fat','symmetry','trends','strength'];
+  const ids=['overview','measure','symmetry','strength'];
   document.querySelectorAll('.tbt').forEach((b,i)=>b.classList.toggle('on',ids[i]===id));
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
   document.getElementById('pan-'+id).classList.add('on');
+  if(id==='overview')renderAllTrends();
   if(id==='symmetry')calcSymmetry();
-  if(id==='trends')renderAllTrends();
   if(id==='strength'){renderPRList();renderStrengthChart();checkDeload();}
 }
 
@@ -518,12 +519,13 @@ function liveCalcFromWarmup(inputEl,exName,day,idx){
   const rules=(typeof GOAL_RULES!=='undefined'&&GOAL_RULES[goal])||{repRange:[6,12]};
   const[repLo,repHi]=rules.repRange;
   const dayPlan=planState.plan?.[day];
-  const targetReps=dayPlan?.exercises[idx]?.reps||repHi;
+  const exData=dayPlan?.exercises[idx];
+  const targetRepLo=exData?.repLo||repLo;
+  const targetRepHi=exData?.repHi||repHi;
 
   // ── Best estimate of working weight ─────────────────────────
-  // 1) History is gold: if we have a logged working weight, use the
-  //    progression engine's target for next session.
-  // 2) No history: Epley 1RM from the warmup × goal-specific %.
+  // 1) History: use progression engine target
+  // 2) No history: Epley 1RM from warmup × goal-specific % adjusted for target reps
   let workingW=null,source='';
   const hist=planState.history?.[exName];
   if(hist&&hist.length){
@@ -532,18 +534,33 @@ function liveCalcFromWarmup(inputEl,exName,day,idx){
   }
   if(workingW==null){
     if(warmupW===0){
-      // Bodyweight movement — nothing to load, just coach the rep target
       workingW=0;source='bw';
     }else{
+      // Epley 1RM estimate from warmup
       const orm=epley(warmupW,warmupR);
-      const pcts={mass:.72,strength:.84,fatloss:.65,recomp:.70,maintenance:.68,endurance:.60};
-      workingW=Math.round(orm*(pcts[goal]||.70)/2.5)*2.5;
-      if(workingW<warmupW)workingW=warmupW;
+      // Use target rep midpoint to back-calculate appropriate working weight
+      // Epley inverse: w = 1RM / (1 + reps/30)
+      const targetMid=Math.round((targetRepLo+targetRepHi)/2);
+      const epleyFactor=1+(targetMid/30);
+      let suggested=Math.round((orm/epleyFactor)/2.5)*2.5;
+      // Safety: working weight must be >= warmup weight (can't warm up heavier than working)
+      // but also sanity check — if warmup was near-failure (<=5 reps), reduce significantly
+      if(warmupR<=5){
+        // warmup was heavy — working weight should be LESS than warmup
+        suggested=Math.round((warmupW*0.85)/2.5)*2.5;
+      } else if(warmupR<=8){
+        // moderate warmup — suggested might be close to warmup
+        suggested=Math.max(suggested,warmupW);
+      } else {
+        // easy warmup — safe to go heavier
+        suggested=Math.max(suggested,Math.round(warmupW*1.1/2.5)*2.5);
+      }
+      workingW=Math.max(2.5,suggested);
       source='warmup';
     }
   }
 
-  // ── Fill working sets: empty fields OR fields we auto-filled before ──
+  // ── Fill working sets ──
   const setsArea=row.closest('.sets-area');
   if(!setsArea)return;
   const workingSetRows=[...setsArea.querySelectorAll('.set-cols:not(.warmup-row)')];
@@ -559,22 +576,27 @@ function liveCalcFromWarmup(inputEl,exName,day,idx){
         setTimeout(()=>{if(wInputs[0])wInputs[0].style.borderColor='';},1200);
       }
     }
-    if(wInputs[1]&&!wInputs[1].value)wInputs[1].placeholder=targetReps;
+    if(wInputs[1]&&!wInputs[1].value)wInputs[1].placeholder=`${targetRepLo}-${targetRepHi}`;
   });
 
-  // ── Coaching line in the exercise tip box ─────────────────────
+  // ── Coaching tip ──
   const tipEl=document.getElementById(`tip-${day}-${idx}`);
   if(tipEl){
     if(source==='history'){
-      tipEl.textContent=`Warmed up. Based on your history: ${workingW}kg working weight, target ${repLo}-${repHi} reps (${goal}).`;
+      tipEl.textContent=`Based on your history: ${workingW}kg working weight, target ${targetRepLo}-${targetRepHi} reps.`;
     }else if(source==='bw'){
-      tipEl.textContent=`Bodyweight movement — aim for ${repLo}-${repHi} quality reps per set.`;
+      tipEl.textContent=`Bodyweight movement — aim for ${targetRepLo}-${targetRepHi} quality reps per set.`;
     }else{
       const orm=epley(warmupW,warmupR);
-      tipEl.textContent=`Warmup ${warmupW}kg×${warmupR} → est. 1RM ~${Math.round(orm)}kg. Suggested working weight: ${workingW}kg for ${repLo}-${repHi} reps (${goal}). Adjust if the first set feels off.`;
+      if(warmupR<=5){
+        tipEl.textContent=`Warmup ${warmupW}kg×${warmupR} reps was heavy (near-failure). Suggested working weight: ${workingW}kg for ${targetRepLo}-${targetRepHi} reps. Adjust down if needed.`;
+      } else {
+        tipEl.textContent=`Warmup ${warmupW}kg×${warmupR} → est. 1RM ~${Math.round(orm)}kg. Suggested working weight: ${workingW}kg for ${targetRepLo}-${targetRepHi} reps. Adjust if first set feels off.`;
+      }
     }
   }
 }
+
 function calcWorkingWeightsFromFirstSet(exName,weight,reps){
   if(reps<20||!weight)return null;
   // User hit 20+ reps — weight is too light. Estimate 1RM and set working weight

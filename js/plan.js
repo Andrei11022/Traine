@@ -217,10 +217,11 @@ function autoBalancePlan(){
             // Only add if not already in this session
             const alreadyThere=s.exercises.some(e=>e.name===ex.name);
             if(!alreadyThere){
+              const repR=repsForExercise(ex,planState.goal);
               s.exercises.push({
                 name:ex.name,muscle:ex.group,region:ex.region,
                 type:ex.type,cue:ex.cue,sets:sch.sets,warmups:sch.warmups,
-                reps:repsForExercise(ex,planState.goal),
+                reps:repR.mid,repLo:repR.lo,repHi:repR.hi,
                 _autoAdded:true
               });
             }

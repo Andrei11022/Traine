@@ -47,7 +47,7 @@ function goPage(id){
   window.scrollTo(0,0);
   if(id==='coach')renderCoachList();
   if(id==='workout')initWorkoutPage();
-  if(id==='stats'){prefillOvp();if(document.querySelector('.tbt.on')?.textContent==='Symmetry')calcSymmetry();}
+  if(id==='stats'){prefillOvp();const onTab=document.querySelector('.tbt.on')?.textContent;if(onTab==='Symmetry')calcSymmetry();if(onTab==='Overview'||!onTab)renderAllTrends();}
   if(id==='profile'){renderAchievements();initComparisonDates();renderProfileGoalSelector();initUnitUI();setTimeout(()=>restoreAvatar(),50);}
 }
 

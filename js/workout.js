@@ -33,8 +33,6 @@ function showDaysRecommendation(goal){
   const rec=DAYS_REC[goal];
   if(!rec)return;
   const suggEl=document.getElementById('days-suggestion');
-  const confirmBox=document.getElementById('days-confirm-box');
-  const confirmMsg=document.getElementById('days-confirm-msg');
   // Highlight recommended day
   document.querySelectorAll('.day-num-btn').forEach(b=>b.classList.remove('on','recommended'));
   const recBtn=document.getElementById('days-'+rec.days);
@@ -43,8 +41,6 @@ function showDaysRecommendation(goal){
     suggEl.style.display='block';
     suggEl.innerHTML=`<strong style="color:var(--gold)">Recommended: ${rec.days} days/week</strong><br>${rec.why}`;
   }
-  if(confirmMsg)confirmMsg.textContent=`Train ${rec.days} days/week — does this fit your current schedule and lifestyle?`;
-  if(confirmBox)confirmBox.style.display='block';
   // Pre-select recommended days
   planState.days=rec.days;
   if(recBtn)recBtn.classList.add('on');
@@ -66,8 +62,6 @@ function selectDays(n){
   const goal=planState.goal||'mass';
   const rec=DAYS_REC[goal];
   const suggEl=document.getElementById('days-suggestion');
-  const confirmBox=document.getElementById('days-confirm-box');
-  const confirmMsg=document.getElementById('days-confirm-msg');
   // Show context for this specific day count
   const dayContext=DAYS_SUGGESTIONS[goal]?.[n]||'';
   if(suggEl&&dayContext){
@@ -75,28 +69,7 @@ function selectDays(n){
     const isRec=rec&&rec.days===n;
     suggEl.innerHTML=`${isRec?`<strong style="color:var(--gold)">✓ Recommended for your goal</strong><br>`:''}${dayContext}`;
   }
-  if(confirmMsg)confirmMsg.textContent=`Train ${n} days/week — does this fit your schedule?`;
-  if(confirmBox)confirmBox.style.display='block';
   checkNextReady();
-}
-
-function confirmDays(yes){
-  const confirmBox=document.getElementById('days-confirm-box');
-  if(yes){
-    if(confirmBox)confirmBox.style.display='none';
-    toast(`${planState.days} training days/week confirmed ✓`);
-  } else {
-    // Show alternative suggestions
-    const goal=planState.goal||'mass';
-    const confirmMsg=document.getElementById('days-confirm-msg');
-    const suggEl=document.getElementById('days-suggestion');
-    if(suggEl)suggEl.innerHTML=`<strong style="color:var(--gold)">No problem!</strong> Pick the number that fits your life — even 2-3 days is enough to make progress. Consistency beats perfection every time. Any of the options below will work.`;
-    if(confirmBox){
-      // Replace buttons with just a close
-      const btns=confirmBox.querySelector('div[style*="display:flex"]');
-      if(btns)btns.innerHTML=`<button onclick="document.getElementById('days-confirm-box').style.display='none'" style="width:100%;background:var(--bg2);border:1px solid rgba(255,255,255,0.1);padding:10px;font-family:var(--ff);font-size:14px;color:var(--gold);cursor:pointer">OK — I'LL PICK THE RIGHT NUMBER FOR ME</button>`;
-    }
-  }
 }
 
 function checkNextReady(){
@@ -161,8 +134,10 @@ function repsForExercise(ex,goal){
   let lo=ex.lo,hi=ex.hi;
   if(goal==='strength'){lo=Math.max(3,Math.round(lo*0.6));hi=Math.max(5,Math.round(hi*0.6));}
   else if(goal==='fatloss'||goal==='endurance'){lo=Math.round(lo*1.3);hi=Math.round(hi*1.4);}
-  return Math.round((lo+hi)/2);
+  return{lo,hi,mid:Math.round((lo+hi)/2)};
 }
+// Return just the mid for backward compat where a number is needed
+function repsTarget(ex,goal){const r=repsForExercise(ex,goal);return typeof r==='object'?r.mid:r;}
 
 // Coach-weighted, like-aware exercise picker for a muscle GROUP, ensuring REGION coverage.
 // Returns array of exercise objects. compounds first.
@@ -227,7 +202,8 @@ function buildPlanStructure(){
       const picks=pickForGroup(g,counts[i]||2);
       picks.forEach(ex=>{
         const sch=getSetScheme(goal);
-        exercises.push({name:ex.name,muscle:g,region:ex.region,type:ex.type,cue:ex.cue,sets:sch.sets,warmups:sch.warmups,reps:repsForExercise(ex,goal)});
+        const repR=repsForExercise(ex,goal);
+        exercises.push({name:ex.name,muscle:g,region:ex.region,type:ex.type,cue:ex.cue,sets:sch.sets,warmups:sch.warmups,reps:repR.mid,repLo:repR.lo,repHi:repR.hi});
       });
     });
     exercises.sort((a,b)=>(a.type==='compound'?0:1)-(b.type==='compound'?0:1));
@@ -476,11 +452,12 @@ function renderDayWorkout(day,el){
         <input class="si" type="number" inputmode="numeric" placeholder="reps" onchange="liveCalcFromWarmup(this,'${ex.name}','${day}',${i})"/>
         <div class="set-done" onclick="markDone(this)"><i class="ti ti-check"></i></div>
       </div>`).join('');
+    const repRange=ex.repLo&&ex.repHi?`${ex.repLo}-${ex.repHi}`:ex.reps;
     const workingRows=Array.from({length:ex.sets},(_,si)=>`
       <div class="set-cols">
         <div class="set-num">${si+1}</div>
         <input class="si" type="number" inputmode="decimal" ${targetW?`value="${targetW}"`:'placeholder="kg"'} oninput="this.dataset.auto=''"/>
-        <input class="si" type="number" inputmode="numeric" placeholder="${ex.reps}" onchange="onRepEntered(this,'${ex.name}','${day}',${i})"/>
+        <input class="si" type="number" inputmode="numeric" placeholder="${repRange}" onchange="onRepEntered(this,'${ex.name}','${day}',${i})"/>
         <div class="set-done" onclick="markDoneEx(this,'${ex.name}','${day}',${i})"><i class="ti ti-check"></i></div>
       </div>`).join('');
     return `<div class="ex-block${i===0?' active-ex':''}" id="${id}">
@@ -494,7 +471,7 @@ function renderDayWorkout(day,el){
         ${ex.cue?`<div style="font-size:11px;color:var(--muted);padding:8px 2px 0;line-height:1.5"><i class="ti ti-info-circle" style="font-size:12px;color:var(--gold)"></i> ${ex.cue}</div>`:''}
         <div class="coach-tip">
           <div class="coach-tip-name">${activeCoach.name}</div>
-          <div id="tip-${day}-${i}">Target ${ex.reps} reps. ${ex.type==='compound'?'Heavy compound — rest fully and brace hard.':'Isolation — focus on the squeeze and controlled tempo.'}</div>
+          <div id="tip-${day}-${i}">Target ${repRange} reps. ${ex.type==='compound'?'Heavy compound — rest fully and brace hard.':'Isolation — focus on the squeeze and controlled tempo.'} <span style="color:var(--muted2);font-size:11px">Complete warmup to get working weight suggestion.</span></div>
         </div>
       </div>
     </div>`;
