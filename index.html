@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 fill=%22%23111%22/><text y=%2272%22 x=%2250%22 text-anchor=%22middle%22 font-size=%2264%22 fill=%22%23c9a84c%22 font-family=%22Arial Black%22>T</text></svg>">
 <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
@@ -25,10 +26,14 @@
       <i class="ti ti-settings" style="font-size:22px;color:var(--muted);cursor:pointer" onclick="openSettings()"></i>
     </div>
   </div>
-  <div class="today-strip">
-    <div class="today-day">Today's Session</div>
-    <div class="today-focus" id="home-focus">PUSH DAY</div>
-    <div class="today-desc" id="home-desc">Chest · Shoulders · Triceps</div>
+  <div class="greet-row"><span id="home-greet">Ready to train?</span></div>
+  <div class="today-strip" onclick="goPage('workout')">
+    <div>
+      <div class="today-day">Today's Session</div>
+      <div class="today-focus" id="home-focus">PUSH DAY</div>
+      <div class="today-desc" id="home-desc">Chest · Shoulders · Triceps</div>
+    </div>
+    <div class="start-cta"><i class="ti ti-player-play-filled"></i><span>START</span></div>
   </div>
   <div class="stat-grid">
     <div class="scard"><div class="scard-lbl">Body Weight</div><div class="scard-val" id="home-weight">—<span class="scard-unit">kg</span></div><div class="scard-sub" id="home-weight-sub" style="color:var(--muted)">Not logged</div></div>
@@ -198,11 +203,11 @@
     <div style="padding:10px 18px 4px;font-size:11px;color:var(--muted2)">💡 Tip: Switch between metric (cm/kg) and imperial (in/lbs) in the <strong style="color:var(--gold)">Profile tab</strong> under Unit System.</div>
     <div class="slbl">Profile</div>
     <div style="padding:0 18px 12px">
-      <div class="inp-row"><span class="inp-lbl">Gender</span><select class="sel" id="prof-gender" onchange="updateGender()"><option value="m">Male</option><option value="f">Female</option></select></div>
-      <div class="inp-row"><span class="inp-lbl">Age</span><input class="inp" id="prof-age" type="number" inputmode="numeric" placeholder="23"/></div>
-      <div class="inp-row"><span class="inp-lbl">Height (cm)</span><input class="inp" id="prof-height" type="number" inputmode="decimal" placeholder="180"/></div>
-      <div class="inp-row"><span class="inp-lbl">Weight (kg)</span><input class="inp" id="prof-weight" type="number" inputmode="decimal" step="0.1" placeholder="87.4"/></div>
-      <div class="inp-row"><span class="inp-lbl">Body Fat (%)</span><input class="inp" id="prof-bf" type="number" inputmode="decimal" step="0.1" placeholder="Use Body Fat tab"/></div>
+      <div class="inp-row"><span class="inp-lbl">Gender</span><select class="sel" id="ovp-gender" onchange="syncOvpToProf(this)"><option value="m">Male</option><option value="f">Female</option></select></div>
+      <div class="inp-row"><span class="inp-lbl">Age</span><input class="inp" id="ovp-age" type="number" inputmode="numeric" placeholder="23" onchange="syncOvpToProf(this)"/></div>
+      <div class="inp-row"><span class="inp-lbl">Height (cm)</span><input class="inp" id="ovp-height" type="number" inputmode="decimal" placeholder="180" onchange="syncOvpToProf(this)"/></div>
+      <div class="inp-row"><span class="inp-lbl">Weight (kg)</span><input class="inp" id="ovp-weight" type="number" inputmode="decimal" step="0.1" placeholder="87.4" onchange="syncOvpToProf(this)"/></div>
+      <div class="inp-row"><span class="inp-lbl">Body Fat (%)</span><input class="inp" id="ovp-bf" type="number" inputmode="decimal" step="0.1" placeholder="Use Body Fat tab" onchange="syncOvpToProf(this)"/></div>
       <div style="display:flex;justify-content:flex-end;margin-top:6px"><button class="btn-gold" onclick="calcOverview()">CALCULATE</button></div>
     </div>
     <div class="slbl">Composition</div>
