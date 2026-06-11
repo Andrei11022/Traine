@@ -209,8 +209,11 @@ function pickForGroup(group,count){
 function buildPlanStructure(){
   const{goal,days}=planState;
   const ALL_DAYS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-  // Start plan from TODAY, not always Monday
-  const todayIdx=new Date().getDay();
+  // Anchor the plan to a FIXED weekday stored at first build.
+  // Rebuilds (goal change, coach change) keep sessions on the same days
+  // instead of redistributing relative to whatever day it happens to be.
+  if(planState.weekAnchor==null)planState.weekAnchor=new Date().getDay();
+  const todayIdx=planState.weekAnchor;
   const makeDay=(name,groups,counts)=>{
     let exercises=[];
     groups.forEach((g,i)=>{
@@ -279,6 +282,7 @@ function buildPlanStructure(){
 }
 
 function generatePlan(){
+  planState.weekAnchor=new Date().getDay(); // fresh plan = fresh anchor
   planState.plan=buildPlanStructure();
   // New users always start on the first training day, not whatever today is
   const isNewUser=!planState.hasSeenWorkoutGuide&&!state.hasSeenWorkoutGuide;
@@ -369,18 +373,20 @@ function showActivePlan(){
   document.getElementById('wo-onboarding').style.display='none';
   document.getElementById('wo-active').style.display='block';
   renderDayRow();
-  const days=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-  const todayName=days[new Date().getDay()];
-  const todaySession=planState.plan?.[todayName];
-  let startDay;
-  if(todaySession&&!todaySession.isRest){
-    // Today is a training day — show it
-    startDay=todayName;
-  } else {
-    // Today is rest — find next upcoming training day
-    startDay=getNextTrainingDay(todayName)||getFirstTrainingDay(planState.plan);
+  // RESPECT the user's selected day if it was chosen TODAY and is valid.
+  // A selection from a previous day expires — fresh day, fresh session.
+  let startDay=(planState.daySelectedOn===today())?planState.currentDay:null;
+  if(!startDay||!planState.plan?.[startDay]){
+    const days=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    const todayName=days[new Date().getDay()];
+    const todaySession=planState.plan?.[todayName];
+    if(todaySession&&!todaySession.isRest){
+      startDay=todayName;
+    } else {
+      startDay=getNextTrainingDay(todayName)||getFirstTrainingDay(planState.plan);
+    }
+    planState.currentDay=startDay;
   }
-  planState.currentDay=startDay;
   renderDayWorkout(startDay);
 }
 
@@ -407,6 +413,8 @@ function renderDayRow(){
 
 function renderDayWorkout(day,el){
   planState.currentDay=day;
+  planState.daySelectedOn=today(); // selection valid for the rest of this calendar day
+  saveData(); // persist day selection so refresh/re-render can't hijack it
   // Always update pill highlight
   document.querySelectorAll('.dpill').forEach(p=>p.classList.remove('on'));
   if(el)el.classList.add('on');
@@ -572,7 +580,7 @@ function markDoneEx(el,exName,day,idx){
 
   if(el.classList.contains('checked')){
     // Save data for working sets only
-    if(!isWarmup&&w&&r){
+    if(!isWarmup&&r&&!isNaN(parseFloat(inputs[0]?.value))){
       if(!planState.history[exName])planState.history[exName]=[];
       planState.history[exName].push({weight:w,reps:r,date:today()});
       const ex=planState.plan?.[day]?.exercises[idx];
