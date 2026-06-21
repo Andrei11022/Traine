@@ -10,6 +10,72 @@ let planState={
   sessionDone:{}// date -> true
 };
 
+// ── HISTORY HELPERS ───────────────────────────────────────────
+// History is a flat array of per-set entries sharing a date.
+// Group consecutive entries by date → one object per training session.
+function groupHistoryByDate(exName){
+  const hist=planState.history[exName];
+  if(!hist||!hist.length)return[];
+  const sessions=[];
+  hist.forEach(e=>{
+    const last=sessions[sessions.length-1];
+    if(last&&last.date===e.date)last.sets.push({weight:e.weight,reps:e.reps});
+    else sessions.push({date:e.date,sets:[{weight:e.weight,reps:e.reps}]});
+  });
+  return sessions;
+}
+
+// One-line summary of the most recent session: "60×11, 50×12, 50×11"
+function lastSessionSummary(exName){
+  const sessions=groupHistoryByDate(exName);
+  if(!sessions.length)return null;
+  const last=sessions[sessions.length-1];
+  const best=last.sets.reduce((b,s)=>e1rm(s.weight,s.reps)>e1rm(b.weight,b.reps)?s:b,last.sets[0]);
+  return{
+    text:last.sets.map(s=>`${s.weight}×${s.reps}`).join(', '),
+    date:last.date,
+    setCount:last.sets.length,
+    topSet:best
+  };
+}
+
+// Friendly relative date: Today / Yesterday / 3d ago / Jun 9
+function relDate(iso){
+  if(!iso)return'';
+  const d=new Date(iso+'T00:00:00'),now=new Date();
+  const days=Math.round((new Date(now.toISOString().split('T')[0])-d)/864e5);
+  if(days===0)return'Today';
+  if(days===1)return'Yesterday';
+  if(days<7)return days+'d ago';
+  return d.toLocaleDateString(undefined,{month:'short',day:'numeric'});
+}
+
+// Full collapsible history table for an exercise (newest first)
+function renderExerciseHistory(exName){
+  const sessions=groupHistoryByDate(exName);
+  if(!sessions.length)return'<div style="font-size:12px;color:var(--muted);padding:10px 2px">No history yet — log your first set.</div>';
+  return sessions.slice().reverse().map(sess=>{
+    const vol=sess.sets.reduce((t,s)=>t+s.weight*s.reps,0);
+    const top=sess.sets.reduce((b,s)=>e1rm(s.weight,s.reps)>e1rm(b.weight,b.reps)?s:b,sess.sets[0]);
+    const setStr=sess.sets.map(s=>`<span style="display:inline-block;background:var(--bg3);border-radius:3px;padding:2px 7px;margin:2px 3px 2px 0;font-size:12px;color:var(--text)">${s.weight}<span style="color:var(--muted)">×</span>${s.reps}</span>`).join('');
+    return `<div style="padding:9px 2px;border-bottom:1px solid rgba(255,255,255,.05)">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px">
+        <span style="font-size:11px;font-weight:600;letter-spacing:.5px;color:var(--gold)">${relDate(sess.date)}</span>
+        <span style="font-size:10px;color:var(--muted)">${sess.sets.length} sets · ${vol>0?Math.round(vol)+'kg vol':'bodyweight'} · est 1RM ${e1rm(top.weight,top.reps)}kg</span>
+      </div>
+      <div>${setStr}</div>
+    </div>`;
+  }).join('');
+}
+
+function toggleHistory(exName,btnEl){
+  const box=document.getElementById('hist-'+exName.replace(/[^a-zA-Z0-9]/g,''));
+  if(!box)return;
+  const open=box.style.display==='block';
+  if(open){box.style.display='none';btnEl.textContent='View full history';}
+  else{box.innerHTML=renderExerciseHistory(exName);box.style.display='block';btnEl.textContent='Hide history';}
+}
+
 function selectGoal(g){
   planState.goal=g;
   document.querySelectorAll('.ob-opt').forEach(o=>o.classList.remove('on'));
@@ -436,7 +502,8 @@ function renderDayWorkout(day,el){
   }
   container.innerHTML=session.exercises.map((ex,i)=>{
     const hist=planState.history[ex.name];
-    const lastStr=hist?.length?`Last: ${hist[hist.length-1].weight}kg × ${hist[hist.length-1].reps} reps`:`${ex.sets} × ${ex.reps} reps · ${(ex.region||'').replace(/-/g,' ')}`;
+    const _ls=lastSessionSummary(ex.name);
+    const lastStr=_ls?`Last (${relDate(_ls.date)}): ${_ls.text}`:`${ex.sets} × ${ex.reps} reps · ${(ex.region||'').replace(/-/g,' ')}`;
     const target=hist?.length?calcTarget(ex.name):`${ex.reps} REPS`;
     const id=`ex-${day}-${i}`;
     const sId=`sets-${day}-${i}`;
@@ -473,6 +540,7 @@ function renderDayWorkout(day,el){
           <div class="coach-tip-name">${activeCoach.name}</div>
           <div id="tip-${day}-${i}">Target ${repRange} reps. ${ex.type==='compound'?'Heavy compound — rest fully and brace hard.':'Isolation — focus on the squeeze and controlled tempo.'} <span style="color:var(--muted2);font-size:11px">Complete warmup to get working weight suggestion.</span></div>
         </div>
+        ${_ls?`<div style="padding-top:8px"><button onclick="toggleHistory('${ex.name.replace(/'/g,"\\'")}',this)" style="background:none;border:none;color:var(--gold);font-size:12px;cursor:pointer;text-decoration:underline;text-underline-offset:3px;padding:4px 0">View full history</button><div id="hist-${ex.name.replace(/[^a-zA-Z0-9]/g,'')}" style="display:none;margin-top:4px"></div></div>`:''}
       </div>
     </div>`;
   }).join('');
