@@ -81,6 +81,51 @@ function renderExerciseHistory(exName){
   }).join('');
 }
 
+function getRecentWorkoutSessions(){
+  const sessions={};
+  for(const exName in planState.history){
+    (planState.history[exName]||[]).forEach(entry=>{
+      if(!sessions[entry.date])sessions[entry.date]={date:entry.date,sets:[],volume:0};
+      sessions[entry.date].sets.push({exName,weight:entry.weight,reps:entry.reps});
+      sessions[entry.date].volume += (entry.weight||0)*(entry.reps||0);
+    });
+  }
+  return Object.values(sessions).sort((a,b)=>b.date.localeCompare(a.date));
+}
+
+function renderWorkoutHistoryPanel(){
+  const panel=document.getElementById('workout-history-panel');
+  if(!panel)return;
+  const recent=getRecentWorkoutSessions();
+  if(!recent.length){
+    panel.innerHTML=`<div class="history-empty">No workout history yet. Log a set to start tracking progress.</div>`;
+    return;
+  }
+  panel.innerHTML=recent.slice(0,3).map(sess=>{
+    const exercises={};
+    sess.sets.forEach(set=>{exercises[set.exName]=(exercises[set.exName]||0)+1;});
+    const exerciseSummary=Object.entries(exercises).map(([name,count])=>`<span class="history-tag">${name}×${count}</span>`).join(' ');
+    const top=sess.sets.reduce((best,set)=>e1rm(set.weight,set.reps)>e1rm(best.weight,best.reps)?set:best,sess.sets[0]);
+    return `<div class="history-card"><div class="history-date">${relDate(sess.date)}</div><div class="history-meta">${sess.sets.length} sets · ${Math.round(sess.volume)}kg volume · ${top.weight}kg×${top.reps} top</div><div class="history-row">${exerciseSummary}</div></div>`;
+  }).join('');
+}
+
+function renderWarmupBlock(session,day){
+  const container=document.getElementById('warmup-container');
+  if(!container){return;}
+  if(!session||session.isRest){container.innerHTML='';return;}
+  const rows=session.exercises.map((ex,i)=>{
+    const warmups=ex.warmups||1;
+    const completedEx=planState.completedSets?.[day]?.[i]||{warmup:[]};
+    const buttons=Array.from({length:warmups},(_,wi)=>{
+      const checked=completedEx.warmup.includes(wi);
+      return `<button class="warmup-step${checked?' checked':''}" onclick="markDone(this,'${day}',${i},'warmup',${wi})">${wi+1}</button>`;
+    }).join('');
+    return `<div class="warmup-ex-row"><div class="warmup-ex-name">${ex.name}</div><div class="warmup-step-row">${buttons}</div></div>`;
+  }).join('');
+  container.innerHTML=`<div class="warmup-block"><div class="slbl">Warm-up</div><div class="warmup-copy">Finish these warm-up sets before starting the working sets below.</div>${rows}</div>`;
+}
+
 function updateHomeSessionSummary(){
   const focus=document.getElementById('home-desc');
   const duration=document.getElementById('home-duration');
@@ -243,7 +288,7 @@ function pickForGroup(group,count){
   const cantDo=name=>prefs[name]==='cant';
   const isDisliked=name=>prefs[name]==='dislike';
   const eqOk=e=>equipment==='full'||(equipment==='dumbbells'&&(e.eq==='dumbbells'||e.eq==='home'))||(equipment==='home'&&e.eq==='home');
-  const pref=COACH_EX_PREF[activeCoach.id]||COACH_EX_PREF.aria;
+  const pref=COACH_EX_PREF[activeCoach.id]||COACH_EX_PREF.onyx;
   // 'cant' = hard exclude. 'dislike' = allowed but low priority
   let pool=EX_DB.filter(e=>e.group===group&&eqOk(e)&&!cantDo(e.name));
   if(!pool.length)return [];
@@ -508,6 +553,8 @@ function renderDayWorkout(day,el){
     }
   }
   updateHomeSessionSummary();
+  renderWarmupBlock(session,day);
+  renderWorkoutHistoryPanel();
   const container=document.getElementById('ex-container');
   if(!container)return;
   if(session.isRest){
@@ -520,9 +567,9 @@ function renderDayWorkout(day,el){
       zen:'Rest day. Move gently, breathe deeply, let the body speak. You do not always need iron to improve.',
       rex:'Rest day. Strength is built during recovery. Come back tomorrow ready to add weight to the bar.',
       blaze:'Rest day. Even the hardest athletes rest. Eat, sleep, recover — attack it harder tomorrow.',
-      aria:'Scheduled rest day. Your muscles are recovering and growing right now. Stay out of the gym.'
+      onyx:'Scheduled rest day. Your muscles are recovering and growing right now. Stay out of the gym.'
     };
-    const msg=restMessages[activeCoach.id]||restMessages.aria;
+    const msg=restMessages[activeCoach.id]||restMessages.onyx;
     container.innerHTML=`<div style="padding:40px 18px;text-align:center">
       <div style="font-family:var(--ff);font-size:36px;color:var(--muted);letter-spacing:2px;margin-bottom:10px">REST DAY</div>
       <div style="font-size:13px;color:var(--muted2);line-height:1.6;max-width:280px;margin:0 auto">${msg}</div>
@@ -537,29 +584,20 @@ function renderDayWorkout(day,el){
     const id=`ex-${day}-${i}`;
     const sId=`sets-${day}-${i}`;
     const typeBadge=ex.type==='compound'?'<span style="font-size:9px;font-weight:700;letter-spacing:1px;color:var(--gold);background:var(--gold-dim);padding:1px 6px;margin-left:6px">COMPOUND</span>':'';
-    const lastW=hist?.length?hist[hist.length-1].weight:null;
-    const warmupHint=lastW?Math.round(lastW*0.5/2.5)*2.5:null;
     const targetW=hist?.length?calcTargetWeight(ex.name):'';
     const completedDay=planState.completedSets?.[day]||{};
-  const completedEx=completedDay[i]||{warmup:[],work:[]};
-  const warmupRows=Array.from({length:ex.warmups||1},(_,wi)=>{
-    const checked=completedEx.warmup.includes(wi);
-    return `
-      <div class="set-cols warmup-row">
-        <div class="set-num" style="font-size:9px;line-height:1.1;text-align:center;color:var(--muted)">WARM<br>UP ${wi+1}</div>
-        <input class="si" type="number" inputmode="decimal" ${warmupHint?`placeholder="${warmupHint}"`:'placeholder="kg"'}  onchange="liveCalcFromWarmup(this,'${ex.name}','${day}',${i})"/>
-        <input class="si" type="number" inputmode="numeric" placeholder="${ex.warmups?ex.warmups:'1'} reps" onchange="liveCalcFromWarmup(this,'${ex.name}','${day}',${i})"/>
-        <div class="set-done${checked?' checked':''}" onclick="markDone(this,'${day}',${i},'warmup',${wi})"><i class="ti ti-check"></i></div>
-      </div>`;
-  }).join('');
+    const completedEx=completedDay[i]||{warmup:[],work:[]};
     const repRange=ex.repLo&&ex.repHi?`${ex.repLo}-${ex.repHi}`:ex.reps;
-    const workingRows=Array.from({length:ex.sets},(_,si)=>`
+    const workingRows=Array.from({length:ex.sets},(_,si)=>{
+      const checked=completedEx.work.includes(si);
+      return `
       <div class="set-cols">
         <div class="set-num">${si+1}</div>
         <input class="si" type="number" inputmode="decimal" ${targetW?`value="${targetW}"`:'placeholder="kg"'} oninput="this.dataset.auto=''"/>
         <input class="si" type="number" inputmode="numeric" placeholder="${repRange}" onchange="onRepEntered(this,'${ex.name}','${day}',${i})"/>
-        <div class="set-done" onclick="markDoneEx(this,'${ex.name}','${day}',${i})"><i class="ti ti-check"></i></div>
-      </div>`).join('');
+        <div class="set-done${checked?' checked':''}" onclick="markDoneEx(this,'${ex.name}','${day}',${i})"><i class="ti ti-check"></i></div>
+      </div>`;
+    }).join('');
     return `<div class="ex-block${i===0?' active-ex':''}" id="${id}">
       <div class="ex-hdr" onclick="toggleEx('${sId}','${id}')">
         <div><div class="ex-name">${ex.name.toUpperCase()}${typeBadge}</div><div class="ex-last">${lastStr}</div></div>
@@ -567,7 +605,7 @@ function renderDayWorkout(day,el){
       </div>
       <div class="sets-area${i===0?' open':''}" id="${sId}">
         <div class="set-cols"><div></div><div class="col-lbl">Weight (kg)</div><div class="col-lbl">Reps</div><div class="col-lbl">Done</div></div>
-        ${warmupRows}${workingRows}
+        ${workingRows}
         ${ex.cue?`<div style="font-size:11px;color:var(--muted);padding:8px 2px 0;line-height:1.5"><i class="ti ti-info-circle" style="font-size:12px;color:var(--gold)"></i> ${ex.cue}</div>`:''}
         <div class="coach-tip">
           <div class="coach-tip-name">${activeCoach.name}</div>
@@ -697,6 +735,7 @@ function markDoneEx(el,exName,day,idx){
     checkExerciseComplete(el,day,idx);
   }
   saveData();
+  renderWorkoutHistoryPanel();
 }
 
 function updateNextSet(currentRow,exName,w,r){
@@ -787,6 +826,17 @@ function markDone(el,day,exIndex,type,index){
   }
   checkExerciseComplete(el,day,exIndex);
   saveData();
+  renderWorkoutHistoryPanel();
+}
+
+function finishWorkout(){
+  const day=planState.currentDay||getTodayDay();
+  if(!day)return;
+  planState.sessionDone=planState.sessionDone||{};
+  planState.sessionDone[today()]=true;
+  saveData();
+  renderWorkoutHistoryPanel();
+  toast('Workout session marked complete.');
 }
 
 // ── REST TIMER ────────────────────────────────────────────────

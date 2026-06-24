@@ -1,9 +1,9 @@
 // ── COACHES ───────────────────────────────────────────────────
-let activeCoach=COACHES.aria;
+let activeCoach=COACHES.onyx;
 
 function renderCoachList(){
   const list=document.getElementById('coach-list');
-  const c=COACHES.aria;
+  const c=activeCoach||COACHES.onyx;
   list.innerHTML=`
     <div class="coach-row sel">
       <div class="coach-init" style="color:${c.color}">${c.init}</div>
@@ -11,7 +11,7 @@ function renderCoachList(){
       <div class="active-badge">ACTIVE</div>
     </div>
     <div style="padding:14px 18px;font-size:13px;color:var(--muted2);line-height:1.6">
-      Aria is the single adaptive coach in this version. All directives and workout guidance are consistent and data-driven.
+      Onyx is the single elite coach in this version. Directives and workout guidance are precise, consistent, and data-driven.
     </div>`;
   renderDirectiveBoard();
 }
@@ -26,10 +26,10 @@ function closeCoachDetail(){
 }
 
 function selectCoach(id){
-  if(id==='aria'){
-    toast('Aria is already your active coach.');
+  if(id==='onyx'){
+    toast('Onyx is already your active coach.');
   } else {
-    toast('Only the default adaptive coach is available in this version.');
+    toast('Only the default elite coach is available in this version.');
   }
 }
 

@@ -1,7 +1,7 @@
 const COACHES={
-  aria:{id:'aria',init:'AI',name:'ARIA',tag:'Your Adaptive Coach',color:'#F2AA4C',
-    bio:'Aria is Traine\'s default intelligence — a neutral, data-driven coach that adapts to every athlete. No ego, no extreme philosophy. Just clean analysis of your performance history and science-backed recommendations.',
-    philosophy:'Progressive overload, individual recovery, sustainable volume. Aria reads your data first, then speaks.',
+  onyx:{id:'onyx',init:'OX',name:'ONYX',tag:'Your Elite Coach',color:'#F2AA4C',
+    bio:'Onyx is Traine\'s elite adaptive coach — precise, consistent, and grounded in your performance history. No gimmicks, just real guidance based on your data.',
+    philosophy:'Progressive overload, individual recovery, sustainable volume. Onyx reads your data first, then speaks.',
     pillars:[{k:'Volume',v:'Evidence-based 10-20 sets per muscle per week'},{k:'Progression',v:'2.5-5% load increase when rep targets are hit'},{k:'Recovery',v:'Rest days guided by performance trends'},{k:'Frequency',v:'2x per muscle minimum per week'}],
     catchphrase:'Data first. Ego never.',
     responses:{

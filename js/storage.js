@@ -317,8 +317,7 @@ async function loadData(){
   initHome();
   const loggedIn=await initAuth();
   await loadData();
-  activeCoach=COACHES.aria;
-  state.activeCoach='aria';
+  initHome();
   renderCoachList();
   updateGender();
   initWorkoutPage();

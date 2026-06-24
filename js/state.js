@@ -2,7 +2,7 @@
 function pick(arr){if(!arr||!arr.length)return'';return arr[Math.floor(Math.random()*arr.length)];}
 // ── STATE ──────────────────────────────────────────────────────
 let state={
-  activeCoach:'aria',
+  activeCoach:'onyx',
   gender:'m',
   caliperMethod:3,
   measurements:{},

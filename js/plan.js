@@ -7,11 +7,11 @@ const COACH_VOLUME={
   marcus:{min:9,   opt:15,  max:21,  note:'Consistent moderate volume — same effort every session'},
   ford:  {min:10,  opt:16,  max:20,  note:'Evidence-based MEV to MAV range for hypertrophy'},
   zen:   {min:8,   opt:12,  max:16,  note:'Quality over quantity — controlled reps, full mind-muscle'},
-  aria:  {min:10,  opt:16,  max:20,  note:'Adaptive — balanced evidence-based volume targets'}
+  onyx:  {min:10,  opt:16,  max:20,  note:'Adaptive — balanced evidence-based volume targets'}
 };
 
 function coachVolConfig(){
-  return COACH_VOLUME[activeCoach.id]||COACH_VOLUME.aria;
+  return COACH_VOLUME[activeCoach.id]||COACH_VOLUME.onyx;
 }
 
 // Stall detection — same weight 3+ sessions on same exercise

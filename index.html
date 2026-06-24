@@ -39,11 +39,11 @@
     <div class="scard"><div class="scard-lbl">Body Weight</div><div class="scard-val" id="home-weight">—<span class="scard-unit">kg</span></div><div class="scard-sub" id="home-weight-sub" style="color:var(--muted)">Not logged</div></div>
     <div class="scard"><div class="scard-lbl">Recovery</div><div class="scard-val" id="home-rec">—<span class="scard-unit">%</span></div><div class="scard-sub" id="home-rec-status" style="color:var(--muted)">Log health data</div></div>
     <div class="scard"><div class="scard-lbl">Gym Streak</div><div class="scard-val" id="home-streak">0<span class="scard-unit">d</span></div><div class="scard-sub" style="color:var(--green)" id="home-streak-sub">Keep going!</div></div>
-    <div class="scard"><div class="scard-lbl">Active Coach</div><div class="scard-val" id="home-coach-name" style="font-size:18px;padding-top:4px">ARIA</div><div class="scard-sub" id="home-coach-tag" style="color:var(--muted)">Your Adaptive Coach</div></div>
+    <div class="scard"><div class="scard-lbl">Active Coach</div><div class="scard-val" id="home-coach-name" style="font-size:18px;padding-top:4px">ONYX</div><div class="scard-sub" id="home-coach-tag" style="color:var(--muted)">Your Elite Coach</div></div>
   </div>
   <div class="slbl">Coach Insight</div>
   <div class="insight-box">
-    <div class="insight-title" id="insight-coach-name">ARIA</div>
+    <div class="insight-title" id="insight-coach-name">ONYX</div>
     <div class="insight-item" id="insight-text">Start logging your workouts and I'll give you personalised advice based on your performance data.</div>
   </div>
   <div class="slbl">Quick Actions</div>
@@ -131,9 +131,12 @@
       </div>
     </div>
     <div class="day-row" id="day-row"></div>
+    <div id="warmup-container"></div>
     <div id="ex-container"></div>
     <button class="add-ex-btn" onclick="openPicker()"><i class="ti ti-plus"></i> Add Exercise</button>
     <button class="finish-btn" onclick="finishWorkout()">FINISH WORKOUT</button>
+    <div class="slbl">Workout History</div>
+    <div id="workout-history-panel" class="history-panel"></div>
     <div class="picker-overlay" id="ex-picker">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
         <div style="font-family:var(--ff);font-size:20px;color:var(--text);letter-spacing:.5px">ADD EXERCISE</div>
@@ -159,9 +162,9 @@
 <div class="page" id="pg-coach">
   <div id="coach-list-view">
     <div class="hdr">
-      <div><div class="hdr-title">COACHES</div><div class="hdr-sub">Your coach reads your data and tells you what to do</div></div>
+      <div><div class="hdr-title">COACH</div><div class="hdr-sub">Your coach reads your data and tells you exactly what to do</div></div>
     </div>
-    <div class="slbl">Today's Directive from <span id="directive-coach-lbl">ARIA</span></div>
+    <div class="slbl">Today's Directive from <span id="directive-coach-lbl">ONYX</span></div>
     <div id="directive-board" style="margin:0 18px 14px"></div>
     <div class="slbl">Ask Your Coach</div>
     <div style="padding:0 18px 4px;font-size:11px;color:var(--muted2);margin-bottom:6px">Your coach reads your actual workout data, recovery, and PRs to answer.</div>
