@@ -7,6 +7,7 @@ let planState={
   plan:null,// {Mon:{name,muscles,exercises:[{name,sets,reps,lastWeight,lastReps}]}}
   currentDay:null,
   history:{},// exName -> [{weight,reps,date}]
+  completedSets:{},// day -> exIndex -> {warmup:[idx],work:[idx]}
   sessionDone:{}// date -> true
 };
 
@@ -23,6 +24,18 @@ function groupHistoryByDate(exName){
     else sessions.push({date:e.date,sets:[{weight:e.weight,reps:e.reps}]});
   });
   return sessions;
+}
+
+// Estimate workout duration in minutes for the session
+function estimateWorkoutDuration(session){
+  if(!session||session.isRest)return 0;
+  const warmupSets = session.exercises.reduce((sum, ex)=>sum + (ex.warmups||0), 0);
+  const workingSets = session.exercises.reduce((sum, ex)=>sum + (ex.sets||0), 0);
+  const warmupTime = warmupSets * 1.5; // minutes per warmup set
+  const workTime = workingSets * 1.25; // minutes per working set
+  const restTime = workingSets * 1.5; // average rest time
+  const transition = 3; // setup + walk time
+  return Math.max(10, Math.round(warmupTime + workTime + restTime + transition));
 }
 
 // One-line summary of the most recent session: "60×11, 50×12, 50×11"
@@ -66,6 +79,24 @@ function renderExerciseHistory(exName){
       <div>${setStr}</div>
     </div>`;
   }).join('');
+}
+
+function updateHomeSessionSummary(){
+  const focus=document.getElementById('home-desc');
+  const duration=document.getElementById('home-duration');
+  const session=planState.plan?.[getTodayDay()];
+  if(!session){
+    if(focus)focus.textContent='Set up your training plan to see today’s session';
+    if(duration)duration.textContent='Start with the Workout tab to create your plan';
+    return;
+  }
+  if(session.isRest){
+    if(focus)focus.textContent='Rest day — recovery is part of the plan.';
+    if(duration)duration.textContent='Take a walk, stretch, and recover for tomorrow’s workout.';
+    return;
+  }
+  if(focus)focus.textContent=session.muscles.join(' · ');
+  if(duration)duration.textContent=`Estimated ${estimateWorkoutDuration(session)} min · ${session.exercises.length} exercises`;
 }
 
 function toggleHistory(exName,btnEl){
@@ -333,9 +364,10 @@ function buildPlanStructure(){
 function generatePlan(){
   planState.weekAnchor=new Date().getDay(); // fresh plan = fresh anchor
   planState.plan=buildPlanStructure();
-  // New users always start on the first training day, not whatever today is
+  // New users see the first scheduled training session, while returning users land on today's plan day.
   const isNewUser=!planState.hasSeenWorkoutGuide&&!state.hasSeenWorkoutGuide;
   planState.currentDay=isNewUser?getFirstTrainingDay(planState.plan):getTodayDay();
+  planState.daySelectedOn=today();
   saveData();
   showActivePlan();
   const showGuide=!planState.hasSeenWorkoutGuide&&!state.hasSeenWorkoutGuide;
@@ -388,20 +420,7 @@ function calcWeeklyVolume(){
 
 function getTodayDay(){
   const days=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-  const todayName=days[new Date().getDay()];
-  // If we have a plan, make sure we don't land on a rest day
-  if(planState.plan){
-    const todaySession=planState.plan[todayName];
-    if(todaySession&&!todaySession.isRest)return todayName;
-    // Find the next training day from today
-    const order=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
-    const todayIdx=order.indexOf(todayName);
-    for(let i=1;i<=7;i++){
-      const candidate=order[(todayIdx+i)%7];
-      if(planState.plan[candidate]&&!planState.plan[candidate].isRest)return candidate;
-    }
-  }
-  return todayName;
+  return days[new Date().getDay()];
 }
 
 // Also fix initialisation — when plan is first built, set currentDay to first training day
@@ -429,7 +448,7 @@ function showActivePlan(){
     const days=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
     const todayName=days[new Date().getDay()];
     const todaySession=planState.plan?.[todayName];
-    if(todaySession&&!todaySession.isRest){
+    if(todaySession){
       startDay=todayName;
     } else {
       startDay=getNextTrainingDay(todayName)||getFirstTrainingDay(planState.plan);
@@ -451,10 +470,10 @@ function getNextTrainingDay(fromDay){
 
 function renderDayRow(){
   const days=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
-  const today=getTodayDay();
+  const activeDay=planState.currentDay||getTodayDay();
   document.getElementById('day-row').innerHTML=days.map(d=>{
     const session=planState.plan?.[d];
-    const isToday=d===today;
+    const isToday=d===activeDay;
     const isRest=session?.isRest;
     return `<div class="dpill${isToday?' on':''}" onclick="renderDayWorkout('${d}',this)">${d}${isRest?'<br><span style="font-size:8px">REST</span>':''}</div>`;
   }).join('');
@@ -477,8 +496,18 @@ function renderDayWorkout(day,el){
   if(!session){return;}
   const sessionName=document.getElementById('wo-session-name');
   const dayLabel=document.getElementById('wo-day-label');
+  const metaEl=document.getElementById('wo-session-meta');
   if(sessionName)sessionName.textContent=session.name.toUpperCase();
   if(dayLabel)dayLabel.textContent=`${day} · ${session.isRest?'Rest Day':session.muscles.join(', ')||'Rest'}`;
+  if(metaEl){
+    if(session.isRest){
+      metaEl.textContent='Recovery-focused day — follow the plan and return refreshed.';
+    } else {
+      const warmupSets=session.exercises.reduce((sum,ex)=>sum+(ex.warmups||0),0);
+      metaEl.textContent=`Estimated ${estimateWorkoutDuration(session)} min · ${session.exercises.length} exercises · ${session.exercises.reduce((sum,ex)=>sum+(ex.sets||0),0)} working sets${warmupSets?` · ${warmupSets} warmup sets`:''}`;
+    }
+  }
+  updateHomeSessionSummary();
   const container=document.getElementById('ex-container');
   if(!container)return;
   if(session.isRest){
@@ -504,21 +533,25 @@ function renderDayWorkout(day,el){
     const hist=planState.history[ex.name];
     const _ls=lastSessionSummary(ex.name);
     const lastStr=_ls?`Last (${relDate(_ls.date)}): ${_ls.text}`:`${ex.sets} × ${ex.reps} reps · ${(ex.region||'').replace(/-/g,' ')}`;
-    const target=hist?.length?calcTarget(ex.name):`${ex.reps} REPS`;
+    const target=hist?.length?calcTarget(ex.name):`${ex.sets}×${ex.reps} target`;
     const id=`ex-${day}-${i}`;
     const sId=`sets-${day}-${i}`;
     const typeBadge=ex.type==='compound'?'<span style="font-size:9px;font-weight:700;letter-spacing:1px;color:var(--gold);background:var(--gold-dim);padding:1px 6px;margin-left:6px">COMPOUND</span>':'';
-    // Pre-fill warmup placeholder from history (50% of last working weight)
     const lastW=hist?.length?hist[hist.length-1].weight:null;
     const warmupHint=lastW?Math.round(lastW*0.5/2.5)*2.5:null;
     const targetW=hist?.length?calcTargetWeight(ex.name):'';
-    const warmupRows=Array.from({length:ex.warmups||1},(_,wi)=>`
+    const completedDay=planState.completedSets?.[day]||{};
+  const completedEx=completedDay[i]||{warmup:[],work:[]};
+  const warmupRows=Array.from({length:ex.warmups||1},(_,wi)=>{
+    const checked=completedEx.warmup.includes(wi);
+    return `
       <div class="set-cols warmup-row">
         <div class="set-num" style="font-size:9px;line-height:1.1;text-align:center;color:var(--muted)">WARM<br>UP ${wi+1}</div>
         <input class="si" type="number" inputmode="decimal" ${warmupHint?`placeholder="${warmupHint}"`:'placeholder="kg"'}  onchange="liveCalcFromWarmup(this,'${ex.name}','${day}',${i})"/>
-        <input class="si" type="number" inputmode="numeric" placeholder="reps" onchange="liveCalcFromWarmup(this,'${ex.name}','${day}',${i})"/>
-        <div class="set-done" onclick="markDone(this)"><i class="ti ti-check"></i></div>
-      </div>`).join('');
+        <input class="si" type="number" inputmode="numeric" placeholder="${ex.warmups?ex.warmups:'1'} reps" onchange="liveCalcFromWarmup(this,'${ex.name}','${day}',${i})"/>
+        <div class="set-done${checked?' checked':''}" onclick="markDone(this,'${day}',${i},'warmup',${wi})"><i class="ti ti-check"></i></div>
+      </div>`;
+  }).join('');
     const repRange=ex.repLo&&ex.repHi?`${ex.repLo}-${ex.repHi}`:ex.reps;
     const workingRows=Array.from({length:ex.sets},(_,si)=>`
       <div class="set-cols">
@@ -547,39 +580,41 @@ function renderDayWorkout(day,el){
 }
 
 function calcTargetWeight(name){
-  const hist=planState.history[name];
-  if(!hist?.length)return'';
-  const last=hist[hist.length-1];
+  const sessions=groupHistoryByDate(name);
+  if(!sessions.length)return'';
+  const last=sessions[sessions.length-1];
+  const topSet=last.sets.reduce((b,s)=>e1rm(s.weight,s.reps)>e1rm(b.weight,b.reps)?s:b,last.sets[0]);
   const goal=planState.goal||'mass';
   const rules=GOAL_RULES[goal]||GOAL_RULES.mass;
   const{increaseAt,dropBelow}=rules;
-  if(last.reps>=increaseAt){
+  if(topSet.reps>=increaseAt){
     const s=getIncrement(name,goal,'up');
-    return(last.weight+s).toFixed(1);
+    return(topSet.weight+s).toFixed(1);
   }
-  if(last.reps<dropBelow){
+  if(topSet.reps<dropBelow){
     const d=getIncrement(name,goal,'drop');
-    return Math.max(0,last.weight-d).toFixed(1);
+    return Math.max(0,topSet.weight-d).toFixed(1);
   }
-  return last.weight.toFixed(1);
+  return topSet.weight.toFixed(1);
 }
 
 function calcTarget(name){
-  const hist=planState.history[name];
-  if(!hist?.length)return'NEW';
-  const last=hist[hist.length-1];
+  const sessions=groupHistoryByDate(name);
+  if(!sessions.length)return null;
+  const last=sessions[sessions.length-1];
+  const topSet=last.sets.reduce((b,s)=>e1rm(s.weight,s.reps)>e1rm(b.weight,b.reps)?s:b,last.sets[0]);
   const goal=planState.goal||'mass';
   const rules=GOAL_RULES[goal]||GOAL_RULES.mass;
   const{increaseAt,dropBelow}=rules;
-  if(last.reps>=increaseAt){
+  if(topSet.reps>=increaseAt){
     const s=getIncrement(name,goal,'up');
-    return`ADD ${s}kg → ${(last.weight+s).toFixed(1)}kg`;
+    return`ADD ${s}kg → ${(topSet.weight+s).toFixed(1)}kg`;
   }
-  if(last.reps<dropBelow){
+  if(topSet.reps<dropBelow){
     const d=getIncrement(name,goal,'drop');
-    return`DROP → ${Math.max(0,last.weight-d).toFixed(1)}kg`;
+    return`DROP → ${Math.max(0,topSet.weight-d).toFixed(1)}kg`;
   }
-  const needed=increaseAt-last.reps;
+  const needed=increaseAt-topSet.reps;
   return`+${needed} REPS TO PROGRESS`;
 }
 
@@ -630,6 +665,18 @@ function markDoneEx(el,exName,day,idx){
   const r=parseInt(inputs[1]?.value)||0;
   const isWarmup=row&&(row.classList.contains('warmup-row')||row.querySelector('.set-num')?.textContent.trim().startsWith('W'));
 
+  const dayState=planState.completedSets=planState.completedSets||{};
+  const exState=dayState[day]=dayState[day]||{};
+  const rowState=exState[idx]=exState[idx]||{warmup:[],work:[]};
+  const workRows=[...row.closest('.sets-area')?.querySelectorAll('.set-cols')||[]].filter(rw=>!rw.classList.contains('warmup-row')&&rw.querySelector('.set-done'));
+  const setIndex=workRows.indexOf(row);
+  if(el.classList.contains('checked')){
+    if(setIndex>=0&&!rowState.work.includes(setIndex))rowState.work.push(setIndex);
+  } else {
+    const pos=rowState.work.indexOf(setIndex);
+    if(pos!==-1)rowState.work.splice(pos,1);
+  }
+
   if(el.classList.contains('checked')){
     // Save data for working sets only
     if(!isWarmup&&r&&!isNaN(parseFloat(inputs[0]?.value))){
@@ -643,13 +690,13 @@ function markDoneEx(el,exName,day,idx){
         state.prs[exName]={weight:w,reps:r,e1rm:est,date:today()};
         toast('🏆 PR: '+exName+' '+w+'kg × '+r+' reps');
       }
-      saveData();
       updateNextSet(row,exName,w,r);
     }
     startRestTimer(isWarmup?'Warm-up set':exName,r||10);
     // Check if exercise is fully done — works even if w/r empty
     checkExerciseComplete(el,day,idx);
   }
+  saveData();
 }
 
 function updateNextSet(currentRow,exName,w,r){
@@ -723,11 +770,23 @@ function checkExerciseComplete(doneEl,day,idx){
 }
 
 // Warmup sets — mark done + short timer
-function markDone(el){
+function markDone(el,day,exIndex,type,index){
   el.classList.toggle('checked');
+  if(!planState.completedSets)planState.completedSets={};
+  const dayState=planState.completedSets[day]=planState.completedSets[day]||{};
+  const exState=dayState[exIndex]=dayState[exIndex]||{warmup:[],work:[]};
+  const list=type==='warmup'?exState.warmup:exState.work;
+  if(el.classList.contains('checked')){
+    if(!list.includes(index))list.push(index);
+  } else {
+    const pos=list.indexOf(index);
+    if(pos!==-1)list.splice(pos,1);
+  }
   if(el.classList.contains('checked')){
     startRestTimer('Warm-up set',15);
   }
+  checkExerciseComplete(el,day,exIndex);
+  saveData();
 }
 
 // ── REST TIMER ────────────────────────────────────────────────

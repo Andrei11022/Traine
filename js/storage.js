@@ -317,13 +317,19 @@ async function loadData(){
   initHome();
   const loggedIn=await initAuth();
   await loadData();
+  activeCoach=COACHES.aria;
+  state.activeCoach='aria';
   renderCoachList();
   updateGender();
   initWorkoutPage();
+  updateHomeSessionSummary();
   checkGoalResets();
   renderDirectiveBoard();
   initUnitUI();
   updateProgressBar();
+  window.addEventListener('pagehide', saveData);
+  window.addEventListener('beforeunload', saveData);
+  window.addEventListener('visibilitychange', ()=>{ if(document.visibilityState==='hidden')saveData(); });
   if(!planState.plan&&!state.weight&&!state.hasSeenWelcome){
     state.hasSeenWelcome=true;
     saveData();

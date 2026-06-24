@@ -3,37 +3,21 @@ let activeCoach=COACHES.aria;
 
 function renderCoachList(){
   const list=document.getElementById('coach-list');
-  list.innerHTML=Object.values(COACHES).map(c=>`
-    <div class="coach-row${c.id===activeCoach.id?' sel':''}" onclick="openCoachDetail('${c.id}')" id="crow-${c.id}">
+  const c=COACHES.aria;
+  list.innerHTML=`
+    <div class="coach-row sel">
       <div class="coach-init" style="color:${c.color}">${c.init}</div>
       <div style="flex:1;min-width:0"><div class="coach-rname">${c.name}</div><div class="coach-rtag">${c.tag}</div></div>
-      ${c.id===activeCoach.id?'<div class="active-badge">ACTIVE</div>':'<i class="ti ti-chevron-right" style="font-size:16px;color:var(--muted)"></i>'}
-    </div>`).join('');
+      <div class="active-badge">ACTIVE</div>
+    </div>
+    <div style="padding:14px 18px;font-size:13px;color:var(--muted2);line-height:1.6">
+      Aria is the single adaptive coach in this version. All directives and workout guidance are consistent and data-driven.
+    </div>`;
   renderDirectiveBoard();
 }
 
 function openCoachDetail(id){
-  const c=COACHES[id];
-  document.getElementById('coach-list-view').style.display='none';
-  document.getElementById('coach-detail-view').style.display='block';
-  document.getElementById('cdetail-content').innerHTML=`
-    <div class="cdetail-top">
-      <div class="cdetail-init" style="color:${c.color}">${c.init}</div>
-      <div class="cdetail-name">${c.name}</div>
-      <div class="cdetail-tag">${c.tag}</div>
-    </div>
-    <div class="cdetail-body">
-      <div class="cdetail-sec-lbl">About</div>
-      <div class="cdetail-text">${c.bio}</div>
-      <div class="cdetail-sec-lbl">Philosophy</div>
-      <div class="cdetail-text">${c.philosophy}</div>
-      <div class="cdetail-sec-lbl">Training Pillars</div>
-      ${c.pillars.map(p=>`<div class="pillar"><strong>${p.k}:</strong> ${p.v}</div>`).join('')}
-      <div class="cdetail-sec-lbl" style="margin-top:18px">Signature</div>
-      <div style="font-size:13px;color:var(--gold);font-style:italic;line-height:1.6">"${c.catchphrase}"</div>
-    </div>
-    <button class="select-coach-btn" onclick="selectCoach('${id}')">SELECT ${c.name}</button>`;
-  window.scrollTo(0,0);
+  // Coach detail view is disabled in the simplified experience.
 }
 
 function closeCoachDetail(){
@@ -42,24 +26,11 @@ function closeCoachDetail(){
 }
 
 function selectCoach(id){
-  const prevCoach=activeCoach?activeCoach.id:null;
-  activeCoach=COACHES[id];
-  state.activeCoach=id;
-  document.getElementById('home-coach-name').textContent=activeCoach.name;
-  document.getElementById('home-coach-tag').textContent=activeCoach.tag;
-  document.getElementById('insight-coach-name').textContent=activeCoach.name;
-  document.getElementById('insight-text').textContent=generateInsight();
-  renderCoachList();
-  renderDirectiveBoard();
-  closeCoachDetail();
-  // Rebuild plan with new coach's set/rep scheme but KEEP history
-  if(planState.plan&&prevCoach&&prevCoach!==id){
-    rebuildPlanKeepHistory();
-    toast('Coach switched to '+activeCoach.name+' — plan rebuilt, history kept');
+  if(id==='aria'){
+    toast('Aria is already your active coach.');
   } else {
-    toast('Coach switched to '+activeCoach.name);
+    toast('Only the default adaptive coach is available in this version.');
   }
-  saveData();
 }
 
 // Generate a directive based on the user's ACTUAL data
