@@ -109,8 +109,24 @@ html,body{background:var(--bg);color:var(--text);font-family:var(--fb);max-width
 .warmup-step-row{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
 .warmup-step{background:var(--bg3);color:var(--muted);border:1px solid rgba(255,255,255,0.08);padding:8px 10px;font-size:12px;cursor:pointer;transition:all .15s}
 .warmup-step.checked{background:var(--gold);color:var(--bg);border-color:var(--gold)}
+.quick-move-card{background:var(--bg2);border:1px solid rgba(255,255,255,0.08);padding:16px 16px 14px;margin:18px;border-radius:0}
+.quick-move-label{font-size:10px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.quick-move-text{font-size:14px;color:var(--text);line-height:1.6}
 .history-panel{display:grid;grid-template-columns:1fr;gap:10px;margin:0 18px 18px}
+.history-panel-toggle{background:var(--bg2);border:1px solid rgba(255,255,255,0.08);padding:14px 16px;display:flex;justify-content:space-between;align-items:center;cursor:pointer}
+.history-panel-title{font-size:12px;font-weight:700;color:var(--gold)}
+.history-panel-count{font-size:11px;color:var(--muted)}
+.history-panel-arrow{font-size:18px;line-height:1}
 .history-card{background:var(--bg2);border:1px solid rgba(255,255,255,0.08);padding:14px 16px}
+.session-card{border-left:2px solid rgba(255,255,255,0.05)}
+.session-card-summary{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.session-toggle-btn{background:none;border:none;color:var(--gold);font-size:12px;cursor:pointer;font-weight:700;padding:0}
+.session-details{margin-top:10px;border-top:1px solid rgba(255,255,255,0.06);padding-top:10px}
+.session-ex-card{margin-bottom:8px}
+.session-ex-header{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:6px}
+.session-ex-header div{font-size:13px;font-weight:700}
+.session-trend{font-size:11px;color:var(--muted);font-weight:500}
+.session-set-row{font-size:12px;color:var(--muted);padding:4px 0}
 .history-date{font-size:12px;font-weight:700;color:var(--gold);margin-bottom:6px}
 .history-meta{font-size:11px;color:var(--muted);margin-bottom:10px}
 .history-row{display:flex;flex-wrap:wrap;gap:6px}

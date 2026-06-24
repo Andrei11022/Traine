@@ -8,6 +8,7 @@ let planState={
   currentDay:null,
   history:{},// exName -> [{weight,reps,date}]
   completedSets:{},// day -> exIndex -> {warmup:[idx],work:[idx]}
+  pendingSets:{},// day -> exIndex -> {warmup:[{weight,reps}],work:[{weight,reps}]}
   sessionDone:{}// date -> true
 };
 
@@ -101,13 +102,15 @@ function renderWorkoutHistoryPanel(){
     panel.innerHTML=`<div class="history-empty">No workout history yet. Log a set to start tracking progress.</div>`;
     return;
   }
-  panel.innerHTML=recent.slice(0,3).map(sess=>{
-    const exercises={};
-    sess.sets.forEach(set=>{exercises[set.exName]=(exercises[set.exName]||0)+1;});
-    const exerciseSummary=Object.entries(exercises).map(([name,count])=>`<span class="history-tag">${name}×${count}</span>`).join(' ');
-    const top=sess.sets.reduce((best,set)=>e1rm(set.weight,set.reps)>e1rm(best.weight,best.reps)?set:best,sess.sets[0]);
-    return `<div class="history-card"><div class="history-date">${relDate(sess.date)}</div><div class="history-meta">${sess.sets.length} sets · ${Math.round(sess.volume)}kg volume · ${top.weight}kg×${top.reps} top</div><div class="history-row">${exerciseSummary}</div></div>`;
-  }).join('');
+  const open=workoutHistoryOpen;
+  const header=`<div class="history-panel-toggle" onclick="toggleWorkoutHistoryPanel()">
+      <div><span class="history-panel-title">Workout History</span><span class="history-panel-count">${recent.length} sessions logged</span></div>
+      <div id="history-panel-arrow" class="history-panel-arrow">${open?'−':'+'}</div>
+    </div>`;
+  const body=`<div id="workout-history-body" class="history-panel-body" style="display:${open?'block':'none'}">
+      ${recent.slice(0,3).map(sess=>renderSessionCard(sess)).join('')}
+    </div>`;
+  panel.innerHTML=header+body;
 }
 
 function renderWarmupBlock(session,day){
@@ -126,6 +129,22 @@ function renderWarmupBlock(session,day){
   container.innerHTML=`<div class="warmup-block"><div class="slbl">Warm-up</div><div class="warmup-copy">Finish these warm-up sets before starting the working sets below.</div>${rows}</div>`;
 }
 
+function renderQuickMove(session){
+  const container=document.getElementById('quick-move-container');
+  if(!container){return;}
+  if(!session||session.isRest){container.innerHTML='';return;}
+  const prompts=[
+    'Do 20 push-ups with strict form.',
+    'Hold a plank for 45 seconds.',
+    'Do 30 seconds of hip opener stretches.',
+    'Do 15 slow air squats.',
+    'Perform 10 slow lunges per side.',
+    'Hold a wall sit for 45 seconds.',
+    'Do 30 seconds of shoulder dislocations with a band or broomstick.'
+  ];
+  container.innerHTML=`<div class="quick-move-card"><div class="quick-move-label">Quick Move</div><div class="quick-move-text">${pick(prompts)}</div></div>`;
+}
+
 function updateHomeSessionSummary(){
   const focus=document.getElementById('home-desc');
   const duration=document.getElementById('home-duration');
@@ -142,6 +161,73 @@ function updateHomeSessionSummary(){
   }
   if(focus)focus.textContent=session.muscles.join(' · ');
   if(duration)duration.textContent=`Estimated ${estimateWorkoutDuration(session)} min · ${session.exercises.length} exercises`;
+}
+
+let workoutHistoryOpen=false;
+
+function toggleWorkoutHistoryPanel(){
+  const body=document.getElementById('workout-history-body');
+  const arrow=document.getElementById('history-panel-arrow');
+  if(!body||!arrow)return;
+  workoutHistoryOpen=!workoutHistoryOpen;
+  body.style.display=workoutHistoryOpen?'block':'none';
+  arrow.textContent=workoutHistoryOpen?'−':'+';
+}
+
+function toggleSessionDetails(date){
+  const details=document.getElementById('session-details-'+date.replace(/[^a-zA-Z0-9]/g,''));
+  const button=document.getElementById('session-toggle-'+date.replace(/[^a-zA-Z0-9]/g,''));
+  if(!details||!button)return;
+  const open=details.style.display==='block';
+  details.style.display=open?'none':'block';
+  button.textContent=open?'Details':'Hide details';
+}
+
+function getPendingSet(day,exIdx,type,setIdx){
+  return planState.pendingSets?.[day]?.[exIdx]?.[type]?.[setIdx]||{};
+}
+
+function saveSetInput(el,day,exIdx,setIdx,type){
+  const row=el.closest('.set-cols');
+  if(!row)return;
+  const inputs=row.querySelectorAll('.si');
+  const weight=inputs[0]?.value?parseFloat(inputs[0].value):null;
+  const reps=inputs[1]?.value?parseInt(inputs[1].value):null;
+  planState.pendingSets=planState.pendingSets||{};
+  const dayState=planState.pendingSets[day]=planState.pendingSets[day]||{};
+  const exState=dayState[exIdx]=dayState[exIdx]||{warmup:[],work:[]};
+  exState[type]=exState[type]||[];
+  exState[type][setIdx]={weight:weight, reps:reps};
+  saveData();
+}
+
+function renderSessionCard(sess){
+  const exercises={};
+  sess.sets.forEach(set=>{(exercises[set.exName]=exercises[set.exName]||[]).push(set);});
+  const sessionId=sess.date.replace(/[^a-zA-Z0-9]/g,'');
+  const exerciseRows=Object.entries(exercises).map(([name,sets])=>{
+    const topCurrent=sets.reduce((best,s)=>e1rm(s.weight,s.reps)>e1rm(best.weight,best.reps)?s:best,sets[0]);
+    const trend=compareExerciseTrend(name,sess.date,topCurrent);
+    const trendText=trend?`<span class="session-trend">${trend}</span>`:'';
+    const setRows=sets.map((s,idx)=>`<div class="session-set-row">Set ${idx+1}: ${s.weight}kg × ${s.reps}</div>`).join('');
+    return `<div class="session-ex-card"><div class="session-ex-header"><div>${name}</div>${trendText}</div>${setRows}</div>`;
+  }).join('');
+  const top=sess.sets.reduce((best,set)=>e1rm(set.weight,set.reps)>e1rm(best.weight,best.reps)?set:best,sess.sets[0]);
+  return `<div class="history-card session-card"><div class="session-card-summary"><div><div class="history-date">${relDate(sess.date)}</div><div class="history-meta">${sess.sets.length} sets · ${Math.round(sess.volume)}kg volume · ${top.weight}kg×${top.reps} top</div></div><button class="session-toggle-btn" id="session-toggle-${sessionId}" onclick="toggleSessionDetails('${sess.date}')">Details</button></div><div id="session-details-${sessionId}" class="session-details" style="display:none">${exerciseRows}</div></div>`;
+}
+
+function compareExerciseTrend(exName,currentDate,topCurrent){
+  const sessions=getRecentWorkoutSessions().filter(s=>s.date<currentDate && s.sets.some(set=>set.exName===exName));
+  if(!sessions.length)return null;
+  const older=sessions[2]||sessions[0];
+  const prior=older.sets.filter(set=>set.exName===exName);
+  if(!prior.length)return null;
+  const topPrior=prior.reduce((best,s)=>e1rm(s.weight,s.reps)>e1rm(best.weight,best.reps)?s:best,prior[0]);
+  const diffWeight=topCurrent.weight-topPrior.weight;
+  const diffReps=topCurrent.reps-topPrior.reps;
+  const signW=diffWeight>=0?'+':'−';
+  const signR=diffReps>=0?'+':'−';
+  return `${signW}${Math.abs(diffWeight)}kg ${signR}${Math.abs(diffReps)} reps vs ${sessions[2]? '3 sessions ago':'last session'}`;
 }
 
 function toggleHistory(exName,btnEl){
@@ -554,6 +640,7 @@ function renderDayWorkout(day,el){
   }
   updateHomeSessionSummary();
   renderWarmupBlock(session,day);
+  renderQuickMove(session);
   renderWorkoutHistoryPanel();
   const container=document.getElementById('ex-container');
   if(!container)return;
@@ -590,11 +677,14 @@ function renderDayWorkout(day,el){
     const repRange=ex.repLo&&ex.repHi?`${ex.repLo}-${ex.repHi}`:ex.reps;
     const workingRows=Array.from({length:ex.sets},(_,si)=>{
       const checked=completedEx.work.includes(si);
+      const pending=getPendingSet(day,i,'work',si);
+      const weightValue=pending?.weight!=null?pending.weight:(targetW||'');
+      const repsValue=pending?.reps!=null?pending.reps:'';
       return `
       <div class="set-cols">
         <div class="set-num">${si+1}</div>
-        <input class="si" type="number" inputmode="decimal" ${targetW?`value="${targetW}"`:'placeholder="kg"'} oninput="this.dataset.auto=''"/>
-        <input class="si" type="number" inputmode="numeric" placeholder="${repRange}" onchange="onRepEntered(this,'${ex.name}','${day}',${i})"/>
+        <input class="si" type="number" inputmode="decimal" ${weightValue!==''?`value="${weightValue}"`:'placeholder="kg"'} oninput="saveSetInput(this,'${day}',${i},${si},'work')"/>
+        <input class="si" type="number" inputmode="numeric" ${repsValue!==''?`value="${repsValue}"`:`placeholder="${repRange}"`} onchange="onRepEntered(this,'${ex.name}','${day}',${i})" oninput="saveSetInput(this,'${day}',${i},${si},'work')"/>
         <div class="set-done${checked?' checked':''}" onclick="markDoneEx(this,'${ex.name}','${day}',${i})"><i class="ti ti-check"></i></div>
       </div>`;
     }).join('');
