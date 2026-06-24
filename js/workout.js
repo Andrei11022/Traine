@@ -113,36 +113,16 @@ function renderWorkoutHistoryPanel(){
   panel.innerHTML=header+body;
 }
 
-function renderWarmupBlock(session,day){
+function renderWarmupBlock(session){
   const container=document.getElementById('warmup-container');
   if(!container){return;}
   if(!session||session.isRest){container.innerHTML='';return;}
-  const rows=session.exercises.map((ex,i)=>{
-    const warmups=ex.warmups||1;
-    const completedEx=planState.completedSets?.[day]?.[i]||{warmup:[]};
-    const buttons=Array.from({length:warmups},(_,wi)=>{
-      const checked=completedEx.warmup.includes(wi);
-      return `<button class="warmup-step${checked?' checked':''}" onclick="markDone(this,'${day}',${i},'warmup',${wi})">${wi+1}</button>`;
-    }).join('');
-    return `<div class="warmup-ex-row"><div class="warmup-ex-name">${ex.name}</div><div class="warmup-step-row">${buttons}</div></div>`;
-  }).join('');
-  container.innerHTML=`<div class="warmup-block"><div class="slbl">Warm-up</div><div class="warmup-copy">Finish these warm-up sets before starting the working sets below.</div>${rows}</div>`;
-}
-
-function renderQuickMove(session){
-  const container=document.getElementById('quick-move-container');
-  if(!container){return;}
-  if(!session||session.isRest){container.innerHTML='';return;}
-  const prompts=[
-    'Do 20 push-ups with strict form.',
-    'Hold a plank for 45 seconds.',
-    'Do 30 seconds of hip opener stretches.',
-    'Do 15 slow air squats.',
-    'Perform 10 slow lunges per side.',
-    'Hold a wall sit for 45 seconds.',
-    'Do 30 seconds of shoulder dislocations with a band or broomstick.'
-  ];
-  container.innerHTML=`<div class="quick-move-card"><div class="quick-move-label">Quick Move</div><div class="quick-move-text">${pick(prompts)}</div></div>`;
+  const lowerMuscles=['legs','quads','hamstrings','glutes','calves'];
+  const isLower=session.muscles?.some(m=>lowerMuscles.includes(m.toLowerCase()));
+  const warmupText=isLower
+    ? 'Warm-up: 5 min bike or 5 min treadmill, then hip openers, leg swings, and bodyweight squats to prime your lower body.'
+    : 'Warm-up: 2 rounds of shoulder circles, band pull-aparts, arm swings, and 10 bodyweight push-ups to prime your upper body.';
+  container.innerHTML=`<div class="warmup-card"><div class="warmup-label">Warm-up</div><div class="warmup-text">${warmupText}</div></div>`;
 }
 
 function updateHomeSessionSummary(){
@@ -639,8 +619,7 @@ function renderDayWorkout(day,el){
     }
   }
   updateHomeSessionSummary();
-  renderWarmupBlock(session,day);
-  renderQuickMove(session);
+  renderWarmupBlock(session);
   renderWorkoutHistoryPanel();
   const container=document.getElementById('ex-container');
   if(!container)return;
